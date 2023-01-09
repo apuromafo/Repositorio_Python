@@ -19,7 +19,7 @@ m= HH.minute
 print("Son las :  ",H, ":" ,m)
 if (H>=0 and m<= 59 )  and  (H<= 11  and m<=59):
     print ("Buenos días!!" )
-elif (H>=12 and m<59) and (h<17   and m<=59):
+elif (H>=12 and m<59) and (h<=17   and m<=59):
     print ("Buenas tardes!!")
 else:
     print("Buenas Noches!!")
