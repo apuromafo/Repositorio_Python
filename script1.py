@@ -9,6 +9,9 @@ Mañana: del amanecer al mediodía (00:00 – 12:00)
 Tarde: del mediodía al atardecer (12:00 – 18.00)
  Noche: del atardecer a la medianoche (18.00 – 24:00)
 """
+#!/usr/bin/python3
+
+
 import datetime as d
 
 HH = d.datetime.now()
