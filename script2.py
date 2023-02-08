@@ -55,26 +55,17 @@ import datetime
 #zona configuración
 #nombre usuario administrador
 nombre_admin_sistema="administrador"
-#nombre base de datos con datos de usuarios
-nombre_archivo_usuarios="usuarios"
-#
+#nombre base de datos con datos de usuarios ejemplo claves.txt , usuarios, (nombre que se desee)
+nombre_archivo_usuario_clave="usuarios"
+global usuariologed
+usuariologed = ''
 
-
-
-# Función para verificar el acceso del usuario
-def verificar_acceso(usuario, clave):
-    # Verifica si el usuario y clave están en el archivo indicado
-    if os.path.exists(nombre_archivo_usuarios):
-        with open(nombre_archivo_usuarios) as f:
-            for linea in f:
-                nombre, contrasena = linea.strip().split(":")
-                if nombre == usuario and contrasena == clave:
-                    return True
-    return False
 
 # Función para mostrar el menú principal
 def menu_principal():
+    
     while True:
+        claves = leer_claves()
         print("Bienvenido a Empresa 1.0 ")
         print("control de calendarios")
         print("--- Menú Principal ---")
@@ -84,9 +75,54 @@ def menu_principal():
             if usuario == nombre_admin_sistema:
                 menu_administrador()
             else:
+                usuariologed == usuario
                 menu_usuario()
         else:
             print("Acceso denegado.")
+
+
+# Función para cambiar la clave de un usuario
+def cambiar_clave(usuario, claves):
+    clave_actual = input("Ingrese su clave actual: ")
+    if clave_actual == claves[usuario]:
+        nueva_clave = input("Ingrese su nueva clave: ")
+        confirmar_clave = input("Confirme su nueva clave: ")
+        if nueva_clave == confirmar_clave:
+            claves[usuario] = nueva_clave
+            # Guardar las claves en el archivo
+            with open(nombre_archivo_usuario_clave, "w") as archivo:
+                for usuario, clave in claves.items():
+                    archivo.write("{}:{}\n".format(usuario, clave))
+            print("Clave cambiada con éxito.")
+        else:
+            print("Las claves no coinciden.")
+    else:
+        print("Clave incorrecta.")
+
+
+def verificar_acceso(usuario, clave):
+    # Verifica si el usuario y clave están en el archivo nombre_archivo_usuario_clave
+    if os.path.exists(nombre_archivo_usuario_clave):
+        with open(nombre_archivo_usuario_clave) as f:
+            for linea in f:
+                nombre, contrasena = linea.strip().split(":")
+                if nombre == usuario and contrasena == clave:
+                    return True
+    return False
+
+# Leer las claves del archivo
+def leer_claves():
+    claves = {}
+    with open(nombre_archivo_usuario_clave, "r") as archivo:
+        for linea in archivo:
+            usuario, clave = linea.strip().split(":")
+            claves[usuario] = clave
+    return claves
+
+# ...
+
+# Se cargan las claves al iniciar el programa
+
 
 # Función para mostrar el menú de administrador
 def menu_administrador():
@@ -137,6 +173,7 @@ def menu_administrador():
 def menu_usuario():
     while True:
         print("--- Menú Usuario ---")
+        print("bienvenido"+ usuariologed)
         print("1. Ver calendario laboral")
         print("2. Solicitar día libre dd-mm-aaaa")
         print("3. Ver feriados del mes actual ")
@@ -156,10 +193,11 @@ def menu_usuario():
             # Aquí puedes añadir los feriados para el mes actual
         elif opcion == 4:
             # Cambiar clave
+            cambiar_clave(usuariologed, claves)
             pass
         elif opcion == 5:
             break
 
 # Llamada a la función para mostrar el menú principal
-menu_principal()
 
+menu_principal()
