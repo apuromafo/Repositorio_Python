@@ -49,4 +49,117 @@ solicitar día libre
 ver feriados del mes actual
 cambio de clave
 salir
+"""
+import os
+import datetime
+#zona configuración
+#nombre usuario administrador
+nombre_admin_sistema="administrador"
+#nombre base de datos con datos de usuarios
+nombre_archivo_usuarios="usuarios"
+#
+
+
+
+# Función para verificar el acceso del usuario
+def verificar_acceso(usuario, clave):
+    # Verifica si el usuario y clave están en el archivo indicado
+    if os.path.exists(nombre_archivo_usuarios):
+        with open(nombre_archivo_usuarios) as f:
+            for linea in f:
+                nombre, contrasena = linea.strip().split(":")
+                if nombre == usuario and contrasena == clave:
+                    return True
+    return False
+
+# Función para mostrar el menú principal
+def menu_principal():
+    while True:
+        print("Bienvenido a Empresa 1.0 ")
+        print("control de calendarios")
+        print("--- Menú Principal ---")
+        usuario = input("Usuario: ")
+        clave = input("Clave: ")
+        if verificar_acceso(usuario, clave):
+            if usuario == nombre_admin_sistema:
+                menu_administrador()
+            else:
+                menu_usuario()
+        else:
+            print("Acceso denegado.")
+
+# Función para mostrar el menú de administrador
+def menu_administrador():
+    while True:
+        print("--- Menú Administrador ---")
+        print("1. Ver calendario laboral ADMIN")
+        print("2. Ver calendario laboral de otro usuario")
+        print("3. Ver calendario laboral de todos los usuarios")
+        print("4. Ver calendario del año")
+        print("5. Ver calendario del mes")
+        print("6. Ver días feriado")
+        print("7. Ver calendario por fecha dada")
+        print("8. Ver sugerencias desde usuarios")
+        print("9. Cambiar clave de el o de otros usuarios")
+        print("10. Salir")
+        opcion = int(input("Seleccione una opción: "))
+        if opcion == 1:
+            # Ver calendario laboral de el ADMIN
+            pass
+        elif opcion == 2:
+            # Ver calendario laboral de otro usuario
+            pass
+        elif opcion == 3:
+            # Ver calendario laboral de todos los usuarios
+            pass
+        elif opcion == 4:
+            # Ver calendario del año
+            pass
+        elif opcion == 5:
+            # Ver calendario del mes
+            pass
+        elif opcion == 6:
+            # Ver días feriado
+            pass
+        elif opcion == 7:
+            # Ver calendario por fecha dada
+            pass
+        elif opcion == 8:
+            # Ver sugerencias desde usuarios
+            pass
+        elif opcion == 9:
+            # Cambiar clave de el o de otros usuarios
+            pass
+        elif opcion == 10:
+            break
+
+# Función para mostrar el menú de usuario
+def menu_usuario():
+    while True:
+        print("--- Menú Usuario ---")
+        print("1. Ver calendario laboral")
+        print("2. Solicitar día libre dd-mm-aaaa")
+        print("3. Ver feriados del mes actual ")
+        print("4. Cambiar clave")
+        print("5. Salir")
+        opcion = int(input("Seleccione una opción: "))
+        if opcion == 1:
+            # Ver calendario laboral
+            pass
+        elif opcion == 2:
+            # Solicitar día libre
+            pass
+        elif opcion == 3:
+            # Ver feriados del mes actual
+            mes = datetime.datetime.now().month
+            print("Feriados del mes {}:".format(mes))
+            # Aquí puedes añadir los feriados para el mes actual
+        elif opcion == 4:
+            # Cambiar clave
+            pass
+        elif opcion == 5:
+            break
+
+# Llamada a la función para mostrar el menú principal
+menu_principal()
 
