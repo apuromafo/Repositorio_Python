@@ -25,50 +25,28 @@ La construccion y todo de como funcionara el programa sera a consideracion del p
 fecha 07-02-2023
 """
 
+"""  Modelado e ideas de como armar
+ primera etapa menú  Principal , donde tenga un loguin, usuario+clave= acceso a su menú.
+ usuario y clave se almacenan en un documento llamado "usuarios", 
+recolección de información según rol ( 2 roles, usuario y administrador)
 
-import calendar
-#mostraremos el año actual
-print(calendar.LocaleTextCalendar(locale='es').formatyear(2023))
+Segunda etapa menú Administrador
+vista de administrador
+visualizar calendario (Ver calendario laboral de el
+ver calendario laboral de otro usuario
+ver calendario laboral de todos los usuarios
+ver calendario del año
+ver calendario del mes
+ver días feriado
+ver calendario por fecha dada) 
+Ver sugerencias desde usuarios
+cambio de clave de el o de otros usuarios
+salir
 
-#imagino que necesitamos al menos 2 clases una para el calendario laboral y otra para la cuenta
-
-
-"""  clase llamada "CalendarioLaboral"  debe considerar
-• Días de trabajo: una lista de enteros que representan los días de la semana en que los usuarios estarán trabajando.
-• Feriados: una lista de enteros que representan los días de la semana en que los usuarios tendrán días libres.
-• Mínimo personal: un entero que representa el número mínimo de personas necesarias para trabajar en un día en que haya un feriado.
-• Usuarios: una lista de usuarios, donde cada usuario tendrá sus propios días de trabajo y feriados asignados.
-
-una clase llamada "Cuenta/usuario" que tendrá los siguientes atributos:
-
-• Nombre: una cadena que representa el nombre del usuario.
-• Días de trabajo: una lista de enteros que representan los días de la semana en que el usuario estará trabajando.
-• Feriados: una lista de enteros que representan los días de la semana en que el usuario tendrá días libres.
-• Sugerencias: una lista de sugerencias que el usuario puede enviar al administrador para solicitar días libres.
-"""
-#luego necesitaré funciones que se activen al ir a estos menús
-
-"""
-función llamada "actualizarCalendario()" que 
-se encargará de actualizar el calendario con los cambios realizados por el administrador. 
-Esta función se ejecutará cada vez que el administrador modifique el calendario.
-
-
-una función llamada "verCalendario()" que 
-se encarga de mostrar el calendario laboral a los usuarios. Esta función recibe como parámetro el nombre de un usuario y
- mostrará su calendario laboral.
-
-una función de "configurarpermisos()" , que valide a cual de las 2 mostrará (como usuario o como admin)  
-"""
-
-#finalmente me falta pensar en la interfaz, donde tendríamos que ser capaz de agregar, editar o eliminar usuarios
-#y por otro lado que puedan asignar los días
-
-#sobre las personas que usen esto, deberán tener la capacidad de consultar su
-# calendario y enviar sugerencias al administrador. 
-#y el administrador en cuanto abra su cuenta, podrá leer estas sugerencias.
-#esto es mas menos lo que imagino
- 
-
- */
+vista de usuario
+ver calendario laboral
+solicitar día libre
+ver feriados del mes actual
+cambio de clave
+salir
 
