@@ -2,11 +2,14 @@
 
 0) utilizar pyton 3.x
  ```python
-s = "Python"
+s = "Python v3"
 print s
 ```
 
 1) instalar requerimientos (colorama), esto es  ( pip install -r .\requeriments.txt)
+```python
+pip install -r .\requeriments.txt
+```
 
 2) al primer uso crear los usuarios mediante el script "0_genera_usuario.py"
 
