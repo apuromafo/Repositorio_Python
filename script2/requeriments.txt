@@ -1,2 +1,1 @@
-Dependencies:
-colorama==0.4.6 
+colorama==0.4.6
