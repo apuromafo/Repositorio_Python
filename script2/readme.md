@@ -12,7 +12,11 @@ pip install -r .\requeriments.txt
 ```
 
 2) al primer uso crear los usuarios mediante el script "0_genera_usuario.py"
+```python
+python .\0_genera_usuario.py
+```
 
 3) utilizar el aplicativo mediante "proyecto2.py" , el cual puede tener cualquier nombre pertinente.
-
-
+```python
+python .\proyecto2.py
+```
