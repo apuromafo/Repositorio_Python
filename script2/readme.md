@@ -18,5 +18,5 @@ python .\0_genera_usuario.py
 
 3) utilizar el aplicativo mediante "proyecto2.py" , el cual puede tener cualquier nombre pertinente.
 ```python
-python .\proyecto2.py
+python .\script2.py
 ```
