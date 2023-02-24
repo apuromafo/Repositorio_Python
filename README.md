@@ -3,4 +3,4 @@ simple python script
 
 Script1: reto básico desde AprenderPython(telegram)
 
-Script2:reto intermedio desde AprenderPython(telegram) (en idea)
+Script2: reto intermedio desde AprenderPython(telegram)
