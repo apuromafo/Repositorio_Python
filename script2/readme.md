@@ -1,8 +1,12 @@
 # Instrucciones
 
-0) instalar requerimientos (colorama)
+0) utilizar pyton 3.x
+ ```python
+s = "Python"
+print s
+```
 
-1) utilizar pyton 3.x
+1) instalar requerimientos (colorama), esto es  ( pip install -r .\requeriments.txt)
 
 2) al primer uso crear los usuarios mediante el script "0_genera_usuario.py"
 
