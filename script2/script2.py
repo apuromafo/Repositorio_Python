@@ -417,8 +417,12 @@ def generar_calendario_laboral():
     contador_feriados, contador_libres, contador_excepcion, contador_laborales = 0,0,0,0
 
 
+
 def iniciar_sesion():
     global usuario_actual, rol_usuario, calendario_usuario
+    #usuario_actual=globals().get("usuario_actual")
+    #rol_usuario=globals().get("rol_usuario")
+    #calendario_usuario=globals().get("calendario_usuario")
     nombre_de_usuario = sanitizar_input(input("Nombre de usuario: "))
     contrasena = getpass.getpass()
     #time.sleep(1)  # una pequeña pausa
@@ -439,9 +443,12 @@ def iniciar_sesion():
                 return
             else:
                 print("Contraseña incorrecta.")
+                #si hay cuentas logueadas previamente, lo fuerzo a que sea none
+                usuario_actual=None
                 return
     print("Nombre de usuario inválido.")
-
+    #si hay cuentas logueadas previamente, lo fuerzo a que sea none
+    usuario_actual=None
 
 # implementado para obtener los usuarios del sistema, obtener su id, y además establece una variable de su calendario actual para este usuario
 # principalmente para que el administrador pueda ver el calendario de quien quiera.
