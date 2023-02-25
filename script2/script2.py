@@ -997,6 +997,7 @@ def ver_solicitudes():
 # implementando para sugerencias del admin
 
 
+
 def ordenar_sugerencias():
 
     sugerencias = []
@@ -1006,11 +1007,12 @@ def ordenar_sugerencias():
             sugerencias = json.load(archivo)
     
     else:
-            print('Sin sugerencias')
+            #print('No hay sugerencias.')
             sugerencias = []
     
     sugerencias_ordenadas = sorted(sugerencias, key=lambda x: x['usuario'])
     return sugerencias_ordenadas
+
 
 
 # menu admin
@@ -1277,7 +1279,6 @@ def ver_aprobar_rechazar_sugerencias():
             break
     print("Volviendo al menú principal...")
 
-
 def menu_administrador():
     print("Menú de administrador")
     print("1. Menu Administración Usuario  \n a. Crear Usuario  \n b. Listar Usuarios   \n c. Eliminar Usuario")
@@ -1299,11 +1300,10 @@ def menu_usuario():
     print("3. Ver Solicitudes realizadas(sugerencias)")
     print("4. Cerrar sesión")
 
-
 def ver_menu_sugerencias():
     sugerencias = ordenar_sugerencias()
 
-    if sugerencias:
+    if sugerencias is not None:
         opciones = {
             0: "Volver al menú principal",
             1: "Ver todas las sugerencias",
@@ -1357,7 +1357,6 @@ def ver_menu_sugerencias():
     else:
         print("No hay sugerencias.")
         ver_menu_sugerencias()
-
 
 def imprimir_sugerencias(sugerencias):
     print("{:<5} | {:<20} | {:<15} | {:<20} | {}".format(
