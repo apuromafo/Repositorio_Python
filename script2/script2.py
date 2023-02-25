@@ -39,43 +39,44 @@ fecha 07-02-2023
         El sistema debe tener medidas de seguridad para proteger los datos y prevenir accesos no autorizados.
 """
 
-from core.banner import *  # banner custom.
 #
 # idea de agregar un banner, usando un componente externo, y se vea el código mas limpio
 #
-import calendar
 #
 # backup
 # idea de manejar en base de datos la información de usuarios, respaldos o lo que se estime conveniente
 # solo hacer backup al término del día o bien cada un cierto tiempo
 # idea https://www.geeksforgeeks.org/python-shutil-copytree-method/
 #
-import shutil
-import os
 #
 # al loguear la cuenta quiero que tenga privacidad (no mostrará la clave ingresada)
 #
-import getpass
 # para almacenado de información usaré json
-import json
 # para el manejo de fechas, tiempos, calendarios
 # idea https://micro.recursospython.com/recursos/como-obtener-la-fecha-y-hora-actual.html
 #
-import time
-import datetime
-from datetime import date
-from datetime import datetime
-from datetime import timedelta
 #
 # para las contraseñas usen cifrado , para salt usaré "os"
 #
-import hashlib
 
 #
 # espacio de configuración de rutas
 # Ruta del calendario
 
 
+import datetime as d
+from core.banner import *  # banner custom.
+import calendar
+import shutil
+import os
+import getpass
+import json
+import time
+import datetime
+from datetime import date
+from datetime import datetime
+from datetime import timedelta
+import hashlib
 ruta_calendario = "database"
 database_usuarios = "usuarios.db"
 # uso   "calendario": f"{ruta_calendario}/calendario_{nombre_usuario}.db"
@@ -202,7 +203,7 @@ def crear_usuario():
         json.dump(usuarios, f, indent=4)
 
     print("Usuario creado exitosamente")
-    #ya que creamos el usuario, ahora vamos por su calendario (crearlo)
+    # ya que creamos el usuario, ahora vamos por su calendario (crearlo)
     calendario = {
         "dias_libres": [],
         "dias_excepcion": [],
@@ -346,7 +347,7 @@ def generar_calendario_laboral():
         with open(calendario_usuario, "r") as f:
             calendario = json.load(f)
             dias_libres = calendario.get("dias_libres", [])
-             #print("tipo sugerencias_aprobadas" ,calendario.get("sugerencias", []))
+            # print("tipo sugerencias_aprobadas" ,calendario.get("sugerencias", []))
             # dias_sugerencias_aprobadas = calendario.get("sugerencias", [])
             dias_excepcion = calendario.get("dias_excepcion", [])
             # saber los tipos de días libres
@@ -354,7 +355,7 @@ def generar_calendario_laboral():
 
 
 # saber las sugerencias que tienen actualmente
-#            
+#
             # dias_libres = dias_libres + sugerencias_aprobadas
     meses = {
         1: "enero",
@@ -398,7 +399,7 @@ def generar_calendario_laboral():
             contador_feriados += 1
         elif any(d == f"{anio_generar}-{mes_generar:02d}-{dia:02d}" for d in dias_excepcion):
             print(f"{dia:02d}[E]", end=" ")
-            contador_excepcion += 1    
+            contador_excepcion += 1
         elif any(d == f"{anio_generar}-{mes_generar:02d}-{dia:02d}" for d in dias_libres):
             print(f"{dia:02d}[L]", end=" ")
             contador_libres += 1
@@ -414,18 +415,17 @@ def generar_calendario_laboral():
     print(f"[L]=Libre       total: {contador_libres}   ")
     print(f"[E]=Excepción   total: {contador_excepcion}")
     print(f"[T]=Día laboral total: {contador_laborales} \n")
-    contador_feriados, contador_libres, contador_excepcion, contador_laborales = 0,0,0,0
-
+    contador_feriados, contador_libres, contador_excepcion, contador_laborales = 0, 0, 0, 0
 
 
 def iniciar_sesion():
     global usuario_actual, rol_usuario, calendario_usuario
-    #usuario_actual=globals().get("usuario_actual")
-    #rol_usuario=globals().get("rol_usuario")
-    #calendario_usuario=globals().get("calendario_usuario")
+    # usuario_actual=globals().get("usuario_actual")
+    # rol_usuario=globals().get("rol_usuario")
+    # calendario_usuario=globals().get("calendario_usuario")
     nombre_de_usuario = sanitizar_input(input("Nombre de usuario: "))
     contrasena = getpass.getpass()
-    #time.sleep(1)  # una pequeña pausa
+    # time.sleep(1)  # una pequeña pausa
     for usuario_id, datos_usuario in usuarios.items():
         if datos_usuario["nombre_de_usuario"] == nombre_de_usuario:
             salt = bytes.fromhex(datos_usuario['salt'])
@@ -443,15 +443,16 @@ def iniciar_sesion():
                 return
             else:
                 print("Contraseña incorrecta.")
-                #si hay cuentas logueadas previamente, lo fuerzo a que sea none
-                usuario_actual=None
+                # si hay cuentas logueadas previamente, lo fuerzo a que sea none
+                usuario_actual = None
                 return
     print("Nombre de usuario inválido.")
-    #si hay cuentas logueadas previamente, lo fuerzo a que sea none
-    usuario_actual=None
+    # si hay cuentas logueadas previamente, lo fuerzo a que sea none
+    usuario_actual = None
 
 # implementado para obtener los usuarios del sistema, obtener su id, y además establece una variable de su calendario actual para este usuario
 # principalmente para que el administrador pueda ver el calendario de quien quiera.
+
 
 def listar_usuarios_sistema():
     for usuario_id, datos_usuario in usuarios.items():
@@ -634,8 +635,6 @@ def quitar_feriado():
         print("No se ha encontrado un día feriado registrado en la fecha ingresada.")
 
 
-
-
 def agregar_feriado():
     while True:
         dia_ok, mes_ok, anio_ok = solicitar_fecha_d_m_a()
@@ -785,10 +784,12 @@ def eliminar_excepcion(calendario):
 
 # fin excepciones#
 
-#espacio funciones días libre
+# espacio funciones días libre
 # inicio dias libres
+
+
 def menu_libres():
-#para usar estos menús es importante que tengan un calendario seleccionado.
+    # para usar estos menús es importante que tengan un calendario seleccionado.
     global usuario_seleccionado_libres
     usuario_seleccionado_libres = listar_usuarios_sistema()
     if usuario_seleccionado_libres:
@@ -1004,7 +1005,6 @@ def ver_solicitudes():
 # implementando para sugerencias del admin
 
 
-
 def ordenar_sugerencias():
 
     sugerencias = []
@@ -1012,89 +1012,13 @@ def ordenar_sugerencias():
     if os.path.exists(config_archivo_solicitudes):
         with open(config_archivo_solicitudes, "r") as archivo:
             sugerencias = json.load(archivo)
-    
+
     else:
-            #print('No hay sugerencias.')
-            sugerencias = []
-    
+        # print('No hay sugerencias.')
+        sugerencias = []
+
     sugerencias_ordenadas = sorted(sugerencias, key=lambda x: x['usuario'])
     return sugerencias_ordenadas
-
-
-
-# menu admin
-def ver_calendario():
-
-    usuario_actual = globals().get("usuario_actual")
-    usuario_seleccionado_id = globals().get("usuario_seleccionado_id")
-    calendario_usuario = globals().get("calendario_usuario")
-    calendario_seleccionado_id = globals().get("calendario_seleccionado_id")
-    contador_feriados = globals().get("contador_feriados")
-    contador_libres = globals().get(" contador_libres")
-    contador_excepcion = globals().get("contador_excepcion")
-    contador_laborales = globals().get("contador_laborales")
-    # Agregar variables de contador
-    contador_feriados = 0
-    contador_libres = 0
-    contador_excepcion = 0
-    contador_laborales = 0
-
-    if usuario_seleccionado_id is not None:
-        usuario_actual = usuario_seleccionado_id
-
-    if usuario_actual is not None:
-        # obtener mes y año
-        mes_actual, anio_actual = obtener_mes_y_anio()
-
-        dias_laborables = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]
-        dias_laborables_imprimir = ["Lun", "Mar", "Mié", "Jue", "Vie"]
-        tag_str = "Trabajo "
-        # carga del calendario del usuario
-        calendario_actual = cargar_datos_desde_archivo(calendario_usuario)
-        # carga de los feriados del sistema
-        contenido = cargar_datos_desde_archivo(nombre_feriado)
-
-        dias_feriados = [date.fromisoformat(
-            d["fecha"]) for d in contenido.get("dias_feriados", [])]
-        dias_libres = [date.fromisoformat(
-            d) for d in calendario_actual.get("dias_libres", [])]
-        dias_excepcion = [date.fromisoformat(
-            d) for d in calendario_actual.get("dias_excepcion", [])]
-
-        # Agregar variables de contador
-        contador_feriados, contador_libres, contador_excepcion, contador_laborales = 0, 0, 0, 0
-        fecha_inicial = date(anio_actual, mes_actual, 1)
-        fecha_final = date(anio_actual, mes_actual + 1, 1) - timedelta(days=1)
-        dias_mes = [fecha_inicial + timedelta(days=i)
-                    for i in range((fecha_final - fecha_inicial).days + 1)]
-
-        for dia_actual in dias_mes:
-            if dia_actual.day == 1:
-                print("   \n" * dia_actual.weekday(), end="")
-            if dia_actual in dias_feriados:
-                print(f" {dia_actual.strftime('%d/%m/%Y')} Feriado \n", end="")
-                contador_feriados += 1  # Incrementar contador
-            elif dia_actual in dias_libres:
-                print(f" {dia_actual.strftime('%d/%m/%Y')} Libre \n", end="")
-                contador_libres += 1  # Incrementar contador
-            elif dia_actual in dias_excepcion:
-                print(f" {dia_actual.strftime('%d/%m/%Y')} Excepción \n", end="")
-                contador_excepcion += 1  # Incrementar contador
-            elif dia_actual.weekday() in [dias_laborables.index(dia) for dia in dias_laborables]:
-                print(
-                    f" {dia_actual.strftime('%d/%m/%Y')} {tag_str+dias_laborables_imprimir[dia_actual.weekday()]} \n", end="")
-                contador_laborales += 1  # Incrementar contador
-            else:
-                print("  Libre(Fin de semana)    \n", end="")
-
-        # Retornar contadores
-
-        return contador_feriados, contador_libres, contador_excepcion, contador_laborales
-
-    else:
-        print("Por favor inicie sesión primero")
-        # Si no hay usuario actual, retornar 0 en todos los contadores
-        return 0
 
 
 def ver_calendario_admin():
@@ -1254,6 +1178,9 @@ def ver_aprobar_rechazar_sugerencias():
                     calendario['dias_libres'][fecha] = descripcion
                     guardar_datos_en_archivo_main(
                         calendario, f"database/calendario_{sugerencia['usuario']}.db")
+                    with open(config_archivo_solicitudes, "w") as archivo:
+                        json.dump(sugerencias, archivo)
+                    break
                     print("Libre agregada con éxito.")
                     print("Recuerde si debe eliminar una sugerencia Autorizada")
                     print(
@@ -1286,6 +1213,7 @@ def ver_aprobar_rechazar_sugerencias():
             break
     print("Volviendo al menú principal...")
 
+
 def menu_administrador():
     print("Menú de administrador")
     print("1. Menu Administración Usuario  \n a. Crear Usuario  \n b. Listar Usuarios   \n c. Eliminar Usuario")
@@ -1300,12 +1228,14 @@ def menu_administrador():
     print("8. Realizar Backup")
     print("9. Cerrar sesión")
 
+
 def menu_usuario():
     print("Menú de usuario")
     print("1. Ver calendario usuario")
     print("2. Enviar sugerencia de día libre al administrador")
     print("3. Ver Solicitudes realizadas(sugerencias)")
     print("4. Cerrar sesión")
+
 
 def ver_menu_sugerencias():
     sugerencias = ordenar_sugerencias()
@@ -1365,6 +1295,7 @@ def ver_menu_sugerencias():
         print("No hay sugerencias.")
         ver_menu_sugerencias()
 
+
 def imprimir_sugerencias(sugerencias):
     print("{:<5} | {:<20} | {:<15} | {:<20} | {}".format(
         "ID", "Fecha solicitada", "Usuario", "Estado", "Motivo"))
@@ -1384,7 +1315,7 @@ def backup(src, dst):
 
 
 def hacer_backup():
-    now = datetime.datetime.now()
+    now = d.datetime.now()
     fecha = f"{now.day}-{now.month}-{now.year}_{now.hour}-{now.minute}-{now.second}"
     src1 = ruta_usuario
     dst1 = ruta_usuario + "_" + ruta_backup + "_" + fecha
@@ -1479,6 +1410,7 @@ def menu_administracion_usuarios():
     if opcion == "1":
         crear_usuario()
     elif opcion == "2":
+        print(" --- Listar Usuarios ---")
         listar_usuarios()
     elif opcion == "3":
         eliminar_usuario()
@@ -1627,6 +1559,90 @@ def generar_disponibilidad_mes():
     print(f"[F]=Feriados    \n[L]=Libre       \n[E]=Excepción   \n[T]=Día laboral \n")
 
 
+
+
+
+
+'''
+
+# menu usuario
+def ver_calendario():
+
+    usuario_actual = globals().get("usuario_actual")
+    usuario_seleccionado_id = globals().get("usuario_seleccionado_id")
+    calendario_usuario = globals().get("calendario_usuario")
+    calendario_seleccionado_id = globals().get("calendario_seleccionado_id")
+    contador_feriados = globals().get("contador_feriados")
+    contador_libres = globals().get(" contador_libres")
+    contador_excepcion = globals().get("contador_excepcion")
+    contador_laborales = globals().get("contador_laborales")
+    # Agregar variables de contador
+    contador_feriados,    contador_libres,    contador_excepcion,    contador_laborales = 0, 0, 0, 0
+
+    if usuario_seleccionado_id is not None:
+        usuario_actual = usuario_seleccionado_id
+
+    if usuario_actual is not None:
+        # obtener mes y año
+        mes_actual, anio_actual = obtener_mes_y_anio()
+
+        dias_laborables = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]
+        dias_laborables_imprimir = ["Lun", "Mar", "Mié", "Jue", "Vie"]
+        tag_str = "Trabajo "
+        # carga del calendario del usuario
+        calendario_actual = cargar_datos_desde_archivo(calendario_usuario)
+        # carga de los feriados del sistema
+        contenido = cargar_datos_desde_archivo(nombre_feriado)
+
+        dias_feriados = [date.fromisoformat(
+            d["fecha"]) for d in contenido.get("dias_feriados", [])]
+        dias_libres = [date.fromisoformat(
+            d) for d in calendario_actual.get("dias_libres", [])]
+        dias_excepcion = [date.fromisoformat(
+            d) for d in calendario_actual.get("dias_excepcion", [])]
+
+        # Agregar variables de contador
+        contador_feriados, contador_libres, contador_excepcion, contador_laborales = 0, 0, 0, 0
+        fecha_inicial = date(anio_actual, mes_actual, 1)
+        fecha_final = date(anio_actual, mes_actual + 1, 1) - timedelta(days=1)
+        dias_mes = [fecha_inicial + timedelta(days=i)
+                    for i in range((fecha_final - fecha_inicial).days + 1)]
+        print(f"Calendario de {usuario_actual}")
+        print(f"Calendario del mes: {mes_actual} año: {anio_actual}")
+        for dia_actual in dias_mes:
+            if dia_actual in dias_feriados:
+                print(
+                    f" {dias_laborables_imprimir[dia_actual.weekday()]}  {dia_actual.strftime('%d/%m/%Y')}  Feriado \n", end="")
+                contador_feriados += 1  # Incrementar contador
+            elif dia_actual in dias_libres:
+                print(
+                    f" {dias_laborables_imprimir[dia_actual.weekday()]}  {dia_actual.strftime('%d/%m/%Y')}  Libre \n", end="")
+                contador_libres += 1  # Incrementar contador
+            elif dia_actual in dias_excepcion:
+                print(
+                    f" {dias_laborables_imprimir[dia_actual.weekday()]}  {dia_actual.strftime('%d/%m/%Y')}  Excepción \n", end="")
+                contador_excepcion += 1  # Incrementar contador
+            elif dia_actual.weekday() in [dias_laborables.index(dia) for dia in dias_laborables]:
+                print(
+                    f" {dias_laborables_imprimir[dia_actual.weekday()]} {dia_actual.strftime('%d/%m/%Y')}  {tag_str} \n", end="")
+                contador_laborales += 1  # Incrementar contador
+            else:
+                print(
+                    f"     {dia_actual.strftime('%d/%m/%Y')}  Libre(Fin de semana)    \n", end="")
+
+        # Retornar contadores
+
+        return contador_feriados, contador_libres, contador_excepcion, contador_laborales
+
+    else:
+        print("Por favor inicie sesión primero")
+        # Si no hay usuario actual, retornar 0 en todos los contadores
+        return 0
+
+
+
+'''
+
 # Definimos menú principal
 # permite login
 # permite definir el rol y según ese llevará a 2 calendarios
@@ -1676,8 +1692,8 @@ def menu_principal():
                 menu_usuario()
                 opcion = input("Ingrese la opción: ")
                 if opcion == "1":
-                    generar_calendario_laboral()
-                    #ver_calendario() es una lista por día
+                    generar_calendario_laboral() 
+                    #ver_calendario()  # es una lista por día
                 if opcion == "2":
                     ver_sugerencias()
                 if opcion == "3":
@@ -1718,7 +1734,7 @@ def cerrar_sesion(usuario_actual, rol_usuario, calendario_usuario):
 
 
 # este es el inicio de todo, necesito tener usuarios y además crearle usuarios , pero está mejor en un script aparte, por eso, se deja aparte, ya que es funcional.
-#def primer_uso():
+# def primer_uso():
  #   crear_archivo_usuarios()  # comenzar
  #   crear_usuario()  # crear admin
  #   crear_usuario()  # crear usuario/
@@ -1728,6 +1744,8 @@ def cerrar_sesion(usuario_actual, rol_usuario, calendario_usuario):
 def main():
 
     bienvenida()  # este proviene de banner, muestra el menú
+
+
 menu_principal()  # establezco el menú principal
 
 
