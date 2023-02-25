@@ -906,15 +906,22 @@ def ver_sugerencias():
 
         # Implementar lógica para leer las sugerencias de un archivo o base de datos
         # y mostrarlas al usuario.
-
-        fecha = solicitar_fecha_d_m_a()
+        dia_ok, mes_ok, anio_ok = solicitar_fecha_d_m_a()
+        generar_calendario_mes(dia_ok, mes_ok, anio_ok)
+        fecha_solicitada = date(anio_ok, mes_ok, dia_ok)
+        fecha_solicitada = fecha_solicitada.strftime('%Y-%m-%d')
+        fecha_str = fecha_solicitada
 
         opcion_solicitud = input(
             "Elija una opción: \n 1. Solicitar el día elegido \n 2. Cambiar fecha \n Ingrese Opción:  ")
         if opcion_solicitud == "1":
             print("procesando la información")
         elif opcion_solicitud == "2":
-            fecha = solicitar_fecha_d_m_a()
+            dia_ok, mes_ok, anio_ok = solicitar_fecha_d_m_a()
+            generar_calendario_mes(dia_ok, mes_ok, anio_ok)
+            fecha_solicitada = date(anio_ok, mes_ok, dia_ok)
+            fecha_solicitada = fecha_solicitada.strftime('%Y-%m-%d')
+            fecha_str = fecha_solicitada
         else:
             print("Opción inválida , retornando al menú de usuario")
             return
@@ -923,14 +930,14 @@ def ver_sugerencias():
             with open(config_archivo_solicitudes, "r") as archivo:
                 solicitudes = json.load(archivo)
                 for solicitud in solicitudes:
-                    if solicitud["usuario"] == usuario_actual and solicitud["fecha"] == str(fecha):
+                    if solicitud["usuario"] == usuario_actual and solicitud["fecha"] == str(fecha_str):
                         print(
                             "Esta fecha ya fue solicitada anteriormente. Por favor, ingrese una fecha diferente.")
                         return
 
         motivo = sanitizar_input(
             input("Favor indique el motivo de la solicitud brevemente: "))
-        crear_sugerencias(usuario_actual, fecha, motivo)
+        crear_sugerencias(usuario_actual, fecha_str, motivo)
 
         print("Solicitud creada exitosamente!")
 
@@ -1669,7 +1676,8 @@ def menu_principal():
                 menu_usuario()
                 opcion = input("Ingrese la opción: ")
                 if opcion == "1":
-                    ver_calendario()
+                    generar_calendario_laboral()
+                    #ver_calendario() es una lista por día
                 if opcion == "2":
                     ver_sugerencias()
                 if opcion == "3":
