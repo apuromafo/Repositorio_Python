@@ -1004,7 +1004,11 @@ def ordenar_sugerencias():
     if os.path.exists(config_archivo_solicitudes):
         with open(config_archivo_solicitudes, "r") as archivo:
             sugerencias = json.load(archivo)
-
+    
+    else:
+            print('Sin sugerencias')
+            sugerencias = []
+    
     sugerencias_ordenadas = sorted(sugerencias, key=lambda x: x['usuario'])
     return sugerencias_ordenadas
 
