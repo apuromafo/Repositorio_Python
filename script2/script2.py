@@ -1278,16 +1278,15 @@ def menu_administrador():
     print("Menú de administrador")
     print("1. Menu Administración Usuario  \n a. Crear Usuario  \n b. Listar Usuarios   \n c. Eliminar Usuario")
     print("2. Ver calendario(Admin/Usuario_final) por ID ")
-    print("3. Sugerencias día Libre \n a. Por usuario \n b. Por fecha \n c. Por estado \n d. Aprobar/Rechazar Sugerencia ")
+    print("3. Sugerencias día Libre de Usuario Final \n a. Por usuario \n b. Por fecha \n c. Por estado \n d. Aprobar/Rechazar Sugerencia ")
     print("4. Feriados \n a. Ver feriados ordenados por fecha \n b. Agregar Feriados \n c. Quitar un feriado")
     print("5. Ver calendario como listado (calendario modo usuario) ")
-    print("6. Administración_calendario_personal \n a. Ver el calendario del usuario(Libres-Excepciones-Sugerencias)\n  b.")
-    print("Crear/Resetear calendario de usuario  \n c.Establecer días de excepción \n d. Establecer días libres\n")
-    print("e. Establecer Sugerencias_aprobadas en libres \n  f.Realizar backup del calendario")
+    print("6. Administración_calendario_personal \n a. Ver el calendario del usuario(Libres-Excepciones-Sugerencias)")
+    print(" b. Crear/Resetear calendario de usuario  \n c.Establecer días de excepción \n d. Establecer días libres")
+    print(" e. Establecer Sugerencias_aprobadas en libres \n  f.Realizar backup del calendario")
     print("7. Disponibilidad  Laboral Total Usuarios por día")
     print("8. Realizar Backup")
     print("9. Cerrar sesión")
-
 
 def menu_usuario():
     print("Menú de usuario")
