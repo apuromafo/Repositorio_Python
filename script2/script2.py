@@ -264,7 +264,7 @@ def generar_calendario_mes(dia_resaltado, mes, anio):
 
     dias_semana = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
     for dia in dias_semana:
-        print(f"{dia}", end="   ")
+        print(f"{dia}", end="  ")
     print()
     # otra forma directa sería
     # print(" Lu  Ma  Mi  Ju  Vi  Sa  Do")
