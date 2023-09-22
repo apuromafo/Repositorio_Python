@@ -1,4 +1,5 @@
 Pequeño script pensado en validar las cabeceras de seguridad (algo sencillo).
 
 Imagen:
-![image](https://github.com/apuromafo/Repositorio_Python/assets/23161917/27f3ef0c-18fe-406a-969d-8119dc25ac9d)
+![image](https://github.com/apuromafo/Repositorio_Python/assets/23161917/b6436825-ebf2-499b-81e8-619424131e9c)
+
