@@ -1,0 +1,10 @@
+argparse
+requests
+json
+datetime
+tabulate
+colorama
+locale
+socket
+urllib3
+ipaddress
