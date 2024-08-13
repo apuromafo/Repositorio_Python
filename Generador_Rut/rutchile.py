@@ -3,15 +3,53 @@
 
 #todo generar ruts random
 #todo generar validador de rut válidos
-#todo añadir colores en banner
 #todo optimizar algoritmo
 
+#banner  añadir colores en banner  OK
+import math
+import random
+
+# Define color codes (corrected: use actual RGB values)
+colors = {
+    "red": (255, 0, 0),  # Use RGB tuples for colors
+    "orange": (255, 165, 0),
+    "yellow": (255, 255, 0),
+    "green": (0, 255, 0),
+    "blue": (0, 0, 255),
+    "purple": (128, 0, 128),
+}
+
+# Function to interpolate color values based on position
+def interpolate_color(start_color, end_color, position):
+    r_start, g_start, b_start = start_color  # Access RGB values from dictionary
+    r_end, g_end, b_end = end_color  # Access RGB values from dictionary
+
+    r_new = int(r_start + (position * (r_end - r_start)))
+    g_new = int(g_start + (position * (g_end - g_start)))
+    b_new = int(b_start + (position * (b_end - b_start)))
+
+    return (r_new, g_new, b_new)
+
+# Function to generate ANSI escape code from RGB values
+def rgb_to_ansi_code(rgb):
+    r, g, b = rgb
+    return f"\033[38;2;{r};{g};{b}m"
+
+# Generate a gradient of colors
+def generate_color_gradient(start_color, end_color, steps):
+    gradient = []
+    for i in range(steps + 1):
+        position = i / steps
+        color = interpolate_color(start_color, end_color, position)
+        ansi_code = rgb_to_ansi_code(color)
+        gradient.append(ansi_code)
+
+    return gradient
+
+# Print a text with color gradient
 
 #fuente: https://patorjk.com/software/taag/#p=display&f=Alphabet&t=RUT%20%0ACHILENO
-
-def banner():
-    print(        
-         """
+text = """
 RRRR  U   U TTTTTT                  
 R   R U   U   TT                    
 RRRR  U   U   TT                    
@@ -26,15 +64,20 @@ C    H  H  I  L    E    N  NN O   O
  CCC H  H III LLLL EEEE N   N  OOO  
 
                         by Apuromafo
-        """)                              
-#print(_banner001)  
-banner()                                  
+        """
+start_color = colors[random.choice(list(colors.keys()))]  # Choose a random color from the dictionary
+end_color = colors[random.choice(list(colors.keys()))] 
+#end_color = colors["blue"]
+gradient = generate_color_gradient(start_color, end_color, len(text))
+
+for i, c in enumerate(text):
+    print(gradient[i % len(gradient)] + c + "\033[0m", end="")
+                                  
 # strings en uso
 Str1 = "Falta instalar algunas librerías"
 Str2 = "RUTs"
-str_descripcion=" RUT CHILENO V0.1 by Apuromafo "
+str_descripcion=" RUT CHILENO V0.2 by Apuromafo "
 # errores rut distinto a 8 dígitos
-
 
 try:
     import argparse
