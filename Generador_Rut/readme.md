@@ -16,4 +16,5 @@ Para ejecutar este programa, necesitas tener las siguientes bibliotecas instalad
 * colorama: Agrega colores a la salida de la consola. (Está instalada por defecto en Python 3.10 y versiones posteriores.)
 * argparse: Permite leer los argumentos de la línea de comandos( Está instalada por defecto en Python 3.6 y versiones posteriores.).
 * prettytable: Formatea datos en tablas(Está instalada por defecto en Python 3.6 y versiones posteriores.).
-* random: valores aleatorios
+* random: valores aleatorios, incluida en python3
+* math:l funciones matemáticas, incluida en python3
