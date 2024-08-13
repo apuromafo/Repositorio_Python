@@ -1,7 +1,7 @@
 ## Descripción:
 pequeño script para generación de rut.
 
-![[img.png]]
+![screenshot](img.png)
 
  ## Instalación
 
