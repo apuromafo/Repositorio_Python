@@ -1,0 +1,3 @@
+chardet
+markdownify
+argparse
