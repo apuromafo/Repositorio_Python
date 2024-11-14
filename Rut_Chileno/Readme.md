@@ -20,7 +20,12 @@ WIKI :
 Forma de Uso de forma interactiva y CLI 
 
 Modo Interactivo
-![[Pasted image 20241113232810.png]]
+
+ 
+
+![Pasted image 20241113232810](https://github.com/user-attachments/assets/0167faef-68b7-4b65-8455-a3a9723303ca)
+
+
 
 
 Modo CLI
@@ -29,7 +34,7 @@ python generador_ruts.py -h
 ```
  
 Esto mostrará una ayuda detallada con todas las opciones disponibles que se irán actualizando
-![[Pasted image 20241113232652.png]]
+![Pasted image 20241113232652](https://github.com/user-attachments/assets/b94c0757-4a0d-41e3-8427-f8defcd5fde2)
 
 Opciones:
 ```
@@ -59,25 +64,27 @@ Opciones:
  
  En modo aleatorio:
  
- ![[Pasted image 20241113233011.png]]
+![Pasted image 20241113233011](https://github.com/user-attachments/assets/ba843d58-b64b-487e-9b59-6f3f3b5ef1b7)
   
  Modo secuencial
  
- ![[Pasted image 20241113234813.png]]
+![Pasted image 20241113234813](https://github.com/user-attachments/assets/088a493d-8c4a-469d-9447-7e3be4f77c49)
+
 
 En modo CLI
 
-modo secuencial, genera desde el numero 12345678 , la cantidad de 500 , con punto, con guión, archivo de salida poc02.txt
+# modo secuencial, genera desde el numero 12345678 , la cantidad de 500 , con punto, con guión, archivo de salida poc01.txt
  
+```
   python .\rutchile.py -m s -o 12345678 -c 500 -p -g -f poc01.txt
-  
+```  
 
- modo aleatorio, genera desde el numero 12345678 , la cantidad de 500 , con punto, con guión, archivo de salida poc02.txt
+# modo aleatorio, genera desde el numero 12345678 , la cantidad de 500 , con punto, con guión, archivo de salida poc02.txt
 ```
  python .\rutchile.py -m a -o 12345678 -c 500 -p -g -f poc02.txt
 ```
 
-con información (añadir -v es verbose , esto permitirá hacer una tabla con las variables usadas *experimental * ) 
+con información (añadir -v es verbose , esto permitirá hacer una tabla con las variables usadas) 
 
 
 Saludos
