@@ -7,7 +7,8 @@ import os
 import argparse
 
 def cargar_clave_api():
-    """Carga la clave de API desde el archivo de configuración, si existe."""
+    """Carga la clave de API desde el archivo de configuración, si existe.  1,000 por día promedio se obtiene en https://www.abuseipdb.com/account/api  y se pega directo el contenido """
+    
     if os.path.isfile("config.api"):
         with open("config.api", "r") as f:
             return f.read().strip()
