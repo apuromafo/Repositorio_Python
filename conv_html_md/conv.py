@@ -1,7 +1,23 @@
 import os
-import chardet
 import markdownify
 import argparse
+
+def leer_archivo(archivo_entrada):
+    """Lee el contenido de un archivo HTML, intentando varias codificaciones.
+
+    Args:
+        archivo_entrada: Ruta del archivo HTML.
+
+    Returns:
+        Contenido del archivo como cadena, o None si hay un error.
+    """
+    for encoding in ['utf-8', 'ISO-8859-1']:  # Lista de codificaciones a probar
+        try:
+            with open(archivo_entrada, 'r', encoding=encoding) as f:
+                return f.read()
+        except UnicodeDecodeError:
+            print(f"Error: No se pudo leer el archivo {archivo_entrada} con {encoding}.")
+    return None  # Retorna None si no se pudo leer con ninguna codificación
 
 def convertir_archivo(archivo_entrada, carpeta_salida=None):
     """Convierte un archivo HTML a Markdown.
@@ -11,14 +27,11 @@ def convertir_archivo(archivo_entrada, carpeta_salida=None):
         carpeta_salida: Ruta de la carpeta donde se guardará el archivo Markdown.
           Si es None, se crea en la misma carpeta que el archivo HTML con el mismo nombre.
     """
-    # Detecta la codificación del archivo
-    with open(archivo_entrada, 'rb') as rawdata:
-        result = chardet.detect(rawdata.read())
-        encoding = result['encoding']
-
     # Lee el contenido HTML
-    with open(archivo_entrada, 'r', encoding=encoding) as f:
-        html_content = f.read()
+    html_content = leer_archivo(archivo_entrada)
+    if html_content is None:
+        print(f"Error: No se pudo leer el archivo {archivo_entrada}.")
+        return
 
     # Convierte a Markdown
     markdown_text = markdownify.markdownify(html_content, heading_style='ATX')
@@ -29,6 +42,7 @@ def convertir_archivo(archivo_entrada, carpeta_salida=None):
     else:
         ruta_markdown = os.path.splitext(archivo_entrada)[0] + ".md"
 
+    # Asegúrate de que se guarde en UTF-8
     with open(ruta_markdown, 'w', encoding='utf-8') as f:
         f.write(markdown_text)
 
@@ -42,8 +56,8 @@ def main():
 
     # Si no se proporciona un archivo de entrada, entrar en modo interactivo
     if args.entrada is None:
-        archivo_entrada = input("Ingrese la ruta del archivo HTML: ").strip()
-        carpeta_salida = input("Ingrese la ruta de la carpeta de salida (dejar vacío para usar la misma carpeta): ").strip() or None
+        archivo_entrada = input("Ingrese la ruta del archivo HTML: ").strip(' "')
+        carpeta_salida = input("Ingrese la ruta de la carpeta de salida (dejar vacío para usar la misma carpeta): ").strip(' "') or None
     else:
         archivo_entrada = args.entrada
         carpeta_salida = args.salida
