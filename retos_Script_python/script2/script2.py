@@ -1734,21 +1734,34 @@ def cerrar_sesion(usuario_actual, rol_usuario, calendario_usuario):
 
 
 # este es el inicio de todo, necesito tener usuarios y además crearle usuarios , pero está mejor en un script aparte, por eso, se deja aparte, ya que es funcional.
-# def primer_uso():
- #   crear_archivo_usuarios()  # comenzar
- #   crear_usuario()  # crear admin
- #   crear_usuario()  # crear usuario/
- #   print()
+def primer_uso():
+    # Verificar si el archivo usos.lock existe
+    if os.path.exists('usos.lock'):
+        #print("Ya se han creado los usuarios. Saltando a la siguiente rutina...")
+        print ("\n")
+        return  # Salta a la siguiente rutina
+
+    print("Bienvenido al primer uso. Una vez configurado, se recomienda comentar #primeruso")
+    
+    crear_archivo_usuarios()  # Comenzar
+    crear_usuario()  # Crear admin
+    # crear_usuario()  # Crear usuario adicional (descomentado si se desea)
+
+    # Crear el archivo usos.lock para indicar que ya se completó la configuración
+    with open('usos.lock', 'w') as lock_file:
+        lock_file.write("Configuración completada.")
+
+    print()
 
 
 def main():
-
+    
     bienvenida()  # este proviene de banner, muestra el menú
 
-
+primer_uso()
 menu_principal()  # establezco el menú principal
 
 
 if __name__ == "__main__":
-
+    
     main()

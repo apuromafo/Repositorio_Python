@@ -11,23 +11,31 @@ Tarde: del mediodía al atardecer (12:00 – 18.00)
 """
 #!/usr/bin/python3
 
-
 import datetime as d
 
-HH = d.datetime.now()
+# Obtener la hora actual
+hora_actual = d.datetime.now()
+hora = hora_actual.hour
+minuto = hora_actual.minute
 
-H= HH.hour
-m= HH.minute
+# Imprimir la hora actual
+print(f"Son las: {hora:02}:{minuto:02}")
 
-print("Son las :  ",H, ":" ,m)
-if (H>=0 and m<= 59 )  and  (H<=11 and m<=59):
-    print ("Buenos días!!" )
-elif (H>=12 and m<59) and (h<=17 and m<=59):
-    print ("Buenas tardes!!")
+# Determinar el saludo según la hora
+if 0 <= hora < 12:
+    saludo = "¡Buenos días!"
+elif 12 <= hora < 18:
+    saludo = "¡Buenas tardes!"
 else:
-    print("Buenas Noches!!")
+    saludo = "¡Buenas noches!"
+
+print(saludo)
 
 """ejemplo de salida de consola
 Son las :   10 : 23
-Buenos días!!
+¡Buenos días!
+
+Son las: 18:08
+¡Buenas noches!
+
 """
