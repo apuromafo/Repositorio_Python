@@ -7,6 +7,13 @@ Desarrollo en python3
 uso:
 python mas.py archivo.exe 
 
+la vista será algo sencillo
+mas.py -a archivo.exe
+
+mas.py -f carpeta (procesa cualquier extensión en esa carpeta)
+
+![[Pasted image 20241118174052.png]]
+
 
 
 
