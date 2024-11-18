@@ -1,2 +1,8 @@
 # python_scripts
-simple python script
+
+Pequeños códigos en Python3
+Sin fin de lucro.
+
+
+
+
