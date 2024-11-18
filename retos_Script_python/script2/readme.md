@@ -2,8 +2,6 @@
 
 0) utilizar pyton 3.x
  ```python
-s = "Python v3"
-print s
 ```
 
 1) instalar requerimientos (colorama), esto es  ( pip install -r .\requeriments.txt)
@@ -11,12 +9,15 @@ print s
 pip install -r .\requeriments.txt
 ```
 
-2) al primer uso crear los usuarios mediante el script "0_genera_usuario.py"
+2) al primer uso crear los usuarios se recomienda crear un usuario administrativo , cuando se configure , figurará  (usos.lock)
+![[Pasted image 20241118182752.png]]
+
 ```python
-python .\0_genera_usuario.py
+python .\script2.py
 ```
 
-3) utilizar el aplicativo mediante "proyecto2.py" , el cual puede tener cualquier nombre pertinente.
+
+1) utilizar el aplicativo mediante "proyecto2.py" , el cual puede tener cualquier nombre pertinente en este caso es script2
 ```python
 python .\script2.py
 ```

@@ -1,33 +1,33 @@
-#Invoke-WebRequest -Uri https://www.google.com | Select-Object -Expand Headers
-#curl -i https://sitio.com
-#python Cabeceras_Seguridad.py sitio.com i
-#python Cabeceras_Seguridad.py sitio.com i GET
-#Securityheaders.com con el check tildado de hideresults
-
 import argparse
 import requests
 import json
 from datetime import datetime, timedelta, timezone
 from tabulate import tabulate
-from colorama import Fore, Style #agregando color
-import locale #para forzar que esté en español el día
-import socket #para tener la ip
-from urllib.parse import urlparse #para validar ip o dato valido
+from colorama import Fore, Style
+import locale
+import socket
+from urllib.parse import urlparse
 import ipaddress
 
+def print_banner():
+    banner = """
+    ==============================
+            Cabeceras 
+    ==============================
+    """
+    print(Fore.CYAN + banner + Style.RESET_ALL)
 
+def save_to_json(data, filename='output.json'):
+    with open(filename, 'w') as json_file:
+        json.dump(data, json_file, ensure_ascii=False, indent=4)
+    print(f"Salida guardada en {filename}")
 
 def print_status(response):
-    # Obtener el código de estado y la descripción
     status_code = response.status_code
     status_description = response.reason
-
-    # Obtener la versión del protocolo HTTP
     http_version = f"HTTP/{response.raw.version // 10}.{response.raw.version % 10}"
-
-    # Obtener la ubicación si está presente
     location = response.headers.get("Location")
-    # Crear una lista con los datos de la respuesta
+    
     data = []
     if http_version:
         data.append(["HTTP", http_version])
@@ -38,37 +38,106 @@ def print_status(response):
     if status_description:
         data.append(["Descripción", status_description])
 
-    # Verificar si hay suficientes filas para mostrar la tabla
     if data:
         table = tabulate(data, tablefmt="grid", floatfmt=".0f", stralign="left", numalign="right")
         print(table)
-    else:
-        print("No se encontraron datos para mostrar.")
-        
-        
 
 def print_header(headers):
-    print("Header:")
-    disclouse_fields = ['server', 'x-powered-by','x-magento-tags','x-oneagent-js-injection','x-ruxit-js-agent','server-timing']  # Lista de campos disclouse
-  # Comentarios
-# La cabecera `server` indica el servidor web que se utilizó para generar la respuesta. 
-#Esta información puede ser utilizada por atacantes para identificar vulnerabilidades o para personalizar ataques.
-# La cabecera `x-powered-by` indica la tecnología utilizada para generar la respuesta. 
-#Esta información puede ser utilizada por atacantes para identificar vulnerabilidades o para personalizar ataques.
-# La cabecera `x-magento-tags` se utiliza para indicar los tags de caché asociados con una respuesta. 
-#Los tags de caché son identificadores únicos que se pueden utilizar para identificar el contenido que ha cambiado. En el caso de Magento, la cabecera `x-magento-tags` puede contener información sobre los productos, categorías y bloques que se muestran en una página. Esta información puede ser utilizada por atacantes para identificar vulnerabilidades o para personalizar ataques.
-#`x-oneagent-js-injection` y `x-ruxit-js-agent` indican que el sitio web utiliza el software OneAgent o Ruxit para inyectar JavaScript en las páginas. 
-#Este software se utiliza para recopilar datos de rendimiento y otros datos sobre el comportamiento de los usuarios.
-# La cabecera `server-timing` indica que el sitio web utiliza el middleware Server Timing para medir el rendimiento de las solicitudes HTTP.
-# Este middleware puede recopilar datos sobre el tiempo que se tarda en procesar una solicitud, el tiempo que se tarda en transferir los datos y el tiempo que se tarda en renderizar la página.
-
-    for key, value in headers.items():
-        if key.lower() == 'access-control-allow-origin' and value == '*':
-            print(f"{Fore.RED}{key}:{Style.RESET_ALL} {value}")
-        elif key.lower() in disclouse_fields:
-            print(f"{Fore.RED}{key}:{Style.RESET_ALL} {value}")
-        else:
-            print(f"{key}: {value}")
+    header_names = [f"[{str(i + 1).zfill(2)}]{key}" for i, key in enumerate(headers.keys())]
+    header_list = ', '.join(header_names)
+    total_headers = len(headers)
+    
+    print(f"Total de Headers {total_headers}:\n {header_list}")
+    print(f"Headers actuales [Informativo]\n")
+    for i, (key, value) in enumerate(headers.items(), start=1):
+        print(f"[{str(i).zfill(2)}] {key}: {value}")
+    print(f"\n\n") 
+      
+    
+def suggest_headers_to_remove(headers):
+    # Lista de cabeceras que se deben considerar para eliminación
+    suggest_remove = [
+   "$wsep",
+    "Host-Header",
+    "K-Proxy-Request",
+    "Liferay-Portal",
+    "OracleCommerceCloud-Version",
+    "Pega-Host",
+    "Powered-By",
+    "Product",
+    "Server",
+    "SourceMap",
+    "X-AspNet-Version",
+    "X-AspNetMvc-Version",
+    "X-Atmosphere-error",
+    "X-Atmosphere-first-request",
+    "X-Atmosphere-tracking-id",
+    "X-B3-ParentSpanId",
+    "X-B3-Sampled",
+    "X-B3-SpanId",
+    "X-B3-TraceId",
+    "X-BEServer",
+    "X-Backside-Transport",
+    "X-CF-Powered-By",
+    "X-CMS",
+    "X-CalculatedBETarget",
+    "X-Cocoon-Version",
+    "X-Content-Encoded-By",
+    "X-DiagInfo",
+    "X-Envoy-Attempt-Count",
+    "X-Envoy-External-Address",
+    "X-Envoy-Internal",
+    "X-Envoy-Original-Dst-Host",
+    "X-Envoy-Upstream-Service-Time",
+    "X-FEServer",
+    "X-Framework",
+    "X-Generated-By",
+    "X-Generator",
+    "X-Jitsi-Release",
+    "X-Joomla-Version",
+    "X-Kubernetes-PF-FlowSchema-UI",
+    "X-Kubernetes-PF-PriorityLevel-UID",
+    "X-LiteSpeed-Cache",
+    "X-LiteSpeed-Purge",
+    "X-LiteSpeed-Tag",
+    "X-LiteSpeed-Vary",
+    "X-Litespeed-Cache-Control",
+    "X-Mod-Pagespeed",
+    "X-Nextjs-Cache",
+    "X-Nextjs-Matched-Path",
+    "X-Nextjs-Page",
+    "X-Nextjs-Redirect",
+    "X-OWA-Version",
+    "X-Old-Content-Length",
+    "X-OneAgent-JS-Injection",
+    "X-Page-Speed",
+    "X-Php-Version",
+    "X-Powered-By",
+    "X-Powered-By-Plesk",
+    "X-Powered-CMS",
+    "X-Redirect-By",
+    "X-Server-Powered-By",
+    "X-SourceFiles",
+    "X-SourceMap",
+    "X-Turbo-Charged-By",
+    "X-Umbraco-Version",
+    "X-Varnish-Backend",
+    "X-Varnish-Server",
+    "X-dtAgentId",
+    "X-dtHealthCheck",
+    "X-dtInjectedServlet",
+    "X-ruxit-JS-Agent"
+    ]
+    
+    # Verificar si alguna de las cabeceras sugeridas está presente
+    present_suggestions = [header for header in suggest_remove if header in headers]
+    
+    if present_suggestions:
+        print("\n[!] Cabeceras que podrían eliminarse:")
+        for header in present_suggestions:
+            print(f"[!] Cabecera: {Fore.RED}{header}{Style.RESET_ALL}")
+    else:
+        print("\nTodas las cabeceras sugeridas para eliminación están ausentes.")    
 
 def print_special_headers(headers):
     special_headers = [
@@ -78,60 +147,126 @@ def print_special_headers(headers):
         "Content-Security-Policy-Report-Only",
     ]
 
-    special_present_headers = [header for header in special_headers if header in headers]
-    if special_present_headers:
+    present_headers = [header for header in special_headers if header in headers]
+    if present_headers:
         print("Cabeceras especiales presentes:")
-        for header in special_present_headers:
-            value = headers[header]
-            print(f"[*] Cabecera {Fore.GREEN}{header}{Style.RESET_ALL} está presente! (Valor: {value})")
+        for header in present_headers:
+            print(f"[*] Cabecera {Fore.GREEN}{header}{Style.RESET_ALL} está presente!")
         print()
     else:
-        print()#"No se encontraron cabeceras especiales."
+        print("No se encontraron cabeceras especiales.")
 
 def print_security_headers(headers):
-    print("Cabeceras de seguridad:")
-    security_headers = ["Content-Security-Policy", "X-XSS-Protection", "X-Frame-Options", "Referrer-Policy", "Strict-Transport-Security", "X-Content-Type-Options", "Permissions-Policy"]
-    lowercase_headers = [header.lower() for header in security_headers]
-    present_count = 0
-    for header, lowercase_header in zip(security_headers, lowercase_headers):
-        if header in headers or lowercase_header in headers:
-            value = headers.get(header) or headers.get(lowercase_header)
-            print(f"[*] Cabecera {Fore.GREEN}{header}{Style.RESET_ALL} está presente! (Valor: {value})")
-            present_count += 1
+    security_headers = [
+        "Content-Security-Policy", 
+        "X-XSS-Protection", 
+        "X-Frame-Options", 
+        "Referrer-Policy", 
+        "Strict-Transport-Security", 
+        "X-Content-Type-Options", 
+        "Permissions-Policy"
+    ]
     
+    present_headers = [header for header in security_headers if header in headers or header.lower() in headers]
     missing_headers = [header for header in security_headers if header not in headers and header.lower() not in headers]
-    missing_count = len(missing_headers)
-    print("\n[!] Cabeceras de seguridad faltantes:")
-    for header in missing_headers:
-        print(f"[!] Falta la cabecera de seguridad: {Fore.YELLOW}{header}{Style.RESET_ALL}")
+
+    # Imprimir cabeceras presentes
+    if present_headers:
+        print("\nCabeceras de seguridad presentes:")
+        for header in present_headers:
+            print(f"[*] Cabecera {Fore.GREEN}{header}{Style.RESET_ALL} está presente!")
+    else:
+        print("No se encontraron cabeceras de seguridad presentes.")
+
+    # Imprimir cabeceras faltantes
+    if missing_headers:
+        print("\n[!] Cabeceras de seguridad faltantes:")
+        for header in missing_headers:
+            print(f"[!] Falta la cabecera de seguridad: {Fore.YELLOW}{header}{Style.RESET_ALL}")
+    else:
+        print("Todas las cabeceras de seguridad están presentes.")
+
+    print(f"\nTotal de cabeceras de seguridad presentes: {Fore.GREEN}{len(present_headers)}{Style.RESET_ALL}")
+    print(f"Total de cabeceras de seguridad faltantes: {Fore.RED}{len(missing_headers)}{Style.RESET_ALL}")
+
+def suggest_recommended_headers(headers):
+    recommended_headers = [
+        {
+            "name": "Cache-Control",
+            "value": "no-store, max-age=0"
+        },
+        {
+            "name": "Clear-Site-Data",
+            "value": "\"cache\",\"cookies\",\"storage\""
+        },
+        {
+            "name": "Content-Security-Policy",
+            "value": "default-src 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content"
+        },
+        {
+            "name": "Cross-Origin-Embedder-Policy",
+            "value": "require-corp"
+        },
+        {
+            "name": "Cross-Origin-Opener-Policy",
+            "value": "same-origin"
+        },
+        {
+            "name": "Cross-Origin-Resource-Policy",
+            "value": "same-origin"
+        },
+        {
+            "name": "Permissions-Policy",
+            "value": "accelerometer=(), autoplay=(), camera=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(self), usb=(), web-share=(), xr-spatial-tracking=(), clipboard-read=(), clipboard-write=(), gamepad=(), hid=(), idle-detection=(), interest-cohort=(), serial=(), unload=()"
+        },
+        {
+            "name": "Referrer-Policy",
+            "value": "no-referrer"
+        },
+        {
+            "name": "Strict-Transport-Security",
+            "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+            "name": "X-Content-Type-Options",
+            "value": "nosniff"
+        },
+        {
+            "name": "X-Frame-Options",
+            "value": "deny"
+        },
+        {
+            "name": "X-Permitted-Cross-Domain-Policies",
+            "value": "none"
+        }
+    ]
+
+    missing_headers = []
     
-    print(f"\nTotal de cabeceras de seguridad presentes: {Fore.GREEN}{present_count}{Style.RESET_ALL}")
-    print(f"Total de cabeceras de seguridad faltantes: {Fore.RED}{missing_count}{Style.RESET_ALL}")
-    
-    
+    for header in recommended_headers:
+        if header["name"] not in headers:
+            missing_headers.append(header)
+
+    if missing_headers:
+        print("\n[!] Cabeceras recomendadas que podrían configurarse:")
+        for header in missing_headers:
+            print(f"[!] Cabecera: {Fore.YELLOW}{header['name']}: {header['value']}{Style.RESET_ALL}")
+    else:
+        #print("\nTodas las cabeceras recomendadas están presentes.")
+        print("\n")
+        
 def check_http_to_https_redirection(url):
     response = requests.get(url, allow_redirects=False)
-
-    if response.status_code == 301 or response.status_code == 302:
+    if response.status_code in (301, 302):
         redirect_url = response.headers.get('Location')
         if redirect_url and redirect_url.startswith('https://'):
             print(f"El sitio {url} redirige de HTTP a HTTPS.")
         else:
             print(f"El sitio {url} no redirige de HTTP a HTTPS.")
     else:
-        print()#f"El sitio {url} no realiza una redirección.")
- 
+        print(f"El sitio {url} no realiza una redirección.")
+
 def get_ip(url):
-    """Obtiene la dirección IP de un sitio web a partir de una URL completa.
-
-    Args:
-        url: La URL completa del sitio web.
-
-    Returns:
-        Una cadena que contiene la dirección IP y su tipo entre paréntesis,
-        o None si no se pudo obtener la dirección IP.
-    """
-
     if not url or not url.startswith(("http://", "https://")):
         return None
 
@@ -143,140 +278,89 @@ def get_ip(url):
         domain = parsed_url.netloc.split(':')[0]
         addr_info = socket.getaddrinfo(domain, None)
         ip = addr_info[0][4][0]
-        ip_type = get_ip_type(ip)
-        return f"{ip} ({ip_type})"
+        return f"{ip} ({get_ip_type(ip)})"
     except (socket.gaierror, IndexError):
         return None
 
 def get_ip_type(ip):
-    """Determina si una dirección IP es IPv4 o IPv6.
-
-    Args:
-        ip: La dirección IP a verificar.
-
-    Returns:
-        "IPv4" si es una dirección IPv4, "IPv6" si es una dirección IPv6,
-        o "Invalid IP" si no es una dirección IP válida.
-    """
-
     try:
         ip_obj = ipaddress.ip_address(ip)
-        if ip_obj.version == 4:
-            return "IPv4"
-        elif ip_obj.version == 6:
-            return "IPv6"
-        else:
-            return "Invalid IP"
+        return "IPv4" if ip_obj.version == 4 else "IPv6"
     except ValueError:
         return "Invalid IP"
-  
+
 def print_tiempo():
-    # Establecer la configuración regional en español
     locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
-
-    # Obtener la fecha y hora actual en UTC
     now = datetime.now(timezone.utc)
-
-    # Calcular la fecha y hora en GMT-3
     gmt_offset = timedelta(hours=-3)
     gmt_time = now + gmt_offset
-
-    # Formatear la fecha y hora según el formato deseado
-    formatted_date = now.strftime("%A, %d de %B de %Y %H:%M:%S UTC")# // %H:%M GMT%z")
-    #formatted_date += f" ({gmt_time.strftime('%H:%M GMT-3')})"
-
-    formatted_date = formatted_date.replace(formatted_date.split(',')[0], formatted_date.split(',')[0].capitalize())
-    formatted_date = formatted_date.replace(formatted_date.split(' de ')[1].lower(), formatted_date.split(' de ')[1].capitalize())
-
-    # Agregar hora en GMT-3
-    formatted_date += f" ({gmt_time.strftime('%H:%M GMT-3')})"
- 
+    formatted_date = now.strftime("%A, %d de %B de %Y %H:%M:%S UTC") + f" ({gmt_time.strftime('%H:%M GMT-3')})"
     print("Fecha y hora:", formatted_date)
-    
-    
+
 def main():
-
-    # Crear el objeto ArgumentParser
+    print_banner()
     parser = argparse.ArgumentParser(description='Enviar solicitud HTTP con un verbo especificado')
-
-    # Agregar argumentos
     parser.add_argument('url', type=str, nargs='?', help='URL de destino')
-    parser.add_argument('info',type=str, nargs='?', choices=['i'], default=None, help='i = Header info')
-    parser.add_argument('verb', type=str, nargs='?', choices=['GET', 'get', 'POST', 'post', 'PUT', 'put', 'HEAD', 'head'], default=None, help='Verbo HTTP (GET, POST, PUT, HEAD)')
-    
+    parser.add_argument('info', type=str, nargs='?', choices=['i'], default=None, help='i = Header info')
+    parser.add_argument('verb', type=str, nargs='?', choices=['GET', 'POST', 'PUT', 'HEAD'], default='GET', help='Verbo HTTP')
+    parser.add_argument('-o', '--output', type=str, default='output.json', help='Nombre del archivo de salida JSON')
+    parser.add_argument('-H', '--header', type=str, help='Header en formato raw para autenticación')
 
-    # Analizar los argumentos de línea de comandos
     args = parser.parse_args()
-
-    # Obtener los valores de los argumentos
     url = args.url
-    verb = args.verb
-    info =args.info
+    verb = args.verb.upper()
+    info = args.info
+    output_file = args.output
+    raw_header = args.header
 
-# Comprobar si se proporcionó una URL
     if url is None:
         url = input("Introduce la URL: ")
-# Comprobar si se proporcionó un verbo
-    if verb is None:
-        verb = "GET"
-##
-##    print("¿Desea utilizar GET (1), POST (2), PUT (3) o HEAD (4)?")
-##    respuesta = input()
-##
-##    if respuesta == "1":
-##        verb = "GET"
-##    elif respuesta == "2":
-##        verb = "POST"
-##    elif respuesta == "3":
-##        verb = "PUT"
-##    elif respuesta == "4":
-##       verb = "HEAD"
 
-# Convertir el verbo a mayúsculas si no es None
-    if verb is not None:
-        verb = verb.upper()
-
-# Imprimir el verbo seleccionado
-    #print("Verbo seleccionado:", verb)
-
-    # Agregar el esquema "https://" si no está presente en la URL
     if not url.startswith("http://") and not url.startswith("https://"):
         url = "https://" + url
 
-    # Verificar redirección HTTP a HTTPS
+    headers = {}
+    
+    # Si se proporciona un header raw, lo agrega a los headers
+    if raw_header:
+        try:
+            key, value = raw_header.split(':', 1)
+            headers[key.strip()] = value.strip()
+            print(f"Header importado: {key.strip()}: {value.strip()}")
+        except ValueError:
+            print("Error: El formato del header debe ser 'Nombre: Valor'.")
+
     try:
         check_http_to_https_redirection(url)
-        # Enviar la solicitud HTTP
-        response = requests.request(verb, url)
-        headers = response.headers
-    # Imprimir la versión del protocolo HTTP
-    #protocol_version = f"HTTP/{response.raw.version // 10}.{response.raw.version % 10}"
-    # Imprimir el código de estado y descripción, si hay location, además que la indique.
-    #print_status(response)
-    #print() # Imprimir una línea en blanco
-    # Imprimir el header
+        response = requests.request(verb, url, headers=headers)
+        response_headers = response.headers
+
         if info is not None:
-            print_header(headers)
+            print_header(response_headers)
         else:
-            print()
-#    print() # Imprimir una línea en blanco
+            print_status(response)
+
+        print_special_headers(response_headers)
+        print_security_headers(response_headers)
+        print_tiempo()
+        print(f"\n Información Adicional: Sugerencias [Buenas prácticas]\n ")
+        suggest_headers_to_remove(response_headers)  # Llamada a la nueva función
+        suggest_recommended_headers(response_headers)# Llamada a la nueva función
         
-        print_special_headers(headers)
- #   print()
-        print_security_headers(headers)
-  #  print()
+        # Guardar cabeceras y otros datos en JSON
+        output_data = {
+            "url": url,
+            "status_code": response.status_code,
+            "headers": dict(response_headers),
+            "ip": get_ip(url),
+            "timestamp": datetime.now().isoformat()
+        }
+        save_to_json(output_data, output_file)
+
     except Exception as e:
-        #print(e)
-        print("Dirección ingresada refleja un error (No se puede establecer una conexión) ")
-        
-    ip = get_ip(url)
-    if ip is not None:
-        print(f"La dirección IP del servidor {url} es: {ip}")
-    else:
-        print(f"No se pudo obtener la dirección IP del servidor {url}")
-    
-    
-    print_tiempo()
-    
+        #print("Error al establecer la conexión:", str(e))
+        print("error al establecer la conexión")
+        print_tiempo()
+
 if __name__ == "__main__":
     main()

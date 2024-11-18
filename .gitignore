@@ -9,3 +9,5 @@ Analisis_header_eml/config.api
 *.rar
 /.obsidian
 *.json
+retos_Script_python/script2/usuarios/usuarios.db
+retos_Script_python/script2/usos.lock
