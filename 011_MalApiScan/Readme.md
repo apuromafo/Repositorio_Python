@@ -12,8 +12,8 @@ mas.py -a archivo.exe
 
 mas.py -f carpeta (procesa cualquier extensión en esa carpeta)
 
-![[Pasted image 20241118174052.png]]
-
+ 
+![Captura](https://github.com/apuromafo/Repositorio_Python/blob/main/011_MalApiScan/img/Pasted%20image%2020241118174052.png?raw=true)
 
 
 
