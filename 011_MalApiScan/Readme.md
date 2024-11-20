@@ -12,7 +12,7 @@ mas.py -a archivo.exe
 
 mas.py -f carpeta (procesa cualquier extensión en esa carpeta)
 
-![[Pasted image 20241118174052.png]]
+![![[Pasted image 20241118174052.png]]](Pasted image 20241118174052.png?raw=true)
 
 
 
