@@ -1,13 +1,14 @@
 import argparse
 import requests
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone  # Importaciones correctas
 from tabulate import tabulate
 from colorama import Fore, Style
-import locale
 import socket
 from urllib.parse import urlparse
 import ipaddress
+import locale
+
 
 def print_banner():
     banner = """
@@ -21,7 +22,7 @@ def save_to_json(data, filename='output.json'):
     with open(filename, 'w') as json_file:
         json.dump(data, json_file, ensure_ascii=False, indent=4)
     print(f"Salida guardada en {filename}")
-
+    
 def print_status(response):
     status_code = response.status_code
     status_description = response.reason
@@ -288,9 +289,22 @@ def get_ip_type(ip):
         return "IPv4" if ip_obj.version == 4 else "IPv6"
     except ValueError:
         return "Invalid IP"
-
+ 
 def print_tiempo():
-    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    # Intentar obtener los alias de locales
+    try:
+        available_locales = locale.locale_aliases()
+    except AttributeError:
+        # Si ocurre el error, intentar con locale.windows_locale (para Windows)
+        available_locales = list(locale.windows_locale.values())
+
+    if 'es_ES.UTF-8' not in available_locales:
+        #print("Warning: 'es_ES.UTF-8' locale not found. Using default locale.")
+        locale.setlocale(locale.LC_TIME, '')
+    else:
+        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+
+
     now = datetime.now(timezone.utc)
     gmt_offset = timedelta(hours=-3)
     gmt_time = now + gmt_offset
@@ -300,18 +314,21 @@ def print_tiempo():
 def main():
     print_banner()
     parser = argparse.ArgumentParser(description='Enviar solicitud HTTP con un verbo especificado')
-    parser.add_argument('url', type=str, nargs='?', help='URL de destino')
-    parser.add_argument('info', type=str, nargs='?', choices=['i'], default=None, help='i = Header info')
-    parser.add_argument('verb', type=str, nargs='?', choices=['GET', 'POST', 'PUT', 'HEAD'], default='GET', help='Verbo HTTP')
+    parser.add_argument('url', type=str, help='URL de destino')
+    parser.add_argument('verb', type=str, choices=['GET', 'POST', 'PUT', 'HEAD'], help='Verbo HTTP')
     parser.add_argument('-o', '--output', type=str, default='output.json', help='Nombre del archivo de salida JSON')
-    parser.add_argument('-H', '--header', type=str, help='Header en formato raw para autenticación')
+    parser.add_argument('-H', '--header', type=str, help='Header en formato raw para la solicitud')
+    parser.add_argument('-b', '--body', type=str, help='Cuerpo de la solicitud en formato JSON')
+    parser.add_argument('info', type=str, nargs='?', choices=['i'], default=None, help='i = Header info')
 
     args = parser.parse_args()
+    
     url = args.url
     verb = args.verb.upper()
-    info = args.info
     output_file = args.output
     raw_header = args.header
+    body = args.body
+    info = args.info  # Asegúrate de que info esté definido aquí
 
     if url is None:
         url = input("Introduce la URL: ")
@@ -320,8 +337,7 @@ def main():
         url = "https://" + url
 
     headers = {}
-    
-    # Si se proporciona un header raw, lo agrega a los headers
+
     if raw_header:
         try:
             key, value = raw_header.split(':', 1)
@@ -330,9 +346,16 @@ def main():
         except ValueError:
             print("Error: El formato del header debe ser 'Nombre: Valor'.")
 
+    if verb == "POST" and body:
+        headers['Content-Type'] = 'application/json'
+
     try:
         check_http_to_https_redirection(url)
-        response = requests.request(verb, url, headers=headers)
+        if verb == "POST" and body:
+            response = requests.post(url, headers=headers, data=body)
+        else:
+            response = requests.request(verb, url, headers=headers)
+
         response_headers = response.headers
 
         if info is not None:
@@ -344,10 +367,9 @@ def main():
         print_security_headers(response_headers)
         print_tiempo()
         print(f"\n Información Adicional: Sugerencias [Buenas prácticas]\n ")
-        suggest_headers_to_remove(response_headers)  # Llamada a la nueva función
-        suggest_recommended_headers(response_headers)# Llamada a la nueva función
-        
-        # Guardar cabeceras y otros datos en JSON
+        suggest_headers_to_remove(response_headers)
+        suggest_recommended_headers(response_headers)
+
         output_data = {
             "url": url,
             "status_code": response.status_code,
@@ -358,8 +380,7 @@ def main():
         save_to_json(output_data, output_file)
 
     except Exception as e:
-        #print("Error al establecer la conexión:", str(e))
-        print("error al establecer la conexión")
+        print("Error al establecer la conexión:", str(e))
         print_tiempo()
 
 if __name__ == "__main__":
