@@ -8,6 +8,7 @@ import socket
 from urllib.parse import urlparse
 import ipaddress
 import locale
+import urllib3
 
 
 def print_banner():
@@ -282,7 +283,26 @@ def get_ip(url):
         return f"{ip} ({get_ip_type(ip)})"
     except (socket.gaierror, IndexError):
         return None
-
+def load_body(body_arg):
+    try:
+        with open(body_arg, 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, IsADirectoryError):
+        try:
+            return json.loads(body_arg)
+        except json.JSONDecodeError:
+            print(f"Error: Invalid JSON format: {body_arg}")
+            return None
+def parse_headers(header_strings):
+    headers = {}
+    for raw_header in header_strings:
+        try:
+            key, value = raw_header.split(':', 1)
+            headers[key.strip()] = value.strip()
+        except ValueError:
+            print(f"Error: Invalid header format: {raw_header}")
+    return headers            
+            
 def get_ip_type(ip):
     try:
         ip_obj = ipaddress.ip_address(ip)
@@ -312,64 +332,64 @@ def print_tiempo():
     print("Fecha y hora:", formatted_date)
 
 def main():
-    print_banner()
+    # Disable warnings from urllib3
+    urllib3.disable_warnings()  
+
     parser = argparse.ArgumentParser(description='Enviar solicitud HTTP con un verbo especificado')
+    # Improved help message for -b argument
+    parser.add_argument('-b', '--body', type=str, help='Cuerpo de la solicitud en formato JSON (cadena o archivo)')
     parser.add_argument('url', type=str, help='URL de destino')
     parser.add_argument('verb', type=str, choices=['GET', 'POST', 'PUT', 'HEAD'], help='Verbo HTTP')
     parser.add_argument('-o', '--output', type=str, default='output.json', help='Nombre del archivo de salida JSON')
-    parser.add_argument('-H', '--header', type=str, help='Header en formato raw para la solicitud')
-    parser.add_argument('-b', '--body', type=str, help='Cuerpo de la solicitud en formato JSON')
+    parser.add_argument('-H', '--header', type=str, nargs='+', help='Encabezados (se pueden especificar múltiples)')
     parser.add_argument('info', type=str, nargs='?', choices=['i'], default=None, help='i = Header info')
+    parser.add_argument('-p', '--proxy', type=str, help='Dirección del proxy en formato host:puerto')
 
     args = parser.parse_args()
-    
+
     url = args.url
     verb = args.verb.upper()
     output_file = args.output
-    raw_header = args.header
-    body = args.body
-    info = args.info  # Asegúrate de que info esté definido aquí
-
-    if url is None:
-        url = input("Introduce la URL: ")
-
-    if not url.startswith("http://") and not url.startswith("https://"):
-        url = "https://" + url
-
     headers = {}
+    body = None  # Initialize body as None
 
-    if raw_header:
-        try:
-            key, value = raw_header.split(':', 1)
-            headers[key.strip()] = value.strip()
-            print(f"Header importado: {key.strip()}: {value.strip()}")
-        except ValueError:
-            print("Error: El formato del header debe ser 'Nombre: Valor'.")
+    # Process raw headers
+    if args.header:
+     headers = parse_headers(args.header)
+     #   for raw_header in args.header:
+     #       try:
+     #           key, value = raw_header.split(':', 1)
+     #           headers[key.strip()] = value.strip()
+     #       except ValueError:
+     #           print(f"Error: El formato del header debe ser 'Nombre: Valor'. (Header: {raw_header})")
 
+    # Load body from file or string (improved logic)
+    if args.body:
+        body = load_body(args.body)
+    # Set Content-Type header for POST requests with body
     if verb == "POST" and body:
         headers['Content-Type'] = 'application/json'
 
+    # Handle proxy
+    proxies = {}
+    if args.proxy:
+        proxies = {
+            "http": f"http://{args.proxy}",
+            "https": f"http://{args.proxy}",
+        }
+        print(f"Usando proxy: {proxies}")
+
+    # Make the request
     try:
-        check_http_to_https_redirection(url)
+
         if verb == "POST" and body:
-            response = requests.post(url, headers=headers, data=body)
+            response = requests.post(url, headers=headers, json=body, proxies=proxies, verify=False)
         else:
-            response = requests.request(verb, url, headers=headers)
+            response = requests.request(verb, url, headers=headers, proxies=proxies, verify=False)
 
         response_headers = response.headers
 
-        if info is not None:
-            print_header(response_headers)
-        else:
-            print_status(response)
-
-        print_special_headers(response_headers)
-        print_security_headers(response_headers)
-        print_tiempo()
-        print(f"\n Información Adicional: Sugerencias [Buenas prácticas]\n ")
-        suggest_headers_to_remove(response_headers)
-        suggest_recommended_headers(response_headers)
-
+        # Print information based on arguments
         output_data = {
             "url": url,
             "status_code": response.status_code,
@@ -381,7 +401,7 @@ def main():
 
     except Exception as e:
         print("Error al establecer la conexión:", str(e))
-        print_tiempo()
+        print_tiempo()  # Assuming print_tiempo() prints execution time
 
 if __name__ == "__main__":
     main()
