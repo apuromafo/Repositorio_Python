@@ -31,7 +31,8 @@ para usar basta tener los requerimientos y autorización explícita para uso.
 pip install -r requirements.txt
 ```
 
-El día de Hoy este código permite no solo identificar que cabeceras están presentes
+El día de Hoy este código permite no solo identificar que cabeceras están presentes, sino también recomendaciones de buenas prácticas de que cabeceras podrían eliminarse y cuales podrían configurarse.
+
 ![[demo1.jpg]](img/demo1.jpg) 
 
 
@@ -39,6 +40,19 @@ es posible hacer uso de una petición distinta a GET, por ejemplo con -H podemos
 ```
 python Cabeceras_Seguridad.py http://sitio POST -H "Content-Type: application/json" -b '{"key": "value"}'
 ```
+sin embargo como el uso de json suele ser un poco complejo el scapar carácteres, implementé que valide si lo aborda como raw o json, esto es mejor en un archivo como argumento opcional
+ -b poc.txt
+  -b poc.json  
+   -b poc.raw  
+ 
+ La última opción que se ha configurado es de añadir un proxy  
+  -p 127.0.0.1:8080
+
+> [!NOTE]
+>      por lo cual , si tienes dudas como está funcionando el argumento -H y -b puedes de paso usar el proxy y ver como está enviando las peticiones.
+
+en particular esta herramienta para mi es funcional a la necesidad actual que necesito, se podría optimizar en muchas formas y maneras, pero por algo se empieza...
+
 
  
   21.11.2024
