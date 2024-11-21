@@ -4,9 +4,12 @@ Pequeño script pensado en validar las cabeceras de seguridad (algo sencillo).
 
 
 ![[Pasted image 20241118184355.png]](img%2FPasted%20image%2020241118184355.png)
+
+
 cuenta con los siguientes paquetes:
 los siguientes paquetes:
 
+```
 argparse: Herramienta para la creación de interfaces de línea de comandos.
 requests: Biblioteca para realizar solicitudes HTTP.
 json: Biblioteca para trabajar con datos JSON.
@@ -18,8 +21,23 @@ socket: Biblioteca para trabajar con sockets.
 urllib3: Biblioteca para realizar solicitudes HTTP seguras.
 ipaddress: Biblioteca para trabajar con direcciones IP.
 
+```
 
 requiere uso de python3 
 para usar basta tener los requerimientos y autorización explícita para uso.
+```
 pip install -r requirements.txt
+```
+
+es posible hacer uso de una petición distinta a GET, por ejemplo con -H podemos pasar los headers personalizados, y en el caso de necesitar enviar contenido raw, podemos hacerlo con un adicional -b como se muestra 
+```
+python Cabeceras_Seguridad.py http://sitio POST -H "Content-Type: application/json" -b '{"key": "value"}'
+```
+
+ 
+  21.11.2024
+
+
+
+
 
