@@ -2,6 +2,8 @@ Pequeño script pensado en validar las cabeceras de seguridad (algo sencillo).
 
 ![image](https://github.com/apuromafo/Repositorio_Python/assets/23161917/681ad0e8-d176-41db-88f5-bcb8ceaf458a)
 
+con el paso del tiempo se añadieron argumentos -h 
+
 
 ![[Pasted image 20241118184355.png]](img%2FPasted%20image%2020241118184355.png)
 
@@ -28,6 +30,10 @@ para usar basta tener los requerimientos y autorización explícita para uso.
 ```
 pip install -r requirements.txt
 ```
+
+El día de Hoy este código permite no solo identificar que cabeceras están presentes
+![[demo1.jpg]](img/demo1.jpg) 
+
 
 es posible hacer uso de una petición distinta a GET, por ejemplo con -H podemos pasar los headers personalizados, y en el caso de necesitar enviar contenido raw, podemos hacerlo con un adicional -b como se muestra 
 ```
