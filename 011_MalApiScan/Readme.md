@@ -13,8 +13,7 @@ mas.py -a archivo.exe
 mas.py -f carpeta (procesa cualquier extensión en esa carpeta)
 si se desea un log , se usa la opción -o
 
-
-![[Repositorio_Python/011_MalApiScan/img/img.png]](/img/img.png)
+![[./img/img.png]](./img/img.png?raw=true)
  
 22.11
 
