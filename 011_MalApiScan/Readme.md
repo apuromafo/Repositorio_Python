@@ -14,9 +14,8 @@ mas.py -f carpeta (procesa cualquier extensión en esa carpeta)
 si se desea un log , se usa la opción -o
 
 
-
-![[Pasted image 20241118174052.png]]](./img/img.png?raw=true)
-
+![[Repositorio_Python/011_MalApiScan/img/img.png]](Repositorio_Python/011_MalApiScan/img/img.png)
+ 
 22.11
 
 
