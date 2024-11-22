@@ -11,8 +11,13 @@ la vista será algo sencillo
 mas.py -a archivo.exe
 
 mas.py -f carpeta (procesa cualquier extensión en esa carpeta)
+si se desea un log , se usa la opción -o
 
-![[Pasted image 20241118174052.png]]](Pasted image 20241118174052.png?raw=true)
+
+
+![[Pasted image 20241118174052.png]]](/img/Pasted image 20241118174052.png?raw=true)
+
+22.11
 
 
 
