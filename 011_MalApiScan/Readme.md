@@ -15,7 +15,7 @@ si se desea un log , se usa la opción -o
 
 
 
-![[Pasted image 20241118174052.png]]](./img/Pasted%20image%2020241118174052.png?raw=true)
+![[Pasted image 20241118174052.png]]](./img/img.png?raw=true)
 
 22.11
 
