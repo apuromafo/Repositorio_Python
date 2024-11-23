@@ -134,7 +134,10 @@ def obtener_preferencias_usuario():
         'minusculas': input("Incluir minúsculas (S/N)? [S]: ").strip().lower() in ['s', ''],
         'especiales': input("Incluir caracteres especiales (S/N)? [S]: ").strip().lower() in ['s', '']
     }
-    return complejidad
+    
+    longitud = int(input("Ingrese la longitud deseada de la contraseña: "))
+    
+    return complejidad, longitud
 
 def calcular_entropia(longitud, complejidad):
     """Calcula la entropía en bits de una contraseña basada en los tipos de caracteres usados."""
@@ -193,13 +196,13 @@ def main():
         print(f"Longitud: {longitud}")
         print(f"Configuración: {complejidad}")
         print(f"Entropía: {entropia:.2f} bits")
-        print(f"Clasificación: {clasificacion}")  # Mostrar clasificación
+        print(f"Clasificación: {clasificacion}")
         return
 
     # Obtener preferencias del usuario si se activa el modo interactivo
     if args.interactivo:
         print("Configuración de opciones de contraseña:")
-        complejidad_contrasena = obtener_preferencias_usuario()
+        complejidad_contrasena, longitud = obtener_preferencias_usuario()
     else:
         complejidad_contrasena = {
             'digitos': True,
@@ -207,14 +210,19 @@ def main():
             'minusculas': True,
             'especiales': True
         }
+        longitud = args.longitud
 
-    # Si se especifica un nivel de entropía
+    # Validar longitud con respecto a la entropía deseada
     if args.entropia:
-        longitud = calcular_longitud_necesaria(args.entropia, complejidad_contrasena)
+        longitud_necesaria = calcular_longitud_necesaria(args.entropia, complejidad_contrasena)
+        if longitud < longitud_necesaria:
+            print(f"Advertencia: Para alcanzar una entropía de {args.entropia} bits, ")
+            print(f"considera aumentar la longitud de la contraseña a al menos {longitud_necesaria} caracteres.")
+            longitud = max(longitud, longitud_necesaria)
+
         contrasenas = [generar_contraseña(longitud, complejidad_contrasena) for _ in range(args.numero)]
         print(f"Contraseñas generadas con {args.entropia} bits de entropía:")
     else:
-        longitud = args.longitud
         contrasenas = [generar_contraseña(longitud, complejidad_contrasena) for _ in range(args.numero)]
         print("Contraseñas generadas:")
 
