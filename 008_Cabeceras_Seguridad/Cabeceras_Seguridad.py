@@ -468,41 +468,6 @@ def main():
         }
         print(f"Usando proxy: {proxies}")
 
-#    # Realizar la solicitud
-# try:
-#        if verb == "POST" and body:
-#            response = requests.post(url, headers=headers, json=body, proxies=proxies, verify=False)
-#        else:
-#            response = re#quests.request(verb, url, headers=headers, proxies=proxies, verify=False)
-#
-#        # Procesar la respuesta
-#        response_headers = response.headers
-# #       output_data = {
-  #          "url": url,
-   #         "status_code": response.status_code,
-     #       "headers": dict(response_headers),
-    #        "ip": get_ip(url),
-    #        "timestamp": datetime.now().isoformat()
-    #    }
-    #    save_to_json(output_data, output_file)
-#
-        # Mostrar cabeceras si se solicita
-    #    if info == 'i':
-   #         print_header(response_headers)  # Mostrar cabeceras
-   #         return  # Salir después de mostrar las cabeceras
-
-        # Funcionalidades adicionales (solo si no se solicitó info)
-   #     print_special_headers(response_headers)
-    #    print_security_headers(response_headers)
-    #    print_tiempo()
-    #    print(f"\n Información Adicional: Sugerencias [Buenas prácticas]\n ")
-    #    suggest_headers_to_remove(response_headers)
-     #   suggest_recommended_headers(response_headers)
-
-    #except Exception as e:
-     #   print("Error al establecer la conexión:", str(e))
-     #   print_tiempo()  # Asumiendo que print_tiempo() imprime el tiempo de ejecución
- 
     # Validación y procesamiento usando funciones específicas
     try:
         if verb == "GET":
@@ -525,11 +490,12 @@ def main():
         }
         save_to_json(output_data, output_file)
 
+        # Mostrar el código de estado
+        print(f"Código de estado: {response.status_code}")  # Imprimir el código de estado
+
         # Mostrar cabeceras si se solicita
         if info == 'i':
             print_header(response_headers)  # Mostrar cabeceras
-            
-            #return  # Salir después de mostrar las cabeceras
 
         # Funcionalidades adicionales (solo si no se solicitó info)
         print_special_headers(response_headers)
