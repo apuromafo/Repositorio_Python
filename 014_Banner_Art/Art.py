@@ -4,7 +4,21 @@ import random
 import unicodedata
 #import textwrap
 
+#!/usr/bin/python3
 
+def print_banner():
+    banner = r"""
+  __   ____  ____
+ / _\ (  _ \(_  _)
+/    \ )   /  )(
+\_/\_/(__\_) (__)   
+                     v0.1 Apuromafo
+"""
+    print (banner)
+ 
+
+    
+    
 def sanitize_input(text):
     return unicodedata.normalize('NFKD', text)
         
@@ -111,7 +125,7 @@ def generar_arte_ascii():
         try:
             with open(args.output, 'w', encoding='utf-8', newline='\n') as archivo:
                 archivo.write(resultado_ascii)
-            print(f"El arte ASCII se guardó en {fuente}.{args.output}")
+            print(f"El arte ASCII {fuente} se guardó en {args.output}")
         except IOError as e:
             print(f"Error al escribir en el archivo: {e}")
     else:
@@ -119,4 +133,6 @@ def generar_arte_ascii():
         print("\n")
 
 if __name__ == "__main__":
+    print_banner()
     generar_arte_ascii()
+    
