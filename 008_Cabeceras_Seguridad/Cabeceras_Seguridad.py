@@ -3,26 +3,78 @@ import requests
 import json
 from datetime import datetime, timedelta, timezone  # Importaciones correctas
 from tabulate import tabulate
-from colorama import Fore, Style
+from colorama import Fore, Style #banner
+import random #banner
+import math #banner
 import socket
 from urllib.parse import urlparse
 import ipaddress
 import locale
 import urllib3
 
+# Definición de colores
+colores = {
+    "rojo": (255, 0, 0),
+    "naranja": (255, 165, 0),
+    "amarillo": (255, 255, 0),
+    "verde": (0, 255, 0),
+    "azul": (0, 0, 255),
+    "morado": (128, 0, 128),
+}
 
+# Función para interpolar valores de color según la posición
+def interpolar_color(color_inicio, color_fin, posicion):
+    r_inicio, g_inicio, b_inicio = color_inicio
+    r_fin, g_fin, b_fin = color_fin
+
+    r_nuevo = int(r_inicio + (posicion * (r_fin - r_inicio)))
+    g_nuevo = int(g_inicio + (posicion * (g_fin - g_inicio)))
+    b_nuevo = int(b_inicio + (posicion * (b_fin - b_inicio)))
+
+    return (r_nuevo, g_nuevo, b_nuevo)
+
+# Función para generar código ANSI de escape a partir de valores RGB
+def rgb_a_codigo_ansi(rgb):
+    r, g, b = rgb
+    return f"\033[38;2;{r};{g};{b}m"
+
+# Generar un degradado de colores
+def generar_degradado_colores(color_inicio, color_fin, pasos):
+    degradado = []
+    for i in range(pasos + 1):
+        posicion = i / pasos
+        color = interpolar_color(color_inicio, color_fin, posicion)
+        codigo_ansi = rgb_a_codigo_ansi(color)
+        degradado.append(codigo_ansi)
+
+    return degradado
+
+# Función para imprimir el banner
 def print_banner():
+    # Fuente: https://patorjk.com/software/taag/#p=display&f=Alligator2&t=Cabeceras
     banner = """
-    ==============================
-            Cabeceras 
-    ==============================
+ ::::::::      :::     :::::::::  :::::::::: ::::::::  :::::::::: :::::::::      :::      ::::::::  
+:+:    :+:   :+: :+:   :+:    :+: :+:       :+:    :+: :+:        :+:    :+:   :+: :+:   :+:    :+: 
++:+         +:+   +:+  +:+    +:+ +:+       +:+        +:+        +:+    +:+  +:+   +:+  +:+        
++#+        +#++:++#++: +#++:++#+  +#++:++#  +#+        +#++:++#   +#++:++#:  +#++:++#++: +#++:++#++ 
++#+        +#+     +#+ +#+    +#+ +#+       +#+        +#+        +#+    +#+ +#+     +#+        +#+ 
+#+#    #+# #+#     #+# #+#    #+# #+#       #+#    #+# #+#        #+#    #+# #+#     #+# #+#    #+# 
+ ########  ###     ### #########  ########## ########  ########## ###    ### ###     ###  ########  
+                                                                              v0.1 
     """
-    print(Fore.CYAN + banner + Style.RESET_ALL)
+    # Generar colores degradados para el texto
+    color_inicio = colores[random.choice(list(colores.keys()))]
+    color_fin = colores[random.choice(list(colores.keys()))]
+    degradado = generar_degradado_colores(color_inicio, color_fin, len(banner.splitlines()))
+
+    # Imprimir el texto con el degradado de color
+    for i, line in enumerate(banner.splitlines()):
+        print(degradado[i % len(degradado)] + line + "\033[0m")
 
 def save_to_json(data, filename='output.json'):
     with open(filename, 'w') as json_file:
         json.dump(data, json_file, ensure_ascii=False, indent=4)
-    print(f"Salida guardada en {filename}")
+    print(f"Headers guardados como {filename}")
     
 def print_status(response):
     status_code = response.status_code
@@ -49,8 +101,8 @@ def print_header(headers):
     header_list = ', '.join(header_names)
     total_headers = len(headers)
     
-    print(f"Total de Headers {total_headers}:\n {header_list}")
-    print(f"Headers actuales [Informativo]\n")
+    print(f"Total de Headers {total_headers}:\n")# {header_list}")
+    print(f"[Informativo] Headers actuales \n")
     for i, (key, value) in enumerate(headers.items(), start=1):
         print(f"[{str(i).zfill(2)}] {key}: {value}")
     print(f"\n\n") 
@@ -331,15 +383,48 @@ def print_tiempo():
     formatted_date = now.strftime("%A, %d de %B de %Y %H:%M:%S UTC") + f" ({gmt_time.strftime('%H:%M GMT-3')})"
     print("Fecha y hora:", formatted_date)
 
+def procesar_get(url, headers, proxies):
+    response = requests.get(url, headers=headers, proxies=proxies, verify=False)
+    return response
+
+def procesar_head(url, headers, proxies):
+    response = requests.head(url, headers=headers, proxies=proxies, verify=False)
+    return response
+
+def procesar_put(url, headers, body, proxies):
+    if body:
+        if isinstance(body, dict):
+            headers['Content-Type'] = 'application/json'
+            response = requests.put(url, headers=headers, json=body, proxies=proxies, verify=False)
+        else:
+            headers['Content-Type'] = 'text/plain'  # Puede ser XML u otro formato
+            response = requests.put(url, headers=headers, data=body, proxies=proxies, verify=False)
+    else:
+        response = requests.put(url, headers=headers, proxies=proxies, verify=False)
+    return response
+
+def procesar_post(url, headers, body, proxies):
+    if body:
+        if isinstance(body, dict):
+            headers['Content-Type'] = 'application/json'
+            response = requests.post(url, headers=headers, json=body, proxies=proxies, verify=False)
+        else:
+            headers['Content-Type'] = 'text/plain'  # Puede ser XML u otro formato
+            response = requests.post(url, headers=headers, data=body, proxies=proxies, verify=False)
+    else:
+        response = requests.post(url, headers=headers, proxies=proxies, verify=False)
+    return response
+    
+    
 def main():
     # Disable warnings from urllib3
-    urllib3.disable_warnings()  
+    urllib3.disable_warnings()
+    print_banner()
 
     parser = argparse.ArgumentParser(description='Enviar solicitud HTTP con un verbo especificado')
-    # Improved help message for -b argument
     parser.add_argument('-b', '--body', type=str, help='Cuerpo de la solicitud en formato JSON (cadena o archivo)')
-    parser.add_argument('url', type=str, help='URL de destino')
-    parser.add_argument('verb', type=str, choices=['GET', 'POST', 'PUT', 'HEAD'], help='Verbo HTTP')
+    parser.add_argument('url', type=str, nargs='?', help='URL de destino')  # Hacer que la URL sea opcional
+    parser.add_argument('verb', type=str, nargs='?', choices=['GET', 'POST', 'PUT', 'HEAD'], default='GET', help='Verbo HTTP')  # Por defecto GET
     parser.add_argument('-o', '--output', type=str, default='output.json', help='Nombre del archivo de salida JSON')
     parser.add_argument('-H', '--header', type=str, nargs='+', help='Encabezados (se pueden especificar múltiples)')
     parser.add_argument('info', type=str, nargs='?', choices=['i'], default=None, help='i = Header info')
@@ -351,26 +436,30 @@ def main():
     verb = args.verb.upper()
     output_file = args.output
     headers = {}
-    body = None  # Initialize body as None
+    body = None  # Inicializar body como None
+    info = args.info  # Asegúrate de que info esté definido aquí
 
-    # Process raw headers
+    # Hacer que la URL sea interactiva si no se proporciona
+    if url is None:
+        url = input("Introduce la URL: ")
+
+    # Asegurarse de que la URL comience con http:// o https://
+    if not url.startswith("http://") and not url.startswith("https://"):
+        url = "https://" + url
+
+    # Procesar encabezados en bruto
     if args.header:
-     headers = parse_headers(args.header)
-     #   for raw_header in args.header:
-     #       try:
-     #           key, value = raw_header.split(':', 1)
-     #           headers[key.strip()] = value.strip()
-     #       except ValueError:
-     #           print(f"Error: El formato del header debe ser 'Nombre: Valor'. (Header: {raw_header})")
+        headers = parse_headers(args.header)
 
-    # Load body from file or string (improved logic)
+    # Cargar cuerpo desde un archivo o cadena
     if args.body:
         body = load_body(args.body)
-    # Set Content-Type header for POST requests with body
+
+    # Configurar el encabezado Content-Type para solicitudes POST con cuerpo
     if verb == "POST" and body:
         headers['Content-Type'] = 'application/json'
 
-    # Handle proxy
+    # Manejar proxy
     proxies = {}
     if args.proxy:
         proxies = {
@@ -378,22 +467,55 @@ def main():
             "https": f"http://{args.proxy}",
         }
         print(f"Usando proxy: {proxies}")
-    if verb in ['PUT', 'HEAD']:
-        print(f"Advertencia: El verbo '{verb}' aún está en desarrollo. Se enviará una solicitud básica.")
-        response = requests.request(verb, url, headers=headers, proxies=proxies, verify=False)
-    
 
-    # Make the request
+#    # Realizar la solicitud
+# try:
+#        if verb == "POST" and body:
+#            response = requests.post(url, headers=headers, json=body, proxies=proxies, verify=False)
+#        else:
+#            response = re#quests.request(verb, url, headers=headers, proxies=proxies, verify=False)
+#
+#        # Procesar la respuesta
+#        response_headers = response.headers
+# #       output_data = {
+  #          "url": url,
+   #         "status_code": response.status_code,
+     #       "headers": dict(response_headers),
+    #        "ip": get_ip(url),
+    #        "timestamp": datetime.now().isoformat()
+    #    }
+    #    save_to_json(output_data, output_file)
+#
+        # Mostrar cabeceras si se solicita
+    #    if info == 'i':
+   #         print_header(response_headers)  # Mostrar cabeceras
+   #         return  # Salir después de mostrar las cabeceras
+
+        # Funcionalidades adicionales (solo si no se solicitó info)
+   #     print_special_headers(response_headers)
+    #    print_security_headers(response_headers)
+    #    print_tiempo()
+    #    print(f"\n Información Adicional: Sugerencias [Buenas prácticas]\n ")
+    #    suggest_headers_to_remove(response_headers)
+     #   suggest_recommended_headers(response_headers)
+
+    #except Exception as e:
+     #   print("Error al establecer la conexión:", str(e))
+     #   print_tiempo()  # Asumiendo que print_tiempo() imprime el tiempo de ejecución
+ 
+    # Validación y procesamiento usando funciones específicas
     try:
+        if verb == "GET":
+            response = procesar_get(url, headers, proxies)
+        elif verb == "HEAD":
+            response = procesar_head(url, headers, proxies)
+        elif verb == "PUT":
+            response = procesar_put(url, headers, body, proxies)
+        elif verb == "POST":
+            response = procesar_post(url, headers, body, proxies)
 
-        if verb == "POST" and body:
-            response = requests.post(url, headers=headers, json=body, proxies=proxies, verify=False)
-        else:
-            response = requests.request(verb, url, headers=headers, proxies=proxies, verify=False)
-
+        # Procesar la respuesta de las funciones
         response_headers = response.headers
-
-        # Print information based on arguments
         output_data = {
             "url": url,
             "status_code": response.status_code,
@@ -403,9 +525,22 @@ def main():
         }
         save_to_json(output_data, output_file)
 
+        # Mostrar cabeceras si se solicita
+        if info == 'i':
+            print_header(response_headers)  # Mostrar cabeceras
+            
+            #return  # Salir después de mostrar las cabeceras
+
+        # Funcionalidades adicionales (solo si no se solicitó info)
+        print_special_headers(response_headers)
+        print_security_headers(response_headers)
+        print_tiempo()
+        print(f"\n Información Adicional: Sugerencias [Buenas prácticas]\n ")
+        suggest_headers_to_remove(response_headers)
+        suggest_recommended_headers(response_headers)
+
     except Exception as e:
-        print("Error al establecer la conexión:", str(e))
-        print_tiempo()  # Assuming print_tiempo() prints execution time
+        print("Error en el procesamiento específico:", str(e))
 
 if __name__ == "__main__":
     main()
