@@ -378,6 +378,10 @@ def main():
             "https": f"http://{args.proxy}",
         }
         print(f"Usando proxy: {proxies}")
+    if verb in ['PUT', 'HEAD']:
+        print(f"Advertencia: El verbo '{verb}' aún está en desarrollo. Se enviará una solicitud básica.")
+        response = requests.request(verb, url, headers=headers, proxies=proxies, verify=False)
+    
 
     # Make the request
     try:

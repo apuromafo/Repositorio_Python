@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # _*_ coding: utf-8 _*_
-import random
+import random #banner
+import math #banner
 import argparse
 import os
 import re
@@ -51,20 +52,22 @@ def generar_degradado_colores(color_inicio, color_fin, pasos):
     return degradado
 
 # Texto ASCII art
-# Fuente: https://patorjk.com/software/taag/#p=display&f=Alphabet&t=RUT%20%0ACHILENO
+# Fuente: https://patorjk.com/software/taag/#p=display&f=Alligator2&t=Rut%0AChileno
 texto = """
-RRRR  U   U TTTTTT                  
-R   R U   U   TT                    
-RRRR  U   U   TT                    
-R R   U   U   TT                    
-R  RR  UUU    TT                    
-                                    
-                                    
- CCC H  H III L    EEEE N   N  OOO  
-C    H  H  I  L    E    NN  N O   O 
-C    HHHH  I  L    EEE  N N N O   O 
-C    H  H  I  L    E    N  NN O   O 
- CCC H  H III LLLL EEEE N   N  OOO  
+:::::::::  :::    ::: :::::::::::                                              
+:+:    :+: :+:    :+:     :+:                                                  
++:+    +:+ +:+    +:+     +:+                                                  
++#++:++#:  +#+    +:+     +#+                                                  
++#+    +#+ +#+    +#+     +#+                                                  
+#+#    #+# #+#    #+#     #+#                                                  
+###    ###  ########      ###                                                  
+ ::::::::  :::    ::: ::::::::::: :::        :::::::::: ::::    :::  ::::::::  
+:+:    :+: :+:    :+:     :+:     :+:        :+:        :+:+:   :+: :+:    :+: 
++:+        +:+    +:+     +:+     +:+        +:+        :+:+:+  +:+ +:+    +:+ 
++#+        +#++:++#++     +#+     +#+        +#++:++#   +#+ +:+ +#+ +#+    +:+ 
++#+        +#+    +#+     +#+     +#+        +#+        +#+  +#+#+# +#+    +#+ 
+#+#    #+# #+#    #+#     #+#     #+#        #+#        #+#   #+#+# #+#    #+# 
+ ########  ###    ### ########### ########## ########## ###    ####  ########  
 
                         v03 by Apuromafo
 """
