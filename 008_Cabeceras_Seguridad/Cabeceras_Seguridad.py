@@ -7,7 +7,7 @@ from colorama import Fore, Style #banner
 import random #banner
 import math #banner
 import socket
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 import ipaddress
 import locale
 import urllib3
@@ -184,14 +184,18 @@ def suggest_headers_to_remove(headers):
     ]
     
     # Verificar si alguna de las cabeceras sugeridas está presente
-    present_suggestions = [header for header in suggest_remove if header in headers]
-    
+    present_suggestions = {
+        header: headers[header]
+        for header in suggest_remove
+        if header in headers
+    }
+
     if present_suggestions:
         print("\n[!] Cabeceras que podrían eliminarse:")
-        for header in present_suggestions:
-            print(f"[!] Cabecera: {Fore.RED}{header}{Style.RESET_ALL}")
+        for header, value in present_suggestions.items():
+            print(f"[!] Cabecera: {Fore.RED}{header}{Style.RESET_ALL} = {value}")
     else:
-        print("\nTodas las cabeceras sugeridas para eliminación están ausentes.")    
+        print("\n")#\nTodas las cabeceras sugeridas para eliminación están ausentes.")
 
 def print_special_headers(headers):
     special_headers = [
@@ -361,7 +365,33 @@ def get_ip_type(ip):
         return "IPv4" if ip_obj.version == 4 else "IPv6"
     except ValueError:
         return "Invalid IP"
- 
+
+
+def normalize_url(url):
+    parsed_url = urlparse(url)
+    
+    # Si no hay esquema, asumir http por defecto
+    if not parsed_url.scheme:
+        parsed_url = parsed_url._replace(scheme='http')
+    
+    # Si no hay puerto, añadir el puerto por defecto según el esquema
+    if parsed_url.port is None:
+        if parsed_url.scheme == 'http':
+            port = 80
+        elif parsed_url.scheme == 'https':
+            port = 443
+        else:
+            raise ValueError("Esquema no soportado. Usa 'http' o 'https'.")
+        
+        # Reconstruir la URL con el puerto por defecto
+        netloc = f"{parsed_url.hostname}:{port}"
+        normalized_url = urlunparse(parsed_url._replace(netloc=netloc))
+    else:
+        normalized_url = url
+    
+    return normalized_url
+
+    
 def print_tiempo():
     # Intentar obtener los alias de locales
     try:
@@ -415,6 +445,25 @@ def procesar_post(url, headers, body, proxies):
         response = requests.post(url, headers=headers, proxies=proxies, verify=False)
     return response
     
+def procesar_patch(url, headers, body, proxies):
+    if body:
+        if isinstance(body, dict):
+            headers['Content-Type'] = 'application/json'
+            response = requests.patch(url, headers=headers, json=body, proxies=proxies, verify=False)
+        else:
+            headers['Content-Type'] = 'text/plain'  # Puede ser XML u otro formato
+            response = requests.patch(url, headers=headers, data=body, proxies=proxies, verify=False)
+    else:
+        response = requests.patch(url, headers=headers, proxies=proxies, verify=False)
+    return response    
+    
+def procesar_options(url, headers, proxies):
+    response = requests.options(url, headers=headers, proxies=proxies, verify=False)
+    return response
+
+def procesar_delete(url, headers, proxies):
+    response = requests.delete(url, headers=headers, proxies=proxies, verify=False)
+    return response
     
 def main():
     # Disable warnings from urllib3
@@ -424,15 +473,23 @@ def main():
     parser = argparse.ArgumentParser(description='Enviar solicitud HTTP con un verbo especificado')
     parser.add_argument('-b', '--body', type=str, help='Cuerpo de la solicitud en formato JSON (cadena o archivo)')
     parser.add_argument('url', type=str, nargs='?', help='URL de destino')  # Hacer que la URL sea opcional
-    parser.add_argument('verb', type=str, nargs='?', choices=['GET', 'POST', 'PUT', 'HEAD'], default='GET', help='Verbo HTTP')  # Por defecto GET
+    parser.add_argument('-v', '--verb', type=str, choices=['GET', 'POST', 'PUT', 'HEAD'], default='GET', help='Verbo HTTP')  # Por defecto GET
     parser.add_argument('-o', '--output', type=str, default='output.json', help='Nombre del archivo de salida JSON')
     parser.add_argument('-H', '--header', type=str, nargs='+', help='Encabezados (se pueden especificar múltiples)')
-    parser.add_argument('info', type=str, nargs='?', choices=['i'], default=None, help='i = Header info')
     parser.add_argument('-p', '--proxy', type=str, help='Dirección del proxy en formato host:puerto')
+    parser.add_argument('-i', '--info', action='store_true', help='Mostrar información de los encabezados')  # Uso de flag
 
     args = parser.parse_args()
 
     url = args.url
+
+    try:
+        normalized_url = normalize_url(url)
+        print(f"Dirección: {normalized_url}")
+        # Aquí puedes continuar con la lógica de la solicitud HTTP usando normalized_url
+    except Exception as e:
+        print(f"Error URL: {str(e)}")
+    
     verb = args.verb.upper()
     output_file = args.output
     headers = {}
@@ -470,6 +527,7 @@ def main():
 
     # Validación y procesamiento usando funciones específicas
     try:
+        
         if verb == "GET":
             response = procesar_get(url, headers, proxies)
         elif verb == "HEAD":
@@ -478,7 +536,13 @@ def main():
             response = procesar_put(url, headers, body, proxies)
         elif verb == "POST":
             response = procesar_post(url, headers, body, proxies)
-
+        elif verb == "DELETE":
+            response = procesar_delete(url, headers, proxies)
+        elif verb == "OPTIONS":            
+            response = procesar_options(url, headers, proxies)
+        elif verb == "PATCH":    
+            response = procesar_patch(url, headers, body, proxies)
+            
         # Procesar la respuesta de las funciones
         response_headers = response.headers
         output_data = {
@@ -491,10 +555,12 @@ def main():
         save_to_json(output_data, output_file)
 
         # Mostrar el código de estado
+        check_http_to_https_redirection(url)
         print(f"Código de estado: {response.status_code}")  # Imprimir el código de estado
+        
 
         # Mostrar cabeceras si se solicita
-        if info == 'i':
+        if info:  # Verificar si el flag info es True
             print_header(response_headers)  # Mostrar cabeceras
 
         # Funcionalidades adicionales (solo si no se solicitó info)
