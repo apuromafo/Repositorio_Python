@@ -94,7 +94,7 @@ def generar_arte_ascii():
     if fuente not in pyfiglet.FigletFont.getFonts():
         print(f"La fuente '{fuente}' no se encontró. Por favor, elige una de las siguientes:")
         for font in pyfiglet.FigletFont.getFonts():
-            print(font)
+            print(r(font))
         exit(1)
 
     # Generar el arte ASCII
@@ -106,16 +106,17 @@ def generar_arte_ascii():
     #texto_ajustado = textwrap.fill(resultado_ascii, width=args.width)
 
     # Si se especificó un archivo de salida, guardar el resultado en él
+    print(resultado_ascii)
     if args.output:
         try:
             with open(args.output, 'w', encoding='utf-8', newline='\n') as archivo:
                 archivo.write(resultado_ascii)
-            print(f"El arte ASCII se guardó en {args.output}")
+            print(f"El arte ASCII se guardó en {fuente}.{args.output}")
         except IOError as e:
             print(f"Error al escribir en el archivo: {e}")
     else:
         # Si no se especificó un archivo de salida, mostrar el resultado en la consola
-        print(resultado_ascii)
+        print("\n")
 
 if __name__ == "__main__":
     generar_arte_ascii()
