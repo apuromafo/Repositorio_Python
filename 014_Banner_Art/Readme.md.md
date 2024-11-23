@@ -42,6 +42,20 @@ Reemplaza `"TU_TEXTO"` con el texto que deseas convertir en arte ASCII.
 - `-o`, `--output`: Guarda el arte ASCII en un archivo (opcional).
 
 
+##**Captura de pantalla
+
+```
+ python3 Art.py -r -s "Art" -o poc.txt
+```
+-r genera una fuente random
+-s genera el string dado
+-o salida al archivo de texto
 
 
-![Captura de pantalla del generador de Ascii Art](img/img2.jpg)
+![Captura de pantalla del generador de Ascii Art](img/img.png)
+
+
+si deseas usar estos banner dejo en /demo/ 2 ejemplos de uso:
+
+![Captura de pantalla de ejemplos para hacer uso ](img/img2.png)
+  
