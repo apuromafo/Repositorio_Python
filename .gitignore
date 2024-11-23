@@ -15,3 +15,4 @@ retos_Script_python/script2/usos.lock
 *.db
 *.api
 011_MalApiScan/conv_mdgit.py
+*.log
