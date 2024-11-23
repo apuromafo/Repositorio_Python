@@ -1,9 +1,9 @@
-import random
+import random #banner
 import string
 import argparse
-import math
-import hashlib
-from datetime import datetime
+import math #banner
+import hashlib 
+from datetime import datetime #log
 
 # Clasificación de Contraseñas por Entropía
 # 1. Muy Débil (Very Weak): 0 - 40 bits
