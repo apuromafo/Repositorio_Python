@@ -1,10 +1,8 @@
+#!/usr/bin/python3
 import argparse
 import pyfiglet
 import random
 import unicodedata
-#import textwrap
-
-#!/usr/bin/python3
 
 def print_banner():
     banner = r"""
@@ -108,13 +106,11 @@ def generar_arte_ascii():
     if fuente not in pyfiglet.FigletFont.getFonts():
         print(f"La fuente '{fuente}' no se encontró. Por favor, elige una de las siguientes:")
         for font in pyfiglet.FigletFont.getFonts():
-            print(r(font))
+            print(font)
         exit(1)
 
     # Generar el arte ASCII
     resultado_ascii = pyfiglet.figlet_format(args.string, font=fuente, width=args.width)
-    #print(resultado_ascii2)
-    #resultado_ascii = pyfiglet.figlet_format(args.string, font=fuente, width=args.width, justify=args.justify)
 
     # Ajustar el texto al ancho deseado
     #texto_ajustado = textwrap.fill(resultado_ascii, width=args.width)
