@@ -1,6 +1,12 @@
-#.- Guardar un número en una variable entre del 1 al 100 pero que sea de forma aleatoria,
-# y que el usuario tenga que adivinar el número,si falla que se le vaya restando intentos 
-#despues de 10 intentos te diga que has perdido,Y tengas 10 intentos para adivinar el número
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# autor @apuromafo
+
+description = 'Juego de adivinanza del 1 al 100, 10 intentos'
+author = 'Apuromafo'
+version = '0.1.0'
+date = '28.11.2024'
+
 import random
 from colorama import init, Fore
 

@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # autor @apuromafo
+
+description = 'Aborda un Calendario Laboral [reto ]'
+author = 'Apuromafo'
+version = '0.1.0'
+date = '28.11.2024'
 """source : https://t.me/aprenderpython 
 Segundo reto Nivel intermedio:
 Proyecto: Calendario Laboral
