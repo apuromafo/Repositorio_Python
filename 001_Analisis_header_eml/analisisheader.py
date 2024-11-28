@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-description = 'Herramienta para análisis de Header '
+description = 'Herramienta para análisis de Header EML'
 author = 'Apuromafo'
 version = '0.0.3'
 date = '28.11.2024'
