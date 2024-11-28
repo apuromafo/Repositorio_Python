@@ -12,3 +12,5 @@ retos_Script_python/script2/usos.lock
 *.db
 *.api
 011_MalApiScan/conv_mdgit.py
+008_Cabeceras_Seguridad/output.json
+008_Cabeceras_Seguridad/output.json2.log
