@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+description = 'Herramienta para análisis de Header '
+author = 'Apuromafo'
+version = '0.0.3'
+date = '28.11.2024'
+
 import email
 import re
 import socket
@@ -5,6 +12,7 @@ import http.client
 import json
 import os
 import argparse
+
 
 def cargar_clave_api():
     """Carga la clave de API desde el archivo de configuración, si existe.  1,000 por día promedio se obtiene en https://www.abuseipdb.com/account/api  y se pega directo el contenido """
