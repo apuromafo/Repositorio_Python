@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# autor @apuromafo
 
 description = 'conversión de un C en python [poc de https://shells.systems/extracting-plaintext-credentials-from-palo-alto-global-protect/ ]'
 author = 'Apuromafo'
@@ -8,11 +10,10 @@ date = '28.11.2024'
 import ctypes
 import ctypes.wintypes
 import sys
-import time
+import time # sleep banner
 import re
 import sys
 import random
-import time  # sleep
 
 def print_banner():
     clear = "\x1b[0m"  # color reset
