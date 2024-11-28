@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+description = 'herramienta de uso de ffmpeg para bajar o convertir a mp4 desde una carpeta dada'
+author = 'Apuromafo'
+version = '0.0.1'
+date = '28.11.2024'
+
 import logging
 import os
 import click

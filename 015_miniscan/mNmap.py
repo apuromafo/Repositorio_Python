@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+description = 'mini herramienta con uso de socket para validar puertos abiertos '
+author = 'Apuromafo'
+version = '0.0.1'
+date = '28.11.2024'
+
 import socket
 import logging
 import argparse
