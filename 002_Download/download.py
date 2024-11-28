@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+
+description = 'Herramienta para descarga, prueba de conversion de Delphi a python3+gui'
+author = 'Apuromafo'
+version = '0.0.3'
+date = '28.11.2024'
+
+
 import tkinter as tk
 from tkinter import messagebox
 import requests
