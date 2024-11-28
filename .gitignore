@@ -22,3 +22,5 @@ retos_Script_python/script2/*.lock
 013_passwd/*.log
 016_video/video_descargado.mp4
 016_video/conversion_errors.log
+005_extrae_correo/poc
+005_extrae_correo/poc.txt
