@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+
+description = 'conversión de un C en python [poc de https://shells.systems/extracting-plaintext-credentials-from-palo-alto-global-protect/ ]'
+author = 'Apuromafo'
+version = '0.0.1'
+date = '28.11.2024'
 import ctypes
 import ctypes.wintypes
 import sys
