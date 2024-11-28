@@ -1,0 +1,52 @@
+TAGS                            | ADDR     | NAME                    | DLL         
+--------------------------------+----------+-------------------------+-------------
+Injection                       | 0xc43000 | OpenProcessToken        | advapi32.dll
+Injection                       | 0xc43004 | AdjustTokenPrivileges   | advapi32.dll
+Enumeration                     | 0xc43008 | LookupPrivilegeValueA   | advapi32.dll
+Enumeration                     | 0xc43014 | FindFirstFileA          | kernel32.dll
+Helper                          | 0xc43024 | FindClose               | kernel32.dll
+Enumeration, Ransomware, Helper | 0xc4302c | GetDriveTypeA           | kernel32.dll
+Helper                          | 0xc43030 | GetModuleFileNameA      | kernel32.dll
+Enumeration                     | 0xc43034 | FindNextFileA           | kernel32.dll
+Helper                          | 0xc43038 | CreateFileA             | kernel32.dll
+Injection                       | 0xc43044 | MapViewOfFile           | kernel32.dll
+Helper                          | 0xc43048 | UnmapViewOfFile         | kernel32.dll
+Evasion, Anti-Debugging         | 0xc4304c | Sleep                   | kernel32.dll
+Injection, Evasion              | 0xc43050 | CreateFileMappingA      | kernel32.dll
+Internet                        | 0xc43054 | WinExec                 | kernel32.dll
+Enumeration                     | 0xc4305c | GetCurrentProcess       | kernel32.dll
+Injection                       | 0xc43064 | OpenProcess             | kernel32.dll
+Injection, Evasion              | 0xc43068 | GetProcAddress          | kernel32.dll
+Injection                       | 0xc4306c | VirtualAlloc            | kernel32.dll
+Injection, Evasion              | 0xc43070 | GetModuleHandleA        | kernel32.dll
+Enumeration                     | 0xc43074 | GetVersionExA           | kernel32.dll
+Enumeration                     | 0xc43078 | GetCurrentProcessId     | kernel32.dll
+Injection, Evasion              | 0xc43088 | WaitForSingleObject     | kernel32.dll
+Enumeration, Anti-Debugging     | 0xc4308c | GetSystemTimeAsFileTime | kernel32.dll
+Enumeration                     | 0xc43090 | GetSystemDirectoryA     | kernel32.dll
+Evasion                         | 0xc43098 | SetFileAttributesA      | kernel32.dll
+Helper                          | 0xc4309c | GetTempPathA            | kernel32.dll
+Evasion                         | 0xc430a0 | DeleteFileA             | kernel32.dll
+Injection                       | 0xc430a4 | CreateThread            | kernel32.dll
+Evasion                         | 0xc430ac | SetFileTime             | kernel32.dll
+Helper                          | 0xc430b0 | WriteFile               | kernel32.dll
+Injection                       | 0xc430b8 | CreateProcessA          | kernel32.dll
+Enumeration                     | 0xc430bc | ReadFile                | kernel32.dll
+Helper                          | 0xc430c0 | CopyFileA               | kernel32.dll
+Enumeration                     | 0xc430c4 | GetFileTime             | kernel32.dll
+Helper                          | 0xc430d4 | lstrcatA                | kernel32.dll
+Injection, Evasion              | 0xc430dc | WaitForMultipleObjects  | kernel32.dll
+Internet                        | 0xc43110 | ShellExecuteA           | shell32.dll 
+Enumeration                     | 0xc43118 | PathFileExistsA         | shlwapi.dll 
+Categoría      | Total
+---------------+------
+Enumeration    | 12   
+Injection      | 12   
+Evasion        | 9    
+Spying         | 0    
+Internet       | 2    
+Anti-Debugging | 2    
+Ransomware     | 1    
+Helper         | 9    
+
+Total de funciones importadas encontradas: 38
