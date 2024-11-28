@@ -10,6 +10,46 @@ import ctypes.wintypes
 import sys
 import time
 import re
+import sys
+import random
+import time  # sleep
+
+def print_banner():
+    clear = "\x1b[0m"  # color reset
+
+    # Mapa de colores
+    colors = {
+        "magenta": "\x1b[35m",
+        "red": "\x1b[31m",
+        "green": "\x1b[32m",
+        "yellow": "\x1b[33m",
+        "blue": "\x1b[34m",
+        "cyan": "\x1b[36m",
+        "white": "\x1b[37m"
+    }
+
+    banner = r"""
+.-. .-')     ('-.                       _ (`-.    ('-.                                    ('-.               .-') _
+\  ( OO )  _(  OO)                     ( (OO  )  ( OO ).-.                               ( OO ).-.          (  OO) )
+,--. ,--. (,------. ,--.   ,--.       _.`     \  / . --. / ,--.      .-'),-----.         / . --. / ,--.     /     '._  .-'),-----.
+|  .'   /  |  .---'  \  `.'  /       (__...--''  | \-.  \  |  |.-') ( OO'  .-.  '        | \-.  \  |  |.-') |'--...__)( OO'  .-.  '
+|      /,  |  |    .-')     /         |  /  | |.-'-'  |  | |  | OO )/   |  | |  |      .-'-'  |  | |  | OO )'--.  .--'/   |  | |  |
+|     ' _)(|  '--.(OO  \   /          |  |_.' | \| |_.'  | |  |`-' |\_) |  |\|  |       \| |_.'  | |  |`-' |   |  |   \_) |  |\|  |
+|  .   \   |  .--' |   /  /\_         |  .___.'  |  .-.  |(|  '---.'  \ |  | |  |        |  .-.  |(|  '---.'   |  |     \ |  | |  |
+|  |\   \  |  `---.`-./  /.__)        |  |       |  | |  | |      |    `'  '-'  '        |  | |  | |      |    |  |      `'  '-'  '
+`--' '--'  `------'  `--'             `--'       `--' `--' `------'      `-----'         `--' `--' `------'    `--'        `-----'
+
+                     v0.1 
+"""
+
+    # Elegir colores aleatorios de las claves del diccionario
+    color_keys = list(colors.keys())
+    
+    for line in banner.split("\n"):
+        color = random.choice(color_keys)  # Elegir un color aleatorio
+        sys.stdout.write(f"{colors[color]}{line}{clear}\n")  # Imprimir con color del mapa
+        time.sleep(0.03)  # Pausa para efecto de tipo máquina de escribir
+
 
 # Definir constantes
 PROCESS_QUERY_INFORMATION = 0x0400
@@ -139,4 +179,5 @@ def main():
     ctypes.windll.kernel32.CloseHandle(pi.hProcess)
 
 if __name__ == "__main__":
+    print_banner()
     main()
