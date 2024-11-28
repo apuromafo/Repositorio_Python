@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+description = 'Cabeceras de seguridad inspirado en OWASP secure Headers [https://owasp.org/www-project-secure-headers/ ]'
+author = 'Apuromafo'
+version = '0.0.3'
+date = '28.11.2024'
+
 import argparse
 import requests
 import json

@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+description = 'uso de frames, uso de ASCII inspirado en  [curl.exe ascii.live/loro]'
+author = 'Apuromafo'
+version = '0.0.1'
+date = '28.11.2024'
+
 import time
 import os
 
@@ -9,7 +16,7 @@ def display_frame(frame):
     clear_screen()
     print(frame)
 
-def animate_parrot(frames, delay=0.1):
+def animate_loro(frames, delay=0.1):
     """
     Anima al loro ASCII.
 
@@ -22,7 +29,7 @@ def animate_parrot(frames, delay=0.1):
         time.sleep(delay)
         
         
-parrot_frames = [
+loro_frames = [
     """
 	                        .cccc;;cc;';c.
                       .,:dkdc:;;:c:,:d:.
@@ -223,5 +230,5 @@ Ol;......................................;l',
 ,dl::,..,cccccccccccccccccccccccccccccccc:;':xx,
 cNd.........................................;lOc
 """]
-animate_parrot(parrot_frames, delay=0.05)
-animate_parrot(parrot_frames, delay=0.05)
+animate_loro(loro_frames, delay=0.05)
+animate_loro(loro_frames, delay=0.05)

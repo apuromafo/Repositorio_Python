@@ -4,6 +4,7 @@ description = 'conversión de un C en python [poc de https://shells.systems/extr
 author = 'Apuromafo'
 version = '0.0.1'
 date = '28.11.2024'
+
 import ctypes
 import ctypes.wintypes
 import sys
