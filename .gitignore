@@ -24,3 +24,4 @@ retos_Script_python/script2/*.lock
 016_video/conversion_errors.log
 005_extrae_correo/poc
 005_extrae_correo/poc.txt
+008_Cabeceras_Seguridad/pruebas_verbos.py
