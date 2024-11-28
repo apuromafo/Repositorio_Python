@@ -21,3 +21,4 @@ retos_Script_python/script2/*.lock
 011_MalApiScan/*.txt
 013_passwd/*.log
 016_video/video_descargado.mp4
+016_video/conversion_errors.log
