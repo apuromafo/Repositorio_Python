@@ -6,12 +6,54 @@ import os
 import sys
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
-import time
+import time  # sleep
+import random
+
 
 description = 'Herramienta para descarga, inspirado en wget pero solo para ciertas extensiones'
 author = 'Apuromafo'
 version = '0.0.3'
 date = '28.11.2024'
+
+def print_banner():
+    clear = "\x1b[0m"  # color reset
+
+    # Mapa de colores
+    colors = {
+        "magenta": "\x1b[35m",
+        "red": "\x1b[31m",
+        "green": "\x1b[32m",
+        "yellow": "\x1b[33m",
+        "blue": "\x1b[34m",
+        "cyan": "\x1b[36m",
+        "white": "\x1b[37m"
+    }
+
+    banner = r"""
+
+         ###   ##### ######
+        ## ##  ##      ##
+ ## ##  ##     ##      ##
+ #####  #####  ####    ##
+ #####  ## ##  ##      ##
+ #####  ## ##  ##      ##
+  # #    ####  #####   ##
+                     v0.1 
+"""  #Fuente cosmike
+    # Elegir colores aleatorios de las claves del diccionario
+    color_keys = list(colors.keys())
+    
+    for line in banner.split("\n"):
+        color = random.choice(color_keys)  # Elegir un color aleatorio
+        sys.stdout.write(f"{colors[color]}{line}{clear}\n")  # Imprimir con color del mapa
+        time.sleep(0.03)  # Pausa para efecto de tipo máquina de escribir
+
+
+
+
+
+
+
 
 # Lista de extensiones permitidas
 ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.zip', '.docx']
@@ -91,4 +133,5 @@ def main():
     print(f"Tiempo de ejecución: {elapsed_time:.2f} segundos")
 
 if __name__ == "__main__":
+    print_banner()
     main()
