@@ -3,59 +3,91 @@ import subprocess
 import sys
 import urllib.request
 import zipfile
+import json
 
 # Configuración de las herramientas
-CONFIG = {
-    "apktool": {
-        "path": "herramientas/apktool/apktool.jar",
-        "url": "https://github.com/iBotPeaches/Apktool/releases/download/v2.5.0/apktool_2.5.0.jar",
+CONFIG_JSON = """
+{
+  "tools": [
+    {
+      "name": "apktool",
+      "version": "2.10.0",
+      "downloadUrl": "https://github.com/iBotPeaches/Apktool/releases/download/v2.10.0/apktool_2.10.0.jar",
+      "fileName": "herramientas/apktool/apktool.jar",
+      "configName": "apktoolPath",
+      "zipped": false
     },
-    "dex2jar": {
-         "path": "herramientas/d2j-dex2jar/dex-tools-v2.4/d2j-jar2dex.bat" if sys.platform == 'win32' else "herramientas/d2j-dex2jar/dex-tools-v2.4/d2j-jar2dex.sh",
-        "url": "https://github.com/pxb1988/dex2jar/releases/download/v2.4/dex-tools-v2.4.zip",
+    {
+      "name": "dex2jar",
+      "version": "2.4",
+      "downloadUrl": "https://github.com/pxb1988/dex2jar/releases/download/v2.4/dex-tools-v2.4.zip",
+      "fileName": "herramientas/d2j-dex2jar.zip",
+      "configName": "dex2jarPath",
+      "zipped": true,
+      "unzipDir": "herramientas/d2j-dex2jar"
     },
-    "uberapksigner": {
-        "path": "herramientas/uber-apk-signer/uber-apk-signer.jar",
-        "url": "https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar",
+    {
+      "name": "uber-apk-signer",
+      "version": "1.3.0",
+      "downloadUrl": "https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar",
+      "fileName": "herramientas/uber-apk-signer/uber-apk-signer.jar",
+      "configName": "apkSignerPath",
+      "zipped": false
     },
+    {
+      "name": "jadx",
+      "version": "1.4.7",
+      "downloadUrl": "https://github.com/skylot/jadx/releases/download/v1.4.7/jadx-1.4.7.zip",
+      "fileName": "herramientas/jadx/jadx-1.4.7.zip",
+      "configName": "jadxDirPath",
+      "zipped": true,
+      "unzipDir": "herramientas/jadx/jadx-1.4.7"
+    }
+  ]
 }
+"""
+
+CONFIG = json.loads(CONFIG_JSON)
 
 def verificar_herramientas():
-    for tool, config in CONFIG.items():
-        print(f"Verificando {tool} en {config['path']}")
-        if not os.path.isfile(config["path"]):
-            print(f"{tool} no encontrado en {config['path']}. Descargando...")
-            descargar_herramienta(tool, config["url"], config["path"])
+    for tool in CONFIG['tools']:
+        tool_name = tool['name']
+        tool_path = tool['fileName']
+        
+        print(f"Verificando {tool_name} en {tool_path}")
+        if not os.path.isfile(tool_path):
+            print(f"{tool_name} no encontrado en {tool_path}. Descargando...")
+            descargar_herramienta(tool)
 
-def descargar_herramienta(tool, url, path):
+def descargar_herramienta(tool):
+    url = tool['downloadUrl']
+    path = tool['fileName']
+    
     # Crea la carpeta si no existe
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    
+
     try:
-        if tool == "dex2jar":
-            zip_path = "herramientas/d2j-dex2jar.zip"
-            print(f"Descargando {tool} desde {url}...")
+        if tool['zipped']:
+            zip_path = path
+            print(f"Descargando {tool['name']} desde {url}...")
             urllib.request.urlretrieve(url, zip_path)
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                zip_ref.extractall("herramientas/d2j-dex2jar")
+                zip_ref.extractall(os.path.dirname(path))
             os.remove(zip_path)
-            print(f"{tool} descargado y extraído en herramientas/d2j-dex2jar/")
-            # Verifica si el archivo se extrajo
-            if not os.path.isfile(config["path"]):
-                print(f"[-] Error: {tool} no se encontró después de la extracción.")
+            print(f"{tool['name']} descargado y extraído en {os.path.dirname(path)}")
         else:
-            print(f"Descargando {tool} desde {url}...")
+            print(f"Descargando {tool['name']} desde {url}...")
             urllib.request.urlretrieve(url, path)
-            print(f"{tool} descargado en {path}")
+            print(f"{tool['name']} descargado en {path}")
     except Exception as e:
-        print(f"[-] Error al descargar {tool}: {e}")
+        print(f"[-] Error al descargar {tool['name']}: {e}")
 
 def seleccionar_dispositivo():
     """Selecciona un dispositivo conectado a la computadora."""
     resultado = subprocess.run(['adb', 'devices', '-l'], capture_output=True, text=True)
     dispositivos = []
     lineas = resultado.stdout.strip().split('\n')[1:]
-    
+
     if len(lineas) > 1:
         for linea in lineas:
             info_dispositivo = linea.strip()
@@ -96,7 +128,7 @@ def listar_aplicaciones(palabra_clave, id_transporte):
         salida = resultado.stdout
         paquetes = []
         lineas = salida.strip().split('\n')
-        
+
         for linea in lineas:
             if palabra_clave in linea:
                 paquete = linea.split(':')[1]
@@ -135,7 +167,7 @@ def listar_apks(nombre_paquete, id_transporte):
         resultado = subprocess.run(cmd, capture_output=True, text=True, shell=True)
         salida = resultado.stdout.strip()
         lineas = salida.split('\n')
-        
+
         for linea in lineas:
             if 'package:' in linea:
                 ruta_apk = linea.split(':')[1].strip()
@@ -180,7 +212,7 @@ def instalar_apk(ruta_apk, id_transporte):
         sys.exit(1)
 
 def descompilar(ruta_archivo):
-    apktool = CONFIG["apktool"]["path"]
+    apktool = CONFIG['tools'][0]['fileName']
     if os.path.isfile(ruta_archivo) and ruta_archivo.endswith('.apk'):
         carp_desc = ruta_archivo.replace('.apk', '')
         cmd = ['java', '-jar', apktool, 'd', ruta_archivo, '-o', carp_desc]
@@ -190,7 +222,7 @@ def descompilar(ruta_archivo):
         print('Error: Solo se admite archivos con extensión .apk')
 
 def compilar(ruta_archivo):
-    apktool = CONFIG["apktool"]["path"]
+    apktool = CONFIG['tools'][0]['fileName']
     carp_desc = ruta_archivo.replace('.apk', '')
     if os.path.isdir(carp_desc):
         nombre_archivo = os.path.basename(ruta_archivo)
@@ -204,7 +236,7 @@ def compilar(ruta_archivo):
         print('Error: No se encuentra la carpeta')
 
 def dex2jar(archivo):
-    dex2jar_cmd = CONFIG["dex2jar"]["path"]
+    dex2jar_cmd = os.path.join(CONFIG["tools"][1]["fileName"].replace('.zip', ''), 'd2j-jar2dex' + ('.bat' if sys.platform == 'win32' else '.sh'))
     extension = os.path.splitext(archivo)[1]
 
     if extension in ['.dex', '.apk']:
@@ -216,7 +248,7 @@ def dex2jar(archivo):
         print('Error: Solo se admite archivos con extensión .apk o .dex')
 
 def jar2dex(archivo):
-    jar2dex_cmd = CONFIG["dex2jar"]["path"]
+    jar2dex_cmd = os.path.join(CONFIG["tools"][1]["fileName"].replace('.zip', ''), 'd2j-jar2dex' + ('.bat' if sys.platform == 'win32' else '.sh'))
 
     if archivo.endswith('.jar'):
         new_archivo = archivo.replace('.jar', '.dex')
@@ -227,7 +259,7 @@ def jar2dex(archivo):
         print('Error: Solo se admite archivos con extensión .jar')
 
 def firmar(archivo):
-    uberapksigner = CONFIG["uberapksigner"]["path"]
+    uberapksigner = CONFIG["tools"][2]["fileName"]
     if os.path.isfile(archivo) and archivo.endswith('.apk'):
         carp_desc = archivo.replace('.apk', '')  # Ruta sin extensión
         cmd = ['java', '-jar', uberapksigner, '-a', archivo, '-o', carp_desc]
@@ -238,7 +270,7 @@ def firmar(archivo):
 
 def main():
     verificar_herramientas()
-    
+
     while True:
         print("\nOpciones:")
         print("1. Seleccionar dispositivo")
@@ -250,6 +282,7 @@ def main():
         print("7. Convertir DEX a JAR")
         print("8. Convertir JAR a DEX")
         print("9. Firmar APK")
+        print("10. Decompilar APK usando Jadx")
         print("0. Salir")
 
         opcion = input("Selecciona una opción: ")
@@ -285,6 +318,9 @@ def main():
         elif opcion == '9':
             archivo = input("Introduce la ruta del archivo APK: ")
             firmar(archivo)
+        elif opcion == '10':
+            # Implementar decompilación usando Jadx (omitir por ahora)
+            print("Funcionalidad de decompilación usando Jadx aún no implementada.")
         elif opcion == '0':
             print("Saliendo...")
             break
