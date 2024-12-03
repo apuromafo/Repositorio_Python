@@ -343,7 +343,54 @@ def descompilar_apktool(ruta_archivo):
         print(f"[-] Error al descompilar el APK: {e}")
     except FileNotFoundError:
         print("[-] No se encontró el archivo ApkTool. Asegúrate de que esté instalado correctamente.")
-        
+def seleccionar_opciones_jadx():
+    opciones = {
+        '1': '--no-src',                        # No decompilar código fuente
+        '2': '--no-res',                        # No decodificar recursos
+        '3': '--deobf',                         # Activar desofuscación
+        '4': '--output-dir',                    # Directorio de salida
+        # Puedes añadir más opciones válidas aquí
+    }
+
+    seleccionadas = []
+    print("Selecciona las opciones de descompilación (puedes elegir varias, separadas por comas):")
+    for key, value in opciones.items():
+        print(f"{key}. {value}")
+
+    eleccion = input("Ingresa los números de las opciones elegidas (ejemplo: 1,2): ")
+    for num in eleccion.split(','):
+        num = num.strip()
+        if num in opciones:
+            seleccionadas.append(opciones[num])
+    
+    return seleccionadas
+
+def descompilar_apk_jadx(ruta_archivo):
+    if not os.path.isfile(ruta_archivo) or not ruta_archivo.endswith('.apk'):
+        print('Error: Solo se admite archivos con extensión .apk')
+        return
+
+    output_dir = os.path.join(os.path.dirname(ruta_archivo), os.path.basename(ruta_archivo) + "_jadx_output")
+    os.makedirs(output_dir, exist_ok=True)
+
+    jadx_cmd = os.path.abspath(os.path.join(CONFIG['tools'][3]['unzipDir'], 'bin', 'jadx.bat'))
+
+    if not os.path.isfile(jadx_cmd):
+        print(f"[-] El ejecutable de JADX no se encontró en: {jadx_cmd}")
+        return
+
+    opciones_seleccionadas = seleccionar_opciones_jadx()
+    command = [jadx_cmd, ruta_archivo, '--output-dir', output_dir] + opciones_seleccionadas
+    print(f"Comando a ejecutar: {command}")
+
+    try:
+        subprocess.run(command, check=True)
+        print(f'Descompilación completada para: {ruta_archivo}. Salida en: {output_dir}')
+    except subprocess.CalledProcessError as e:
+        print(f"[-] Error al descompilar el APK con JADX: {e.stderr}")
+    except FileNotFoundError:
+        print("[-] No se encontró el ejecutable de JADX. Asegúrate de que esté instalado correctamente.")
+    
 def descompilar_apk_jadx(ruta_archivo):
     """Descompila un APK usando JADX."""
     if not os.path.isfile(ruta_archivo) or not ruta_archivo.endswith('.apk'):
@@ -355,15 +402,18 @@ def descompilar_apk_jadx(ruta_archivo):
     os.makedirs(output_dir, exist_ok=True)
 
     # Ruta del ejecutable de JADX
-    jadx_cmd = os.path.join(CONFIG['tools'][3]['unzipDir'], 'bin', 'jadx.bat')
-
+    jadx_cmd = os.path.abspath(os.path.join(CONFIG['tools'][3]['unzipDir'], 'bin', 'jadx.bat'))
+    
     # Asegúrate de que el archivo existe
     if not os.path.isfile(jadx_cmd):
         print(f"[-] El ejecutable de JADX no se encontró en: {jadx_cmd}")
         return
 
+    # Llamar a la función para seleccionar opciones
+    opciones_seleccionadas = seleccionar_opciones_jadx()
+
     # Construir el comando de ejecución
-    command = [jadx_cmd, ruta_archivo, '--output-dir', output_dir, '--deobf', '--show-bad-code']
+    command = [jadx_cmd, ruta_archivo, '--output-dir', output_dir] + opciones_seleccionadas
     print(f"Comando a ejecutar: {command}")
 
     try:
@@ -374,7 +424,6 @@ def descompilar_apk_jadx(ruta_archivo):
         print(f"[-] Error al descompilar el APK con JADX: {e}")
     except FileNotFoundError:
         print("[-] No se encontró el ejecutable de JADX. Asegúrate de que esté instalado correctamente.")
-        
 
 def dex2jar(archivo):
     dex2jar_cmd = os.path.join(CONFIG["tools"][1]["fileName"].replace('.zip', ''), 'd2j-jar2dex' + ('.bat' if sys.platform == 'win32' else '.sh'))
