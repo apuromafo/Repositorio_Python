@@ -32,3 +32,4 @@ retos_Script_python/script2/*.lock
 /20_wget/poc3
 011_MalApiScan/poc.txt
 /21_sha256/brute/hide
+/011_MalApiScan/hide
