@@ -4,6 +4,7 @@ import sys
 import urllib.request
 import zipfile
 import json
+from datetime import datetime
 
 # Configuración de las herramientas
 CONFIG_JSON = """
@@ -271,19 +272,25 @@ def seleccionar_opciones():
     
     return seleccionadas
 
-def compilar(ruta_archivo):
+    
+def compilar(carpeta_descompilada):
     apktool = CONFIG['tools'][0]['fileName']
-    carp_desc = ruta_archivo.replace('.apk', '')
-    if os.path.isdir(carp_desc):
-        nombre_archivo = os.path.basename(ruta_archivo)
-        new_nombre_archivo = 'new_' + nombre_archivo
-        ruta_archivo2 = ruta_archivo.replace(nombre_archivo, new_nombre_archivo)
+    
+    # Obtener la fecha actual en el formato deseado
+    fecha_actual = datetime.now().strftime("%Y%m%d_%H%M%S")
+    nuevo_nombre_apk = f'compilado_{fecha_actual}.apk'
+    ruta_archivo_apk = os.path.join(os.path.dirname(carpeta_descompilada), nuevo_nombre_apk)
 
-        cmd = ['java', '-jar', apktool, 'b', carp_desc, '-o', ruta_archivo2]
-        subprocess.run(cmd)
-        print(f'Archivo compilado en: {ruta_archivo2}')
-    else:
-        print('Error: No se encuentra la carpeta')
+    cmd = ['java', '-jar', apktool, 'b', carpeta_descompilada, '-o', ruta_archivo_apk]
+
+    try:
+        subprocess.run(cmd, check=True)
+        print(f'Archivo compilado en: {ruta_archivo_apk}')
+    except subprocess.CalledProcessError as e:
+        print(f"[-] Error al compilar el APK: {e}")
+    except FileNotFoundError:
+        print("[-] No se encontró el archivo ApkTool. Asegúrate de que esté instalado correctamente.")
+        
         
 def seleccionar_opciones_descompilacion():
     opciones = {
@@ -516,10 +523,10 @@ def instalar_apk_usuario():
 def descompilar_apktool_usuario():
     ruta_archivo = input("Introduce la ruta del archivo APK: ")
     descompilar_apktool(ruta_archivo)
-
+    
 def compilar_apk_usuario():
-    ruta_archivo = input("Introduce la ruta del archivo APK: ")
-    compilar(ruta_archivo)
+    carpeta_descompilada = input("Introduce la ruta de la carpeta descompilada: ")
+    compilar(carpeta_descompilada)
 
 def dex2jar_usuario():
     archivo = input("Introduce la ruta del archivo DEX o APK: ")
