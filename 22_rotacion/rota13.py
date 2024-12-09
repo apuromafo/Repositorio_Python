@@ -1,11 +1,51 @@
 #!/usr/bin/env python
 
-description = 'pequeña herramienta de rotación ROT-n, solo letras'
+description = 'pequeña herramienta de rotación ROT-n, , haciendo uso de rot13'
 author = 'Apuromafo'
-version = '0.0.2'
+version = '0.0.1'
 date = '08.12.2024'
+
 import string
 import argparse
+import time
+import sys
+import random
+
+def print_banner():
+    clear = "\x1b[0m"  # color reset
+
+    # Mapa de colores
+    colors = {
+        "magenta": "\x1b[35m",
+        "red": "\x1b[31m",
+        "green": "\x1b[32m",
+        "yellow": "\x1b[33m",
+        "blue": "\x1b[34m",
+        "cyan": "\x1b[36m",
+        "white": "\x1b[37m"
+    }
+
+    banner = r"""
+                     ##        ##     ####
+                     ##       ###    ##  ##
+ ## ###    #####   ######      ##        ##
+ ###      ##   ##    ##        ##      ###
+ ##       ##   ##    ##        ##        ##
+ ##       ##   ##    ##        ##    ##  ##
+ ##        #####      ###      ##     ####
+  
+                     v0.0.1 
+"""
+
+    # Elegir colores aleatorios de las claves del diccionario
+    color_keys = list(colors.keys())
+    
+    for line in banner.split("\n"):
+        color = random.choice(color_keys)  # Elegir un color aleatorio
+        sys.stdout.write(f"{colors[color]}{line}{clear}\n")  # Imprimir con color del mapa
+        time.sleep(0.03)  # Pausa para efecto de tipo máquina de escribir
+
+
 
 def rot(s, n=13):
     """Encode string s with ROT-n, shifting all letters n positions.
@@ -52,4 +92,5 @@ def main():
         print(f"Amount = {attempt[0]:>3}: {attempt[1]}")
 
 if __name__ == "__main__":
+    print_banner()
     main()
