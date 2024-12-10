@@ -1,0 +1,1 @@
+Pequeño script para ir validando rotaciones.
