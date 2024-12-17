@@ -1,3 +1,16 @@
+def print_banner():
+    banner = r""" 
+##   ##
+ ## ##     ##  # ####  # #### #    ##  # ####  # ####  # ####
+ ## ##    ### ##   ##  #   ## # #  ##  #   ##  #   ##  #   ##
+ ## ##     ## ##       #      # ##  #  #       #  ##   #
+ ## ##    ### #       ## ##   #  ## # ## ##   ####    ## ##
+  ###     ### #   ### ##      ##  # # ##      ## ##   ##
+   #       ## ###  #  ##  ### ##  ### ##  ### ##  ### ##  ###
+           ##  #####  ## ###  ##   ## ## ###  ##   ## ## ###
+"""
+    print(banner)
+
 import argparse
 
 abc = 'abcdefghijklmnopqrstuvwxyz'
@@ -31,6 +44,7 @@ def vigenere(cadena, clave, descifrar=False):
     return resultado
 
 def main():
+    print_banner()
     parser = argparse.ArgumentParser(description='Cifrar o descifrar texto usando una clave.')
     parser.add_argument('-s', '--string', required=True, help='Texto a cifrar o descifrar')
     parser.add_argument('-k', '--key', required=True, help='Clave para cifrar o descifrar')
@@ -39,10 +53,15 @@ def main():
     args = parser.parse_args()
 
     resultado = vigenere(args.string, args.key, args.decrypt)
+    
+    # Mostrar el resultado en el formato deseado
+    print(f'Texto ingresado: {args.string}\n')
+    print(f'Clave ingresada: {args.key}\n')
+
     if args.decrypt:
-        print(f'Texto descifrado: {resultado}')
+        print(f'Texto decodificado: {resultado}\n')
     else:
-        print(f'Texto cifrado: {resultado}')
+        print(f'Texto cifrado: {resultado}\n')
 
 if __name__ == '__main__':
     main()
