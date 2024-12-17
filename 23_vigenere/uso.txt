@@ -1,0 +1,6 @@
+Cifrar texto:
+ 
+python tu_script.py -s "texto a cifrar" -k "clave"
+
+Descifrar texto:
+python tu_script.py -s "texto a descifrar" -k "clave" -d
