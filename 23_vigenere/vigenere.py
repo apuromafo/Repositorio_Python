@@ -4,6 +4,13 @@ description = 'Herramienta para hacer uso de VIGENERE'
 author = 'Apuromafo'
 version = '0.0.2'
 date = '16.12.2024'
+#otras_herramientas detect
+001_D = 'https://www.dcode.fr/cipher-identifier'
+#otras_herramientas decode
+001_d = 'https://www.boxentriq.com/code-breaking/vigenere-cipher'
+002_d = 'https://cyberchef.io/"
+003_d = 'https://cryptii.com/pipes/vigenere-cipher"
+
 
 def print_banner():
     banner = r""" 
