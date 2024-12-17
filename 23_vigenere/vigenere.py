@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+description = 'Herramienta para hacer uso de VIGENERE'
+author = 'Apuromafo'
+version = '0.0.2'
+date = '16.12.2024'
+
 def print_banner():
     banner = r""" 
 ##   ##
@@ -12,8 +19,11 @@ def print_banner():
     print(banner)
 
 import argparse
+import re
 
+# Definimos el conjunto de caracteres permitidos, incluyendo caracteres especiales
 abc = 'abcdefghijklmnopqrstuvwxyz'
+caracteres_validos = re.compile(r'^[a-zA-Z0-9\s!@#$%^&*()_+=:/]*$')
 
 def ajustar_clave(cadena, clave):
     clave_repetida = (clave * (len(cadena) // len(clave) + 1))[:len(cadena)]
@@ -52,16 +62,27 @@ def main():
 
     args = parser.parse_args()
 
-    resultado = vigenere(args.string, args.key, args.decrypt)
-    
-    # Mostrar el resultado en el formato deseado
-    print(f'Texto ingresado: {args.string}\n')
-    print(f'Clave ingresada: {args.key}\n')
+    # Validación de entrada
+    if not args.string or not args.key:
+        print("Error: El texto y la clave no pueden estar vacíos.")
+        return
 
-    if args.decrypt:
-        print(f'Texto decodificado: {resultado}\n')
-    else:
-        print(f'Texto cifrado: {resultado}\n')
+    #if not caracteres_validos.match(args.string) or not caracteres_validos.match(args.key):
+    #    print("Error: El texto y la clave solo pueden contener caracteres alfanuméricos y algunos caracteres especiales.")
+    #    return
+
+    try:
+        resultado = vigenere(args.string, args.key, args.decrypt)
+        
+        # Mostrar el resultado en el formato deseado
+        print(f'Texto ingresado: {args.string}\n')
+        print(f'Clave ingresada: {args.key}\n')
+        if args.decrypt:
+            print(f'Texto decodificado: {resultado}\n')
+        else:
+            print(f'Texto cifrado: {resultado}\n')
+    except Exception as e:
+        print(f"Ocurrió un error: {e}")
 
 if __name__ == '__main__':
     main()
