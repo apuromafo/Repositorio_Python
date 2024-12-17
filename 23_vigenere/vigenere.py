@@ -2,9 +2,9 @@
 
 description = 'Herramienta para hacer uso de VIGENERE'
 author = 'Apuromafo'
-version = '0.0.2'
-date = '16.12.2024'
-#otras_herramientas detect
+version = '0.0.4'
+date = '17.12.2024'
+#otras_herramientas Detect
 #001D = 'https://www.dcode.fr/cipher-identifier'
 #otras_herramientas decode
 #001d = 'https://www.boxentriq.com/code-breaking/vigenere-cipher'
@@ -27,6 +27,7 @@ def print_banner():
 
 import argparse
 import re
+import sys
 
 # Definimos el conjunto de caracteres permitidos, incluyendo caracteres especiales
 abc = 'abcdefghijklmnopqrstuvwxyz'
@@ -60,27 +61,48 @@ def vigenere(cadena, clave, descifrar=False):
 
     return resultado
 
+def fuerza_bruta(ciphertext, dictionary_file):
+    try:
+        with open(dictionary_file, 'r', encoding='utf-8') as file:
+            for line in file:
+                key = line.strip()  # Eliminar espacios en blanco y saltos de línea
+                if not all(c in abc for c in key.lower()):  # Verificar que la clave solo contenga caracteres válidos
+                    print(f'Clave ignorada (no válida): {key}')
+                    continue
+                decrypted_text = vigenere(ciphertext, key, descifrar=True)
+                print(f'Probando clave: {key} -> Texto decodificado: {decrypted_text}')
+                # Aquí puedes agregar lógica para validar si el resultado tiene sentido
+                # Por ejemplo, verificar si contiene palabras comunes o patrones esperados
+    except FileNotFoundError:
+        print(f"Error: El archivo '{dictionary_file}' no se encontró.")
+    except Exception as e:
+        print(f"Ocurrió un error: {e}")
+
 def main():
     print_banner()
-    parser = argparse.ArgumentParser(description='Cifrar o descifrar texto usando una clave.')
+    parser = argparse.ArgumentParser(description='Cifrar o descifrar texto usando una clave o realizar fuerza bruta.')
     parser.add_argument('-s', '--string', required=True, help='Texto a cifrar o descifrar')
-    parser.add_argument('-k', '--key', required=True, help='Clave para cifrar o descifrar')
+    parser.add_argument('-k', '--key', help='Clave para cifrar o descifrar')
     parser.add_argument('-d', '--decrypt', action='store_true', help='Descifrar el texto en lugar de cifrar')
+    parser.add_argument('-f', '--fuerza-bruta', action='store_true', help='Usar fuerza bruta con un diccionario')
+    parser.add_argument('-dic', '--diccionario', help='Ruta al archivo de diccionario', required='-f' in sys.argv)
 
     args = parser.parse_args()
 
     # Validación de entrada
-    if not args.string or not args.key:
-        print("Error: El texto y la clave no pueden estar vacíos.")
+    if args.fuerza_bruta and not args.diccionario:
+        print("Error: Debe proporcionar un archivo de diccionario para la fuerza bruta.")
         return
 
-    #if not caracteres_validos.match(args.string) or not caracteres_validos.match(args.key):
-    #    print("Error: El texto y la clave solo pueden contener caracteres alfanuméricos y algunos caracteres especiales.")
-    #    return
+    if args.fuerza_bruta:
+        fuerza_bruta(args.string, args.diccionario)
+    else:
+        if not args.key:
+            print ("Error: La clave es requerida para cifrar o descifrar.")
+            return
 
-    try:
         resultado = vigenere(args.string, args.key, args.decrypt)
-        
+
         # Mostrar el resultado en el formato deseado
         print(f'Texto ingresado: {args.string}\n')
         print(f'Clave ingresada: {args.key}\n')
@@ -88,8 +110,6 @@ def main():
             print(f'Texto decodificado: {resultado}\n')
         else:
             print(f'Texto cifrado: {resultado}\n')
-    except Exception as e:
-        print(f"Ocurrió un error: {e}")
 
 if __name__ == '__main__':
     main()
