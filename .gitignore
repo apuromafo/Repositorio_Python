@@ -34,3 +34,4 @@ retos_Script_python/script2/*.lock
 /21_sha256/brute/hide
 /011_MalApiScan/hide
 22_rotacion/poc.txt
+/23_vigenere/diccionario
