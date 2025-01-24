@@ -55,7 +55,7 @@ def fuerza_bruta_sha256(hash_objetivo):
     """
 
     inicio = time.time()  # Registramos el tiempo inicial
-    for i in range(10000):
+    for i in range(1000):
         cadena = str(i).zfill(4)
         hash_calculado = hashlib.sha256(cadena.encode('utf-8')).hexdigest()
         if hash_calculado.lower() == hash_objetivo.lower():
