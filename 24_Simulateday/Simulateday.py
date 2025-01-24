@@ -39,16 +39,15 @@ def simulate_day():
     # Tiempo de estudio opcional
     while True:
         study = input("¿Quieres estudiar después de las 6pm? (sí/no): ").strip().lower()
-        if study in ["sí","si","yes","no"]:
-            study="yea"
+        if study in ["sí", "si", "s", "y", "yes"]:
+            study_time = end_work_time + timedelta(hours=4)
+            print_time("Terminar de estudiar", study_time)
             break
-        print("Por favor, responde con 'sí' o 'no'.")
-
-    if study == "yea":
-        study_time = end_work_time + timedelta(hours=4)
-        print_time("Terminar de estudiar", study_time)
-    else:
-        print("No hay estudio hoy.")
+        elif study in ["no", "n"]:
+            print("No hay estudio hoy.")
+            break
+        else:
+            print("Por favor, responde con 'sí' o 'no'.")
 
     # Fin del día
     print("\n--- Fin del día ---")
