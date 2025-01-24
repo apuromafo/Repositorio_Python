@@ -42,10 +42,10 @@ class DriverBlockListChecker:
         self.win_url = "https://aka.ms/VulnerableDriverBlockList"
         self.lol_drivers = []
         self.win_bl_drivers = []
-        self.temp_dir = Path("temp2")
+        self.temp_dir = Path("temp")
         self.temp_dir.mkdir(exist_ok=True)
         self.win_block_policy_zip = self.temp_dir.joinpath("blocklist.zip")
-        self.win_block_policy_xml = self.temp_dir.joinpath(f"SiPolicy_{target}.xml")
+        self.win_block_policy_xml = self.temp_dir.joinpath(f"VulnerableDriverBlockList/SiPolicy_{target}.xml")
 
     def get_lol_blocklist(self):
         """Obtiene la lista de bloqueos de LoL y la almacena en `lol_drivers`."""
