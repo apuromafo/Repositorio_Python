@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-description = 'uso de frames, uso de ASCII inspirado en  [curl.exe ascii.live/loro]'
+description = 'uso de frames, uso de ASCII inspirado en  [curl.exe ascii.live/parrot]'
 author = 'Apuromafo'
 version = '0.0.1'
 date = '28.11.2024'
