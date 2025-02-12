@@ -1,10 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+"""
+Mini herramienta con uso de socket para validar puertos abiertos.
+Autor: Apuromafo
+Versión: 0.0.2
+Fecha: 28.11.2024
+"""
 
-description = 'mini herramienta con uso de socket para validar puertos abiertos '
-author = 'Apuromafo'
-version = '0.0.1'
-date = '28.11.2024'
-
+import os
+import sys
+import subprocess
 import socket
 import logging
 import argparse
@@ -28,13 +32,38 @@ SERVICIOS_COMUNES = {
     445: "Microsoft-DS",
     3389: "RDP",
     8080: "HTTP alternativo",
-    # Puedes agregar más puertos y servicios según sea necesario
 }
+
+def verificar_dependencias():
+    """Verifica si nmap y los módulos necesarios están instalados."""
+    try:
+        # Verificar si nmap está instalado
+        subprocess.run(["nmap", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    except FileNotFoundError:
+        logging.error("Nmap no está instalado. Por favor, instala nmap antes de continuar.")
+        sys.exit(1)
+
+    # Verificar si los módulos necesarios están instalados
+    required_modules = ["socket", "argparse", "concurrent"]
+    missing_modules = []
+    for module in required_modules:
+        try:
+            __import__(module)
+        except ImportError:
+            missing_modules.append(module)
+    
+    if missing_modules:
+        logging.error(f"Faltan los siguientes módulos: {', '.join(missing_modules)}. Instalándolos automáticamente...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", *missing_modules])
+        except Exception as e:
+            logging.error(f"Error al instalar los módulos: {e}")
+            sys.exit(1)
 
 def grab_banner(sock, puerto):
     """Intenta obtener el banner de un servicio en un socket dado."""
     try:
-        sock.settimeout(1)
+        sock.settimeout(2)  # Aumentamos el timeout para dar más tiempo a la respuesta
         
         # Enviar un comando dependiendo del puerto
         if puerto == 80 or puerto == 443:  # HTTP/HTTPS
@@ -45,7 +74,7 @@ def grab_banner(sock, puerto):
             sock.sendall(b'\r\n')  # Simplemente intenta abrir la conexión
         else:
             return "Protocolo no soportado para banner grabbing."
-
+        
         # Intentar recibir el banner
         banner = sock.recv(1024).decode(errors='replace').strip()
         return banner if banner else "No se pudo obtener el banner."
@@ -60,7 +89,9 @@ def grab_banner(sock, puerto):
 def scan_port(objetivo, puerto):
     """Escanea un único puerto y devuelve el puerto si está abierto."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        if s.connect_ex((objetivo, puerto)) == 0:
+        s.settimeout(1)  # Timeout para evitar bloqueos prolongados
+        result = s.connect_ex((objetivo, puerto))
+        if result == 0:
             logging.info(f'Puerto {puerto} está abierto.')
             banner = grab_banner(s, puerto)
             servicio = SERVICIOS_COMUNES.get(puerto, "Desconocido")
@@ -92,6 +123,9 @@ def parse_ports(port_args):
     return ports
 
 def main():
+    # Verificar dependencias antes de iniciar
+    verificar_dependencias()
+
     # Configuración de argumentos de línea de comandos
     parser = argparse.ArgumentParser(description='Escáner de puertos simple con banner grabbing.')
     parser.add_argument('objetivo', help='IP o dominio a escanear.')
@@ -101,17 +135,15 @@ def main():
 
     # Parsear los puertos usando la función definida
     puertos = parse_ports(args.puertos)
-
     logging.info(f'Iniciando el escaneo en {args.objetivo}...')
+
     try:
         puertos_abiertos = scaner(args.objetivo, puertos)
-
         if puertos_abiertos:
             for puerto, banner, servicio in puertos_abiertos:
                 print(f'Puerto {puerto} está abierto. Banner: {banner}, Servicio: {servicio}')
         else:
             print('No se encontraron puertos abiertos.')
-
     except Exception as e:
         logging.error(f'Se ha producido un error durante el escaneo: {e}')
         logging.info('El escaneo se ha detenido. Verifica el log para más detalles.')
