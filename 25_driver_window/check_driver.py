@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 description = 'Herramienta para validar drivers vulnerables en windows'
 author = 'Apuromafo'
 version = '0.0.1'
@@ -16,24 +15,26 @@ import xmltodict
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 
-
 @dataclass
 class Driver:
     name: str
     sha: str = ""
-
+    
     def __post_init__(self):
         self.name = self.name.lower().split(" ")[0].strip()
         self.sha = self.sha.lower().strip() if self.sha else ""
-
+    
     def __eq__(self, other):
         if not isinstance(other, Driver):
             return False
         return self.name == other.name or self.sha == other.sha
-
+    
+    def __hash__(self):
+        # Necesario para usar Driver en conjuntos (sets)
+        return hash((self.name, self.sha))
+    
     def __str__(self):
         return f"Driver (name='{self.name}', hash='{self.sha}')"
-
 
 class DriverBlockListChecker:
     def __init__(self, target="Enforced", verbose=False):
@@ -41,7 +42,7 @@ class DriverBlockListChecker:
         self.lol_url = "https://www.loldrivers.io/"
         self.win_url = "https://aka.ms/VulnerableDriverBlockList"
         self.lol_drivers = []
-        self.win_bl_drivers = []
+        self.win_bl_drivers = set()  # Usamos un conjunto para búsquedas más rápidas
         self.temp_dir = Path("temp")
         self.temp_dir.mkdir(exist_ok=True)
         self.win_block_policy_zip = self.temp_dir.joinpath("blocklist.zip")
@@ -52,7 +53,7 @@ class DriverBlockListChecker:
         try:
             print("[*] Getting LoL Blocklist...")
             r = requests.get(self.lol_url)
-            r.raise_for_status()  # Lanza un error si la respuesta es un error
+            r.raise_for_status()
             soup = BeautifulSoup(r.text, features="html.parser")
             rows = soup.find_all("tr", {"class": "row"})
             for row in rows:
@@ -67,21 +68,17 @@ class DriverBlockListChecker:
         try:
             print("[*] Getting Windows Blocklist...")
             r = requests.get(self.win_url, allow_redirects=True)
-            r.raise_for_status()  # Lanza un error si la respuesta es un error
-            with open(str(self.win_block_policy_zip), "wb") as _out:
+            r.raise_for_status()
+            with open(self.win_block_policy_zip, "wb") as _out:
                 _out.write(r.content)
-
-            with zipfile.ZipFile(str(self.win_block_policy_zip), "r") as zip_ref:
+            with zipfile.ZipFile(self.win_block_policy_zip, "r") as zip_ref:
                 zip_ref.extractall("temp")
-
             self.win_block_policy_zip.unlink(missing_ok=True)
-
-            with open(str(self.win_block_policy_xml), "r", encoding="utf-8", errors="ignore") as _in:
+            with open(self.win_block_policy_xml, "r", encoding="utf-8", errors="ignore") as _in:
                 text = _in.read()
-
             policies = xmltodict.parse(text).get("SiPolicy", {}).get("FileRules", {}).get("Deny", {})
             for policy in policies:
-                self.win_bl_drivers.append(
+                self.win_bl_drivers.add(
                     Driver(policy.get("@FriendlyName"), policy.get("@Hash"))
                 )
         except (requests.RequestException, zipfile.BadZipFile, FileNotFoundError) as e:
@@ -89,24 +86,27 @@ class DriverBlockListChecker:
 
     def is_driver_blocked(self, driver):
         """Verifica si un driver está bloqueado por Microsoft."""
-        return any(driver == blocked for blocked in self.win_bl_drivers)
+        return driver in self.win_bl_drivers
+
+    def print_drivers(self, drivers, blocked=True):
+        """Imprime los drivers según si están bloqueados o no."""
+        counter = 0
+        for driver in drivers:
+            if self.is_driver_blocked(driver) == blocked:
+                counter += 1
+                if self.verbose:
+                    status = "blocked" if blocked else "not blocked"
+                    print(f"[-] Driver {driver} {status} by Microsoft")
+        return counter
 
     def get_missing(self):
         """Imprime los drivers de LoL que no están bloqueados por Microsoft."""
-        counter = sum(1 for driver in self.lol_drivers if not self.is_driver_blocked(driver))
-        if self.verbose:
-            for driver in self.lol_drivers:
-                if not self.is_driver_blocked(driver):
-                    print(f"[-] Driver {driver} not blocked by Microsoft")
+        counter = self.print_drivers(self.lol_drivers, blocked=False)
         print(f"[+] Microsoft does not block {counter} vulnerable drivers")
 
     def get_matching(self):
         """Imprime los drivers de LoL que están bloqueados por Microsoft."""
-        counter = sum(1 for driver in self.lol_drivers if self.is_driver_blocked(driver))
-        if self.verbose:
-            for driver in self.lol_drivers:
-                if self.is_driver_blocked(driver):
-                    print(f"[-] Driver {driver} blocked by Microsoft")
+        counter = self.print_drivers(self.lol_drivers, blocked=True)
         print(f"[+] Microsoft does block {counter} vulnerable drivers")
 
     def cleanup(self):
@@ -116,14 +116,12 @@ class DriverBlockListChecker:
         if self.win_block_policy_xml.exists():
             self.win_block_policy_xml.unlink(missing_ok=True)
 
-
 if __name__ == "__main__":
     parser = ArgumentParser(description="Simple Driver Blocklist Checker")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print verbose output")
     parser.add_argument("-t", "--target", choices=["Enforced", "Audit"], default="Enforced",
                         help="Select Driver Blocklist to check against")
     args = parser.parse_args()
-
     dblchk = DriverBlockListChecker(target=args.target, verbose=args.verbose)
     dblchk.get_lol_blocklist()
     dblchk.get_windows_blocklist()
