@@ -2,14 +2,14 @@
 """
 Mini herramienta con uso de socket para validar puertos abiertos.
 Autor: Apuromafo
-Versión: 0.0.2
+Versión: 0.0.3
 Fecha: 28.11.2024
 """
-
 import os
 import sys
 import subprocess
 import socket
+import ssl
 import logging
 import argparse
 from concurrent.futures import ThreadPoolExecutor
@@ -51,7 +51,7 @@ def verificar_dependencias():
             __import__(module)
         except ImportError:
             missing_modules.append(module)
-    
+
     if missing_modules:
         logging.error(f"Faltan los siguientes módulos: {', '.join(missing_modules)}. Instalándolos automáticamente...")
         try:
@@ -63,18 +63,27 @@ def verificar_dependencias():
 def grab_banner(sock, puerto):
     """Intenta obtener el banner de un servicio en un socket dado."""
     try:
-        sock.settimeout(2)  # Aumentamos el timeout para dar más tiempo a la respuesta
-        
+        sock.settimeout(3)  # Timeout ajustado para dar más tiempo a la respuesta
+
         # Enviar un comando dependiendo del puerto
-        if puerto == 80 or puerto == 443:  # HTTP/HTTPS
+        if puerto == 80 or puerto == 8080:  # HTTP/HTTP alternativo
             sock.sendall(b'HEAD / HTTP/1.1\r\nHost: example.com\r\n\r\n')
+        elif puerto == 443:  # HTTPS (usando SSL)
+            context = ssl.create_default_context()
+            with context.wrap_socket(sock, server_hostname=sock.getpeername()[0]) as ssock:
+                ssock.sendall(b'HEAD / HTTP/1.1\r\nHost: example.com\r\n\r\n')
+                return ssock.recv(1024).decode(errors='replace').strip()
         elif puerto == 21:  # FTP
             sock.sendall(b'USER anonymous\r\n')
         elif puerto == 22:  # SSH
             sock.sendall(b'\r\n')  # Simplemente intenta abrir la conexión
+        elif puerto == 25:  # SMTP
+            sock.sendall(b'EHLO example.com\r\n')
+        elif puerto == 110:  # POP3
+            sock.sendall(b'CAPA\r\n')
         else:
             return "Protocolo no soportado para banner grabbing."
-        
+
         # Intentar recibir el banner
         banner = sock.recv(1024).decode(errors='replace').strip()
         return banner if banner else "No se pudo obtener el banner."
