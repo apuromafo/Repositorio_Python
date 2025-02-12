@@ -103,10 +103,7 @@ Probando clave: secreto -> Texto decodificado: hola mundo
 - [CyberChef](https://cyberchef.io/): Herramienta versátil para manipular datos.
 - [Cryptii](https://cryptii.com/pipes/vigenere-cipher): Conversor y cifrador en línea.
 
-## Contribuciones
-
-Si deseas contribuir a este proyecto, por favor abre un issue o envía un pull request. ¡Todas las contribuciones son bienvenidas!
-
+ 
 ## Licencia
 
 Este proyecto está bajo la licencia [MIT License](LICENSE).
