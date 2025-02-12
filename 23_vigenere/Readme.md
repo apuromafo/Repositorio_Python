@@ -1,7 +1,4 @@
-Aquí tienes un ejemplo de cómo estructurar el archivo `README.md` para tu proyecto en GitHub. Este archivo describe claramente el propósito del script, cómo usarlo y proporciona ejemplos útiles:
-
-
-
+ 
 # Vigenère Cipher Tool
 
 [![Python Version](https://img.shields.io/badge/python-3.x-blue)](https://www.python.org/)
