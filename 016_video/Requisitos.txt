@@ -9,4 +9,8 @@ Verificar FFmpeg:
  
 ffmpeg -versión
 
-Si ffmpeg está instalado, verás información sobre la versión. Si no está instalado, sigue las instrucciones en https://ffmpeg.org/download.html .
+Si ffmpeg está instalado, verás información sobre la versión. Si no está instalado, sigue las instrucciones en https://ffmpeg.org/download.html 
+
+yo bajo Windows usé :
+winget install "FFmpeg (Essentials Build)"
+luego reinicié la consola y estaba ya ok para usar.
