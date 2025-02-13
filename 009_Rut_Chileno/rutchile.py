@@ -117,12 +117,22 @@ def generar_rut_aleatorio(rango_millones_inicial, rango_millones_final, con_punt
             return f"{rut_str}{digito}"
 
 # Función para generar RUTs secuenciales
-def generar_rut_secuencial(rut_ini, cantidad, con_puntos, con_guion):
+def generar_ruts_secuenciales(rut_inicial, cantidad, con_puntos=False, con_guion=False):
+    """
+    Genera una lista de RUTs secuenciales.
+    :param rut_inicial: RUT inicial desde donde comenzar la secuencia.
+    :param cantidad: Cantidad de RUTs a generar.
+    :param con_puntos: Incluir puntos en el formato.
+    :param con_guion: Incluir guion antes del dígito verificador.
+    :return: Lista de RUTs generados.
+    """
     ruts = []
-    for i in range(cantidad):
-        rut_str = str(rut_ini + i).zfill(8)
-        digito = calcular_digito_verificador(rut_str)
+    # Asegurarse de que el RUT inicial tenga exactamente 8 dígitos
+    rut_inicial = int(str(rut_inicial)[:8])  # Truncar a 8 dígitos si es necesario
 
+    for i in range(cantidad):
+        rut_str = str(rut_inicial + i).zfill(8)  # Incrementar y asegurar longitud de 8 dígitos
+        digito = calcular_digito_verificador(rut_str)
         if con_guion:
             if con_puntos:
                 ruts.append(f"{rut_str[:2]}.{rut_str[2:5]}.{rut_str[5:8]}-{digito}")
