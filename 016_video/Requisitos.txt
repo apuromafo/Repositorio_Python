@@ -1,0 +1,12 @@
+Puedes verificar si tienes todo lo necesario ejecutando estos comandos en tu terminal:
+
+Verificar Python:
+bash
+ 
+python --version
+Deberías ver algo como Python 3.x.x.
+Verificar FFmpeg:
+ 
+ffmpeg -versión
+
+Si ffmpeg está instalado, verás información sobre la versión. Si no está instalado, sigue las instrucciones en https://ffmpeg.org/download.html .
