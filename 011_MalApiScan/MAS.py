@@ -5,6 +5,7 @@ import os
 import glob
 from datetime import datetime
 
+#malapi.json es obtenido desde github (010_malapi_json) que a su vez proviene de malapi.io
 MALAPI_JSON_PATH = r"malapi.json"  # Cambia esto a tu ruta específica
 
 def load_malapi_observations():

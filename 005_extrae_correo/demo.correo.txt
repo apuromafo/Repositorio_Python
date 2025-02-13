@@ -1,0 +1,4 @@
+john.doe@example.com:12345
+jane.doe@example.com:67890
+invalid-email:password
+john.doe@example.com:another_password
