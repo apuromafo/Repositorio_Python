@@ -330,7 +330,7 @@ def principal():
             rango_inicial = rut_inicial 
             rango_final = rut_inicial + cantidad
             # Generar RUTs
-            ruts = generar_rut_secuencial(rut_inicial, cantidad, con_puntos, con_guion)
+            ruts = generar_ruts_secuenciales(rut_inicial, cantidad, con_puntos, con_guion)
             print("\nRUTs generados (Secuenciales):")
             for rut in ruts:
                 print(rut)

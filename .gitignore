@@ -36,3 +36,17 @@ retos_Script_python/script2/*.lock
 22_rotacion/poc.txt
 /23_vigenere/diccionario
 /25_driver_window/temp
+*.apk
+*.jks
+*.smali
+006_Apk/output/decompiled/unknown/firebase-components.properties
+/006_Apk/output
+009_Rut_Chileno/poc.txt
+009_Rut_Chileno/prueba.txt
+009_Rut_Chileno/ruts_generados.txt
+009_Rut_Chileno/singuion
+016_video/2025-05-02 13-54-02.mkv
+27_IP report/config.py
+27_IP report/listaIP.txt
+006_Apk/key.py
+006_Apk/ssl.py
