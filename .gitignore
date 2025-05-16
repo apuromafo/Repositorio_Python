@@ -50,3 +50,4 @@ retos_Script_python/script2/*.lock
 27_IP report/listaIP.txt
 006_Apk/key.py
 006_Apk/ssl.py
+*.txt
