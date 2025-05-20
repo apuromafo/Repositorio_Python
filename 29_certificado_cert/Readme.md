@@ -76,4 +76,20 @@ Inspirado en el repositorio de az7rb.
 
 Los resultados se mostrarán en la terminal y también se guardarán en la carpeta `output`. Los nombres de los archivos serán `dominio.nombre_del_dominio.txt` o `.json`, y `organizacion.nombre_de_la_organizacion.txt` o `.json`.
 
+Portal donde obtenemos la información en este script:
+ https://crt.sh/
+ 
+Sugerencias adicionales:
+
+
+
+otros:
+https://censys.io/
+https://developers.facebook.com/tools/ct/
+https://google.com/transparencyreport/https/ct/
+
+dns
+https://github.com/blechschmidt/massdns
+https://github.com/darkoperator/dnsrecon
+
  
