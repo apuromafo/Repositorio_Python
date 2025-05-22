@@ -1,0 +1,130 @@
+{
+  "Few": {
+    "Weak": {
+      "en": [
+        "**Basic Phishing Awareness:** This email has few cues and weak alignment. It's ideal for reinforcing fundamental phishing awareness.",
+        "**Spot Obvious Indicators:** Use this to teach users how to quickly identify clear and easily noticeable phishing signs.",
+        "**Foundational Training:** Excellent for introductory security training sessions."
+      ],
+      "es": [
+        "**Concienciación Básica de Phishing:** Este correo tiene pocos indicios y baja alineación. Es ideal para reforzar la concienciación fundamental sobre el phishing.",
+        "**Identificar Indicadores Obvios:** Úsalo para enseñar a los usuarios a identificar rápidamente las señales de phishing claras y fácilmente perceptibles.",
+        "**Formación Fundacional:** Excelente para sesiones de capacitación de seguridad introductorias."
+      ]
+    },
+    "Medium": {
+      "en": [
+        "**Intermediate Training:** Few cues but medium alignment make this email useful for intermediate phishing training.",
+        "**Detect Subtle Attempts:** Train users to spot the more nuanced and less obvious phishing attempts.",
+        "**Beyond the Basics:** Challenge users to look past initial appearances."
+      ],
+      "es": [
+        "**Formación Intermedia:** Pocos indicios pero alineación media hacen que este correo sea útil para la formación intermedia en phishing.",
+        "**Detectar Intentos Sutiles:** Capacita a los usuarios para detectar los intentos de phishing más matizados y menos obvios.",
+        "**Más Allá de lo Básico:** Desafía a los usuarios a ver más allá de las apariencias iniciales."
+      ]
+    },
+    "Strong": {
+      "en": [
+        "**Advanced Simulations:** With few cues but strong alignment, this email is highly deceptive. Include it in advanced phishing simulations.",
+        "**Realistic Context Training:** Prepare users to detect emails that are well-crafted and blend seamlessly with legitimate communications.",
+        "**High-Level Deception:** Emphasize the importance of vigilance even with minimal red flags."
+      ],
+      "es": [
+        "**Simulacros Avanzados:** Con pocos indicios pero alta alineación, este correo es muy engañoso. Inclúyelo en simulacros avanzados de phishing.",
+        "**Capacitación en Contexto Realista:** Prepara a los usuarios para detectar correos electrónicos bien elaborados que se mezclan sin problemas con comunicaciones legítimas.",
+        "**Alto Nivel de Engaño:** Enfatiza la importancia de la vigilancia incluso con mínimas señales de alerta."
+      ]
+    }
+  },
+  "Some": {
+    "Weak": {
+      "en": [
+        "**Basic Phishing Simulations:** This email has some cues and weak alignment. It's good for introductory phishing simulations.",
+        "**Recognize Obvious Red Flags:** Use it to effectively train users on common and easily identifiable phishing indicators.",
+        "**First Line of Defense:** Reinforce the initial steps of identifying suspicious emails."
+      ],
+      "es": [
+        "**Simulacros Básicos de Phishing:** Este correo tiene algunos indicios y baja alineación. Es bueno para simulacros introductorios de phishing.",
+        "**Reconocer Señales de Alerta Obvias:** Úsalo para capacitar eficazmente a los usuarios sobre los indicadores de phishing comunes y fácilmente identificables.",
+        "**Primera Línea de Defensa:** Refuerza los pasos iniciales para identificar correos electrónicos sospechosos."
+      ]
+    },
+    "Medium": {
+      "en": [
+        "**Team Analysis:** With some cues and moderate alignment, this email is suitable for team-based analysis and discussion.",
+        "**Monthly Simulations:** Integrate this type of email into your regular monthly phishing simulations for consistent practice.",
+        "**Collaborative Detection:** Encourage users to consult with colleagues when unsure."
+      ],
+      "es": [
+        "**Análisis en Equipo:** Con ciertos indicios y alineación moderada, este correo es apto para análisis y discusión en equipo.",
+        "**Simulacros Mensuales:** Integra este tipo de correo en tus simulacros mensuales de phishing para una práctica consistente.",
+        "**Detección Colaborativa:** Anima a los usuarios a consultar con sus compañeros cuando tengan dudas."
+      ]
+    },
+    "Strong": {
+      "en": [
+        "**Critical Thinking Training:** This email has some cues and high alignment, making it highly deceptive. Train users specifically on critical thinking and suspicion.",
+        "**Advanced Phishing Simulations:** Include this email in your advanced phishing simulations to test users' ability to discern complex threats.",
+        "**Challenging Scenarios:** Prepare users for scenarios where a quick decision is needed."
+      ],
+      "es": [
+        "**Capacitación en Pensamiento Crítico:** Este correo tiene algunos indicios y alta alineación, lo que lo hace muy engañoso. Capacita a los usuarios específicamente en pensamiento crítico y sospecha.",
+        "**Simulacros Avanzados de Phishing:** Incluye este correo en tus simulacros avanzados de phishing para evaluar la capacidad de los usuarios para discernir amenazas complejas.",
+        "**Escenarios Desafiantes:** Prepara a los usuarios para escenarios donde se necesita una decisión rápida."
+      ]
+    }
+  },
+  "Many": {
+    "Weak": {
+      "en": [
+        "**Easy Detection:** A high number of cues and low alignment make this email easy to detect.",
+        "**Basic Training & Awareness:** It's excellent for foundational training and general security awareness sessions.",
+        "**Highlight Red Flags:** Use it to clearly demonstrate multiple obvious phishing indicators."
+      ],
+      "es": [
+        "**Detección Fácil:** Un gran número de indicios y baja alineación hacen que este correo sea fácil de detectar.",
+        "**Formación Básica y Concienciación:** Es excelente para la formación fundamental y las sesiones generales de concienciación sobre seguridad.",
+        "**Resaltar Señales de Alerta:** Úsalo para demostrar claramente múltiples indicadores obvios de phishing."
+      ]
+    },
+    "Medium": {
+      "en": [
+        "**Expected Detection:** With many cues and medium alignment, trained users should easily detect this email.",
+        "**Regular Policy Review:** Emphasize the importance of regularly reviewing security policies to prevent confusion.",
+        "**Reinforce Training:** A good option for reinforcing previous training and testing retention."
+      ],
+      "es": [
+        "**Detección Esperada:** Con muchos indicios y alineación media, los usuarios entrenados deberían detectar fácilmente este correo.",
+        "**Revisión Regular de Políticas:** Enfatiza la importancia de revisar regularmente las políticas de seguridad para evitar confusiones.",
+        "**Reforzar Capacitación:** Una buena opción para reforzar la capacitación previa y evaluar la retención."
+      ]
+    },
+    "Strong": {
+      "en": [
+        "**Persistent Deception:** Despite many cues, strong alignment means this email can still deceive users. Focus on advanced recognition.",
+        "**Enhanced User Education:** Improve user education on recognizing sophisticated and well-crafted phishing messages that include many details.",
+        "**Contextual Analysis:** Train users to analyze the entire context, not just individual cues."
+      ],
+      "es": [
+        "**Engaño Persistente:** A pesar de muchos indicios, la alta alineación significa que este correo aún puede engañar a los usuarios. Concéntrate en el reconocimiento avanzado.",
+        "**Educación de Usuarios Mejorada:** Mejora la educación de los usuarios sobre el reconocimiento de mensajes de phishing sofisticados y bien elaborados que incluyen muchos detalles.",
+        "**Análisis Contextual:** Capacita a los usuarios para analizar todo el contexto, no solo indicios individuales."
+      ]
+    }
+  },
+  "general": {
+    "es": [
+      "**Simulacros Periódicos:** Implementa simulacros de phishing de forma regular para mantener la vigilancia.",
+      "**Formación Continua:** Ofrece entrenamiento constante sobre las mejores prácticas de seguridad cibernética.",
+      "**Ejemplos Reales:** Muestra ejemplos reales de correos electrónicos sospechosos en reuniones de equipo para un aprendizaje práctico.",
+      "**Cultura de Seguridad:** Fomenta una cultura donde la seguridad es responsabilidad de todos."
+    ],
+    "en": [
+      "**Periodic Simulations:** Conduct phishing simulations regularly to maintain vigilance.",
+      "**Continuous Training:** Provide ongoing training on cybersecurity best practices.",
+      "**Real-World Examples:** Show real examples of suspicious emails in team meetings for practical learning.",
+      "**Security Culture:** Foster a culture where security is everyone's responsibility."
+    ]
+  }
+}
