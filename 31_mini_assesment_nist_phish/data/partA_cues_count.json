@@ -1,0 +1,84 @@
+{
+  "errors_indicators": [
+    {
+      "question_en": "How many spelling errors are in the email?",
+      "question_es": "¿Cuántos errores ortográficos hay en el correo electrónico?"
+    },
+    {
+      "question_en": "How many grammar errors are in the email, including mismatched plurality?",
+      "question_es": "¿Cuántos errores gramaticales hay en el correo electrónico, incluyendo plural incorrecto?"
+    },
+    {
+      "question_en": "How many inconsistencies are in the email?",
+      "question_es": "¿Cuántas inconsistencias hay en el correo electrónico?"
+    }
+  ],
+  "technical_cues_indicators": [
+    {
+      "question_en": "How many potentially dangerous attachments are included?",
+      "question_es": "¿Cuántos archivos adjuntos potencialmente peligrosos se incluyen?"
+    },
+    {
+      "question_en": "How many times does text hide the true URL in a hyperlink?",
+      "question_es": "¿Cuántas veces el texto oculta la URL real en un hipervínculo?"
+    },
+    {
+      "question_en": "How many links have a domain name plausibly similar to a recognizable entity's domain?",
+      "question_es": "¿Cuántos enlaces tienen un nombre de dominio plausiblemente similar al de una entidad reconocible?"
+    }
+  ],
+  "visual_presentation_cues_indicators": [
+    {
+      "question_en": "How many branding elements (text or logos) appear to be an imitation?",
+      "question_es": "¿Cuántos elementos de marca (texto o logotipos) parecen ser una imitación?"
+    },
+    {
+      "question_en": "How many branding elements (text or logos) appear to be out-of-date?",
+      "question_es": "¿Cuántos elementos de marca (texto o logotipos) parecen estar desactualizados?"
+    },
+    {
+      "question_en": "How many inappropriate security indicators or security icons are in the email?",
+      "question_es": "¿Cuántos indicadores de seguridad inadecuados o iconos de seguridad están presentes en el correo?"
+    }
+  ],
+  "language_content_cues_indicators": [
+    {
+      "question_en": "How many times is legal language used in the message, such as copyright information, disclaimers, or tax information?",
+      "question_es": "¿Cuántas veces se usa lenguaje legal en el mensaje, como información de derechos de autor, descargos o impuestos?"
+    },
+    {
+      "question_en": "How many detailed aspects that are not central to the content are in the message?",
+      "question_es": "¿Cuántos aspectos detallados que no son centrales al contenido están presentes en el mensaje?"
+    },
+    {
+      "question_en": "How many requests for sensitive information are in the email, including personally identifying information or credentials?",
+      "question_es": "¿Cuántas solicitudes de información sensible hay en el correo, incluyendo información personal identificable o credenciales?"
+    },
+    {
+      "question_en": "How many times does the email express time pressure, including implied?",
+      "question_es": "¿Cuántas veces el correo expresa urgencia, incluyendo implícitamente?"
+    },
+    {
+      "question_en": "How many threats are included in the message, including implied threats?",
+      "question_es": "¿Cuántas amenazas se incluyen en el mensaje, incluyendo implícitas?"
+    }
+  ],
+  "common_tactics_cues_indicators": [
+    {
+      "question_en": "How many appeals does the email make to help others?",
+      "question_es": "¿Cuántas veces el correo hace apelaciones para ayudar a otros?"
+    },
+    {
+      "question_en": "How many times does the email offer something that is too good to be true, such as having won a contest, lottery, free vacation and so on?",
+      "question_es": "¿Cuántas veces el correo ofrece algo demasiado bueno para ser verdad, como haber ganado un concurso, lotería, vacaciones gratis, etc.?"
+    },
+    {
+      "question_en": "Does the email offer anything personalized and unexpected just for you?",
+      "question_es": "¿El correo ofrece algo personalizado e inesperado solo para ti?"
+    },
+    {
+      "question_en": "How many times does the email offer something for a limited time?",
+      "question_es": "¿Cuántas veces el correo ofrece algo por tiempo limitado?"
+    }
+  ]
+}

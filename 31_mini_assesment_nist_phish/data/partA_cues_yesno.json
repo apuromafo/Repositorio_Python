@@ -1,0 +1,46 @@
+{
+  "technical_indicators": [
+    {
+      "question_en": "Is the sender's name unrelated to the sender's email address, including 'reply-to' address?",
+      "question_es": "¿Es el nombre del remitente ajeno a la dirección de correo electrónico del remitente, incluyendo la dirección 'reply-to'?"
+    },
+    {
+      "question_en": "Is a domain name used in the sender's email address plausibly similar to a recognizable entity's domain?",
+      "question_es": "¿El nombre de dominio utilizado en la dirección de correo electrónico del remitente es plausiblemente similar al de un dominio reconocible de una entidad?"
+    }
+  ],
+  "visual_presentation_indicators": [
+    {
+      "question_en": "Are appropriate branding elements (text or logos) missing?",
+      "question_es": "¿Faltan elementos de marca adecuados (texto o logotipos)?"
+    },
+    {
+      "question_en": "Do the design and formatting of the email appear unprofessional?",
+      "question_es": "¿El diseño y formato del correo electrónico parecen poco profesionales?"
+    }
+  ],
+  "language_content_indicators": [
+    {
+      "question_en": "Is the email missing a generic greeting, such as a formal or informal salutation?",
+      "question_es": "¿El correo electrónico carece de un saludo genérico, como un saludo formal o informal?"
+    },
+    {
+      "question_en": "Is the email missing personalization?",
+      "question_es": "¿El correo electrónico carece de personalización?"
+    },
+    {
+      "question_en": "Is the message missing detail about the sender, such as sender or contact information?",
+      "question_es": "¿El mensaje carece de detalles sobre el remitente, como información de contacto?"
+    }
+  ],
+  "common_tactics_indicators": [
+    {
+      "question_en": "Does the message appear to be a work or business-related process?",
+      "question_es": "¿El mensaje parece ser parte de un proceso laboral o empresarial?"
+    },
+    {
+      "question_en": "Does the message appear to be from a friend, colleague, boss, other authority entity, or other reputable authority entity?",
+      "question_es": "¿El mensaje parece ser de un amigo, colega, jefe, otra autoridad u otra entidad reconocida?"
+    }
+  ]
+}

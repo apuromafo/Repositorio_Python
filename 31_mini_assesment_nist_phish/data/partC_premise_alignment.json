@@ -1,0 +1,24 @@
+{
+  "premise_alignment": [
+    {
+      "question_en": "How applicable is the email to workplace processes or practices for the target audience?",
+      "question_es": "¿Qué tan aplicable es el correo electrónico a los procesos o prácticas laborales para el público objetivo?"
+    },
+    {
+      "question_en": "How pertinent is the email's premise to the roles and responsibilities of the target audience?",
+      "question_es": "¿Qué tan pertinente es la premisa del correo electrónico a los roles y responsabilidades del público objetivo?"
+    },
+    {
+      "question_en": "How well does the email align to other situations or events, even those external to the workplace?",
+      "question_es": "¿Con qué grado de alineación se ajusta el correo electrónico a otras situaciones u eventos, incluso aquellos externos al lugar de trabajo?"
+    },
+    {
+      "question_en": "How applicable is the email to concerns over potentially harmful ramifications for not clicking the links or attachments?",
+      "question_es": "¿Qué tan aplicable es el correo electrónico a las preocupaciones sobre posibles consecuencias dañinas por no hacer clic en los enlaces u adjuntos?"
+    },
+    {
+      "question_en": "How applicable is the email's reflection of targeted training effects that would lead to premise detection? Care must be taken to appropriately incorporate the training or warning specificity, as transfer of learning is quite difficult.",
+      "question_es": "¿Qué tan aplicable es la reflexión del correo electrónico sobre los efectos de capacitaciones específicas que podrían llevar a la detección de la premisa? Se debe tener cuidado al incorporar adecuadamente la formación o la especificidad de la advertencia, ya que la transferencia de aprendizaje puede ser bastante difícil."
+    }
+  ]
+}
