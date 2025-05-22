@@ -28,7 +28,6 @@ def upload_file_to_nextcloud(local_file_path, nextcloud_file_path):
         print(f"❌ Error al procesar '{local_file_path}': {e}")
         return False
 
-
 def share_file(nextcloud_file_path):
     """Comparte un archivo en Nextcloud generando un enlace público."""
     share_endpoint = f"{NEXTCLOUD_URL}/ocs/v1.php/apps/files_sharing/api/v1/shares"
@@ -39,7 +38,8 @@ def share_file(nextcloud_file_path):
     }
 
     headers = {
-        'OCS-APIRequest': 'true'
+        'OCS-APIRequest': 'true',
+        'Accept': 'application/json'  # <-- Añadimos esto
     }
 
     try:
@@ -50,16 +50,25 @@ def share_file(nextcloud_file_path):
             headers=headers
         )
 
+        print(f"Estado HTTP: {response.status_code}")
+        print("Respuesta del servidor:")
+        print(response.text)
+
         if response.status_code == 200:
-            share_info = response.json()
-            print("🔗 Enlace compartido:")
-            print(f"   {share_info['data']['url']}")
+            try:
+                share_info = response.json()
+                print("🔗 Enlace compartido:")
+                print(f"   {share_info['ocs']['data']['url']}")
+            except requests.exceptions.JSONDecodeError:
+                print("❌ No se pudo decodificar la respuesta como JSON.")
         else:
             print(f"⚠️ No se pudo generar el enlace para '{nextcloud_file_path}': {response.status_code} - {response.text}")
+
     except Exception as e:
         print(f"⚠️ Error al compartir '{nextcloud_file_path}': {e}")
-
-
+        
+               
+        
 def upload_folder(local_folder, nextcloud_base_path):
     """Sube recursivamente todos los archivos de una carpeta local a Nextcloud."""
     for root, _, files in os.walk(local_folder):
