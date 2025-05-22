@@ -51,3 +51,5 @@ retos_Script_python/script2/*.lock
 006_Apk/key.py
 006_Apk/ssl.py
 *.txt
+32_upload/upload_nextcloud_credencial_personal.py
+/32_upload/validando_docker
