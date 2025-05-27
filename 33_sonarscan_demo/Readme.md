@@ -48,7 +48,7 @@ Crea un archivo `config.ini` con esta estructura:
 [SonarQube]
 sonar.token = squ_xx_xxxxxxxxxxxxxxx
 url = https://tu-instancia.sonarqube.com/
-NombreReporte = Seguridad Ofensiva
+NombreReporte = Nombre Reporte
 ruta_jar = sonar-cnes-report-5.0.2.jar
 ruta_plantilla = code-analysis-template.docx
 ```
