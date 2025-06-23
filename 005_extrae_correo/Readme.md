@@ -102,6 +102,3 @@ Correos inválidos ignorados: 1
 - Si el archivo de salida ya existe, será sobrescrito.
 - Los correos inválidos (por ejemplo, aquellos que no cumplen con el formato estándar de correo electrónico) serán ignorados.
  
----
-
-¡Disfruta extrayendo correos electrónicos de forma sencilla y eficiente con este script en Python 3! 🚀
