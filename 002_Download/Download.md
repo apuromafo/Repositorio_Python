@@ -3,7 +3,8 @@
 ![[Pasted image 20241118192258.png]]
 
 ## Descripción 
-Este proyecto es una aplicación de interfaz gráfica de usuario (GUI) en Python que permite descargar archivos desde URLs especificadas y gestionar la descarga de múltiples sitios listados en un archivo de texto. También muestra la dirección IP actual del usuario y permite elegir si abrir o no el archivo descargado. 
+Este proyecto es una aplicación de interfaz gráfica de usuario (GUI) en Python que permite descargar archivos desde URLs especificadas y gestionar la descarga de múltiples sitios listados en un archivo de texto.
+ También muestra la dirección IP actual del usuario y permite elegir si abrir o no el archivo descargado. 
 ## Características 
 - **Interfaz de usuario intuitiva**: Facilita la entrada de la URL de origen y el nombre del archivo de destino. 
 - **Descarga de múltiples archivos**: Permite la carga de un archivo `.txt` que contenga URLs, facilitando la descarga en lote. 

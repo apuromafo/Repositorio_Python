@@ -42,6 +42,74 @@ fecha 07-02-2023
         Cada usuario debe tener su propio calendario y su información debe ser accesible solo por el usuario y el administrador.
     Seguridad:
         El sistema debe tener medidas de seguridad para proteger los datos y prevenir accesos no autorizados.
+        
+        
+proyecto modelado
+1. Descripción General del Proyecto:
+
+El objetivo es desarrollar una aplicación que permita visualizar la disponibilidad de los usuarios en un calendario laboral, 
+considerando roles distintos (Administrador y Usuario Final) y funcionalidades específicas para cada uno.
+ La clave está en gestionar la asignación de días libres, especialmente en fechas festivas o vacaciones, asegurando siempre el mínimo personal necesario.
+
+2. Roles de Usuarios:
+
+Administrador:
+Tiene acceso completo al sistema.
+Puede modificar los calendarios de todos los usuarios.
+Puede asignar días feriados y/o vacaciones a los usuarios.
+Puede ajustar la asignación de personal para cubrir el mínimo requerido en fechas especiales.
+Usuario Final:
+Solo puede visualizar su propio calendario laboral.
+Puede ver sus días de trabajo programados.
+Puede enviar sugerencias al administrador sobre solicitudes de días libres (feriados, vacaciones).
+
+3. Modelo de Datos (Estructura de la Base de Datos):
+Para gestionar esta información, necesitaremos una base de datos.  Aquí hay un esquema básico:
+
+Usuarios:
+ID_Usuario (Clave Primaria - Identificador único del usuario)
+Nombre
+Apellido
+Rol (Administrador o Usuario Final)
+Calendario:
+ID_Calendario (Clave Primaria - Identificador único del calendario)
+ID_Usuario (Clave Foránea – Relación con la tabla Usuarios, indica a quién pertenece el calendario)
+Dia (Fecha del día en el calendario - Ej: 2024-10-26)
+Estado (Disponible, Ausente - Indica si el usuario está trabajando o no ese día)
+Feriados:
+ID_Feriado (Clave Primaria – Identificador único del feriado)
+Nombre_Feriado (Ej: Día de la Independencia, Navidad)
+Fecha (Fecha del feriado)
+Asignaciones: (Esta tabla es crucial para relacionar Feriados y Calendarios)
+ID_Asignacion (Clave Primaria - Identificador único de la asignación)
+ID_Feriado (Clave Foránea – Relación con la tabla Feriados)
+ID_Usuario (Clave Foránea – Relación con la tabla Usuarios)
+Estado (Indica si el usuario tiene día libre o no en ese feriado - Ej: "Libre", "Trabajo Mínimo")
+
+4. Flujo de Trabajo del Programa:
+
+Visualización del Calendario (Usuario Final): El programa muestra el calendario del usuario, indicando los días disponibles y los días asignados como trabajo.
+Solicitud de Día Libre (Usuario Final): El usuario final puede enviar una solicitud al administrador para un día libre (feriado o vacaciones).
+Modificación del Calendario (Administrador):
+El administrador recibe la solicitud del usuario.
+Puede asignar días libres a los usuarios en fechas festivas o vacaciones, ajustando el personal necesario.
+Actualización del Calendario (Administrador): El programa actualiza los calendarios de todos los usuarios con las nuevas asignaciones.
+
+
+5. Tecnologías Sugeridas:
+
+Lenguaje de Programación: Python (por su versatilidad y bibliotecas disponibles) o Java (si se busca una solución robusta y escalable).
+Framework Web: Django (Python) o Spring Boot (Java) para facilitar el desarrollo de la interfaz web.
+Base de Datos: PostgreSQL, MySQL o SQLite (dependiendo del tamaño y complejidad del proyecto).
+Interfaz de Usuario: HTML, CSS y JavaScript para crear una interfaz web intuitiva.
+6. Consideraciones Adicionales:
+
+Gestión de Usuarios: Implementar un sistema seguro para la creación, modificación y eliminación de usuarios.
+Control de Acceso: Asegurar que los usuarios solo puedan acceder a las funcionalidades permitidas según su rol (Administrador o Usuario Final).
+Validación de Datos: Validar todos los datos ingresados por el usuario para evitar errores y garantizar la integridad de la base de datos.
+Interfaz de Usuario: Diseñar una interfaz intuitiva y fácil de usar, que permita a los usuarios visualizar y modificar sus calendarios de manera eficiente.
+
+        
 """
 
 #

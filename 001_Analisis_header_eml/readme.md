@@ -1,9 +1,6 @@
-
----
-
 # Validación de Headers de EML
 
-Herramienta para analizar encabezados de correos electrónicos en formato EML, extraer información relevante, validar MTAs (Mail Transfer Agents) y detectar posibles indicadores de phishing.
+Herramienta para analizar encabezados de correos electrónicos en formato EML, extraer información relevante, validar MTAs (Mail Transfer Agents) y detectar posibles indicadores de phishing. This tool helps you quickly assess the legitimacy of emails by examining their headers and leveraging external services like AbuseIPDB and VirusTotal.
 
 ## Índice
 1. [Datos básicos](#01-datos-básicos)
@@ -35,7 +32,7 @@ Cuerpo: Cuerpo del mensaje
 
 ## 02 Datos básicos más MTAs
 
-En el contexto defensivo, **MTAs** se refiere a **Mail Transfer Agents**. Estos son servidores de correo que se encargan de la transferencia y entrega de mensajes de correo electrónico.
+En el contexto defensivo, **MTAs** (Mail Transfer Agents) se refieren a servidores de correo que se encargan de la transferencia y entrega de mensajes de correo electrónico.  These are the servers that route your email.
 
 Para obtener información básica del correo y extraer los MTAs, ya está integrado en el uso:
 
@@ -52,16 +49,16 @@ Destinatario: Destinatario
 Cuerpo: Cuerpo del mensaje
 
 MTAs encontrados:
-IP: 111.111.111.11
-web: sitio.com
-onion: qqvbgcu6kohbkxbs.onion
+IP: 111.111.111.11 : pass (IP de host)
+web: sitio.com : pass (IP de host: 222.222.222.222)
+onion: qqvbgcu6kohbkxbs.onion : Invalid IP
 ```
 
 ---
 
 ## 03 Validación con AbuseIPDB (API gratuita)
 
-Para realizar un análisis completo con validación de MTAs usando la API de AbuseIPDB, asegúrate de tener un archivo `config.api` con tu clave de API.
+Para realizar un análisis completo con validación de MTAs usando la API de AbuseIPDB, asegúrate de tener un archivo `config.api` con tu clave de API.  This requires an AbuseIPDB API key for full functionality.
 
 Ejecuta el siguiente comando:
 
@@ -87,7 +84,7 @@ onion: qqvbgcu6kohbkxbs.onion : Invalid IP
 
 ## 04 Detección de cabeceras de phishing
 
-La herramienta también detecta cabeceras relacionadas con phishing o indicadores de seguridad como Trend Micro. Esto incluye cabeceras como `X-TrendMicro-Phishing`, `X-Spam-Flag`, `X-Virus-Scanned`, entre otras.
+La herramienta también detecta cabeceras relacionadas con phishing o indicadores de seguridad como Trend Micro. This includes headers like `X-TrendMicro-Phishing`, `X-Spam-Flag`, `X-Virus-Scanned`, among others.
 
 ### Salida esperada:
 ```
@@ -105,10 +102,10 @@ Cabeceras relacionadas con phishing:
 
 ---
 
-## Notas adicionales
+## 5 Notas adicionales
 
 1. **Archivo `config.api`:**
-   - Asegúrate de tener un archivo `config.api` en el mismo directorio que el script. Este archivo debe contener tu clave de API de AbuseIPDB.
+   - Asegúrate de tener un archivo `config.api` en el mismo directorio que el script. Este archivo debe contener tu clave de API de AbuseIPDB.  You can obtain an API key from the AbuseIPDB website: [https://www.abuseipdb.com/](https://www.abuseipdb.com/)
    - Ejemplo de contenido del archivo `config.api`:
      ```
      tu_clave_de_api_aqui
