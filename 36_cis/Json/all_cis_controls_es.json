@@ -1,0 +1,1691 @@
+{
+    "CONTROL 1": {
+        "number": "1",
+        "title": "Inventario y Control de Activos Empresariales",
+        "overview": "Gestionar activamente (inventariar, rastrear y corregir) todos los activos empresariales (dispositivos de usuario final, incluyendo portátiles y móviles; dispositivos de red; dispositivos no informáticos/Internet de las Cosas (IoT); y servidores) conectados a la infraestructura física, virtualmente, remotamente, y aquellos dentro de entornos en la nube, para conocer con precisión la totalidad de los activos que necesitan ser monitoreados y protegidos dentro de la empresa. Esto también apoyará la identificación de activos no autorizados y sin gestión para eliminarlos o remediarlos.",
+        "safeguards": [
+            {
+                "id": "1.1",
+                "description": "Establecer y mantener un inventario preciso, detallado y actualizado de todos los activos empresariales con el potencial de almacenar o procesar datos, incluyendo: dispositivos de usuario final (incluyendo portátiles y móviles), dispositivos de red, dispositivos no informáticos/IoT, y servidores. Asegurar que el registro del inventario incluya la dirección de red (si es estática), la dirección de hardware, el nombre de la máquina, el propietario del activo empresarial, el departamento para cada activo, y si el activo ha sido aprobado para conectarse a la red. Para los dispositivos móviles de usuario final, las herramientas de tipo MDM pueden apoyar este proceso, donde sea apropiado. Este inventario incluye activos conectados a la infraestructura física, virtualmente, remotamente, y aquellos dentro de entornos en la nube. Además, incluye activos que se conectan regularmente a la infraestructura de red de la empresa, incluso si no están bajo el control de la empresa. Revisar y actualizar el inventario de todos los activos empresariales bianualmente, o con mayor frecuencia.",
+                "asset_type": "Dispositivos",
+                "security_function": "Identificar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "1.2",
+                "description": "Asegurar que exista un proceso para abordar los activos no autorizados semanalmente. La empresa puede optar por eliminar el activo de la red, denegar al activo la conexión remota a la red o poner en cuarentena al activo.",
+                "asset_type": "Dispositivos",
+                "security_function": "Responder",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "1.3",
+                "description": "Utilizar una herramienta de descubrimiento activa para identificar los activos conectados a la red empresarial. Configurar la herramienta de descubrimiento activa para que se ejecute diariamente, o con mayor frecuencia.",
+                "asset_type": "Dispositivos",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "1.4",
+                "description": "Utilizar el registro de DHCP en todos los servidores DHCP o herramientas de gestión de direcciones IP (IP) para actualizar el inventario de activos de la empresa. Revisar y utilizar los registros para actualizar el inventario de activos de la empresa semanalmente, o con mayor frecuencia.",
+                "asset_type": "Dispositivos",
+                "security_function": "Identificar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "1.5",
+                "description": "Utilizar una herramienta de descubrimiento pasiva para identificar los activos conectados a la red empresarial. Revisar y utilizar las escaneos para actualizar el inventario de activos de la empresa al menos semanalmente, o con mayor frecuencia.",
+                "asset_type": "Dispositivos",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 2": {
+        "number": "2",
+        "title": "Inventario y Control de Activos de Software",
+        "overview": "Gestionar activamente (inventariar, rastrear y corregir) todo el software (sistemas operativos y aplicaciones) en la red para que solo el software autorizado esté instalado y pueda ejecutarse, y que el software no autorizado e sin gestionar se encuentre y evite su instalación o ejecución.",
+        "safeguards": [
+            {
+                "id": "2.1",
+                "description": "Establecer y mantener un inventario detallado de todo el software con licencia instalado en los activos empresariales. El inventario de software debe documentar el título, el editor, la fecha de instalación/uso inicial, y el propósito comercial para cada entrada; donde sea apropiado, incluir la Ubicación de Recursos Uniforme (URL), las tiendas de aplicaciones(s), las versiones(s), el mecanismo de implementación, la fecha de desmantelamiento, y el número de licencias. Revisar y actualizar el inventario de software semestralmente, o con mayor frecuencia.",
+                "asset_type": "Software",
+                "security_function": "Identificar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "2.2",
+                "description": "Asegurar que solo el software actualmente soportado se designe como autorizado en el inventario de software para los activos empresariales. Si el software no está soportado, pero es necesario para el cumplimiento de la misión de la empresa, documentar una excepción detallando los controles mitigantes y la aceptación del riesgo residual. Para cualquier software sin soporte sin documentación de excepción, designarlo como no autorizado. Revisar la lista de software para verificar el soporte del software al menos mensualmente, o con mayor frecuencia.",
+                "asset_type": "Software",
+                "security_function": "Identificar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "2.3",
+                "description": "Asegurar que el software no autorizado se elimine del uso en los activos empresariales o reciba una excepción documentada. Revisar mensualmente, o con mayor frecuencia.",
+                "asset_type": "Software",
+                "security_function": "Responder",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "2.4",
+                "description": "Utilizar herramientas de inventario de software, cuando sea posible, en toda la empresa para automatizar el descubrimiento y la documentación del software instalado.",
+                "asset_type": "Software",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "2.5",
+                "description": "Utilizar controles técnicos, como la lista de aplicaciones (allowlisting), para asegurar que solo el software autorizado pueda ejecutarse o accederse. Reevaluar semestralmente, o con mayor frecuencia.",
+                "asset_type": "Software",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "2.6",
+                "description": "Utilizar controles técnicos para asegurar que solo las bibliotecas de software autorizadas, como archivos específicos .dll, .ocx y .so, se permitan cargar en un proceso del sistema. Bloquear bibliotecas no autorizadas para que se carguen en un proceso del sistema. Reevaluar semestralmente, o con mayor frecuencia.",
+                "asset_type": "Software",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "2.7",
+                "description": "Utilizar controles técnicos, como firmas digitales y control de versiones, para asegurar que solo los scripts autorizados, como archivos específicos .ps1 y .py, se permitan ejecutar. Bloquear scripts no autorizados para que se ejecuten. Reevaluar semestralmente, o con mayor frecuencia.",
+                "asset_type": "Software",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 3": {
+        "number": "3",
+        "title": "Data Protection",
+        "overview": "Desarrollar procesos y controles técnicos para identificar, clasificar, manejar de forma segura, conservar y disponer de datos.",
+        "safeguards": [
+            {
+                "id": "3.1",
+                "description": "Establecer y mantener un proceso de gestión de datos documentado. En el proceso, abordar la sensibilidad de los datos, el propietario de los datos, el manejo de los datos, los límites de retención de datos y los requisitos de disposición, según los estándares de sensibilidad y retención para la empresa. Revisar y actualizar la documentación anualmente o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Data",
+                "security_function": "Govern",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.2",
+                "description": "Establecer y mantener un inventario de datos basado en el proceso de gestión de datos de la empresa. Inventar datos sensibles, como mínimo. Revisar y actualizar el inventario anualmente, como mínimo, con prioridad para los datos sensibles.",
+                "asset_type": "Data",
+                "security_function": "Identify",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.3",
+                "description": "Configurar listas de control de acceso a datos basadas en la necesidad que tiene un usuario de conocer. Aplicar las listas de control de acceso a datos, también conocidas como permisos de acceso, a los sistemas de archivos locales y remotos, bases de datos y aplicaciones.",
+                "asset_type": "Data",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.4",
+                "description": "Conservar los datos de acuerdo con el proceso documentado de gestión de datos de la empresa. La retención de datos debe incluir tanto plazos mínimos como máximos.",
+                "asset_type": "Data",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.5",
+                "description": "Disponer de forma segura los datos según lo indicado en el proceso documentado de gestión de datos de la empresa. Asegurar que el proceso y el método de disposición sean proporcionales a la sensibilidad de los datos.",
+                "asset_type": "Data",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.6",
+                "description": "Encriptar los datos en dispositivos de usuario final que contengan datos sensibles. Las implementaciones de ejemplo incluyen: Windows BitLocker®, Apple FileVault®, Linux® dm-crypt.",
+                "asset_type": "Data",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.7",
+                "description": "Establecer y mantener un esquema de clasificación de datos general para la empresa. Las empresas pueden utilizar etiquetas, como \"Sensible\", \"Confidencial\" y \"Público\", y clasificar sus datos según esas etiquetas. Revisar y actualizar el esquema de clasificación anualmente o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Data",
+                "security_function": "Identify",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.8",
+                "description": "Documentar los flujos de datos. La documentación de los flujos de datos incluye los flujos de datos de proveedores de servicios y debe basarse en el proceso de gestión de datos de la empresa. Revisar y actualizar la documentación anualmente o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Data",
+                "security_function": "Identify",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.9",
+                "description": "Encriptar los datos en medios extraíbles.",
+                "asset_type": "Data",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.10",
+                "description": "Encriptar los datos en tránsito. Las implementaciones de ejemplo incluyen: Transport Layer Security (TLS) y Open Secure Shell (OpenSSH).",
+                "asset_type": "Data",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.11",
+                "description": "Encriptar los datos en reposo en servidores, aplicaciones y bases de datos. La cifrado de capa de almacenamiento, también conocido como cifrado del lado del servidor, cumple con el requisito mínimo de esta Salvaguarda. Los métodos adicionales de cifrado pueden incluir el cifrado del lado del cliente, donde el acceso al dispositivo de almacenamiento de datos no permite el acceso a los datos en texto plano.",
+                "asset_type": "Data",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.12",
+                "description": "Segmentar el procesamiento y el almacenamiento de datos en función de la sensibilidad de los datos. No procese datos sensibles en activos empresariales destinados a datos de menor sensibilidad.",
+                "asset_type": "Data",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.13",
+                "description": "Implementar una herramienta automatizada, como una herramienta de prevención de pérdida de datos (DLP) basada en el host, para identificar todos los datos sensibles almacenados, procesados o transmitidos a través de los activos empresariales, incluidos aquellos ubicados en el sitio o en un proveedor de servicios remoto, y actualizar el inventario de datos de la empresa.",
+                "asset_type": "Data",
+                "security_function": "Protect",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "3.14",
+                "description": "Registrar el acceso a los datos sensibles, incluida la modificación y la disposición.",
+                "asset_type": "Data",
+                "security_function": "Detect",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 4": {
+        "number": "4",
+        "title": "Secure Configuration of Enterprise Assets and Software",
+        "overview": "Establecer y mantener la configuración segura de los activos empresariales (dispositivos de usuario final, incluyendo portátiles y móviles; dispositivos de red; dispositivos no informáticos/IoT; y servidores) y software (sistemas operativos y aplicaciones).",
+        "safeguards": [
+            {
+                "id": "4.1",
+                "description": "Establecer y mantener un proceso documentado de configuración segura para los activos empresariales (dispositivos de usuario final, incluyendo portátiles y móviles, dispositivos no informáticos/IoT y servidores) y software (sistemas operativos y aplicaciones). Revisar y actualizar la documentación anualmente, o cuando ocurran cambios empresariales significativos que puedan afectar esta Salvaguarda.",
+                "asset_type": "Documentación",
+                "security_function": "Govern",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.2",
+                "description": "Establecer y mantener un proceso documentado de configuración segura para los dispositivos de red. Revisar y actualizar la documentación anualmente, o cuando ocurran cambios empresariales significativos que puedan afectar esta Salvaguarda.",
+                "asset_type": "Documentación",
+                "security_function": "Govern",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.3",
+                "description": "Configurar el bloqueo automático de sesiones en los activos empresariales después de un período definido de inactividad. Para sistemas operativos de propósito general, el período no debe exceder los 15 minutos. Para dispositivos móviles de usuario final, el período no debe exceder los 2 minutos.",
+                "asset_type": "Dispositivos",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.4",
+                "description": "Implementar y gestionar un firewall en los servidores, donde esté soportado. Ejemplos de implementaciones incluyen un firewall virtual, firewall de sistema operativo o un agente de firewall de terceros.",
+                "asset_type": "Dispositivos",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.5",
+                "description": "Implementar y gestionar una barrera host o herramienta de filtrado de puertos en los dispositivos de usuario final, con una regla predeterminada que rechace todo el tráfico excepto los servicios y puertos que se permiten explícitamente.",
+                "asset_type": "Dispositivos",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.6",
+                "description": "Gestionar de forma segura los activos empresariales y el software. Ejemplos de implementaciones incluyen la gestión de la configuración a través de versiones controladas de Infrastructure-as-Code (IaC) y el acceso a las interfaces administrativas mediante protocolos de red seguros, como Secure Shell (SSH) y Hypertext Transfer Protocol Secure (HTTPS). No utilizar protocolos inseguros, como Telnet (Teletype Network) e HTTP, a menos que sea esencial desde una perspectiva operativa.",
+                "asset_type": "Dispositivos",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.7",
+                "description": "Gestionar las cuentas predeterminadas en los activos empresariales y el software, como root, administrador y otras cuentas de proveedores preconfiguradas. Ejemplos de implementaciones pueden incluir: desactivar las cuentas predeterminadas o hacerlas inutilizables.",
+                "asset_type": "Usuarios",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.8",
+                "description": "Desinstalar o desactivar los servicios innecesarios en los activos empresariales y el software, como un servicio de compartición de archivos no utilizado, módulo de aplicación web o función de servicio.",
+                "asset_type": "Dispositivos",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.9",
+                "description": "Configurar servidores DNS de confianza en la infraestructura de red. Ejemplos de implementaciones incluyen configurar los dispositivos de red para que utilicen servidores DNS controlados por la empresa y/o servidores DNS accesibles externamente de forma reputada.",
+                "asset_type": "Dispositivos",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.10",
+                "description": "Aplicar el bloqueo automático del dispositivo después de un umbral determinado de intentos fallidos de autenticación local en los dispositivos portátiles de usuario final, donde esté soportado. Para las laptops, no permitir más de 20 intentos fallidos de autenticación; para tabletas y smartphones, no más de 10 intentos fallidos de autenticación. Ejemplos de implementaciones incluyen Microsoft® InTune Device Lock y Apple® Configuration Profile maxFailedAttempts.",
+                "asset_type": "Dispositivos",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.11",
+                "description": "Borrar de forma remota los datos empresariales de los dispositivos portátiles de usuario final de propiedad empresarial cuando sea apropiado, como en caso de pérdida o robo de dispositivos, o cuando un individuo ya no respalde la empresa.",
+                "asset_type": "Datos",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "4.12",
+                "description": "Asegurar que se utilicen espacios de trabajo empresariales separados en los dispositivos móviles de usuario final, donde esté soportado. Ejemplos de implementaciones incluyen el uso de un Apple® Configuration Profile o Android™ Work Profile para separar las aplicaciones y datos empresariales de las aplicaciones y datos personales.",
+                "asset_type": "Datos",
+                "security_function": "Protect",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 5": {
+        "number": "5",
+        "title": "Account Management",
+        "overview": "Utilizar procesos y herramientas para asignar y gestionar la autorización de credenciales para cuentas de usuario, incluyendo cuentas de administrador y cuentas de servicio, a los activos empresariales y el software.",
+        "safeguards": [
+            {
+                "id": "5.1",
+                "description": "Establecer y mantener un inventario de todas las cuentas gestionadas en la empresa. El inventario debe incluir, como mínimo, cuentas de usuario, administrador y servicio. El inventario, como mínimo, debe contener el nombre de la persona, el nombre de usuario, las fechas de inicio/parada y el departamento. Validar que todas las cuentas activas estén autorizadas, con una frecuencia mínima trimestral, o más frecuentemente.",
+                "asset_type": "Usuarios",
+                "security_function": "Identificar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "5.2",
+                "description": "Utilizar contraseñas únicas para todos los activos empresariales. La implementación de las mejores prácticas incluye, como mínimo, una contraseña de 8 caracteres para cuentas que utilizan Autenticación Multifactorial (MFA) y una contraseña de 14 caracteres para cuentas que no la utilizan.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "5.3",
+                "description": "Eliminar o desactivar cualquier cuenta inactiva después de un período de 45 días de inactividad, donde sea compatible.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "5.4",
+                "description": "Restringir los privilegios de administrador a cuentas de administrador dedicadas en los activos empresariales. Realizar actividades informáticas generales, como la navegación por Internet, el correo electrónico y el uso de suites de productividad, desde la cuenta principal no privilegiada del usuario.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "5.5",
+                "description": "Establecer y mantener un inventario de cuentas de servicio. El inventario, como mínimo, debe contener el propietario del departamento, la fecha de revisión y el propósito. Realizar revisiones de cuentas de servicio para validar que todas las cuentas activas estén autorizadas, con una frecuencia mínima trimestral, o más frecuentemente.",
+                "asset_type": "Usuarios",
+                "security_function": "Identificar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "5.6",
+                "description": "Centralizar la gestión de cuentas a través de un servicio de directorio o de identidad.",
+                "asset_type": "Usuarios",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 6": {
+        "number": "6",
+        "title": "Access Control Management",
+        "overview": "Utilizar procesos y herramientas para crear, asignar, gestionar y revocar credenciales y privilegios de acceso para cuentas de usuario, administrador y servicio en los activos empresariales y el software.",
+        "safeguards": [
+            {
+                "id": "6.1",
+                "description": "Establecer y seguir un proceso documentado, preferiblemente automatizado, para otorgar acceso a los activos empresariales al contratar a nuevos empleados o cambiar de rol de un usuario.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "6.2",
+                "description": "Establecer y seguir un proceso, preferiblemente automatizado, para revocar el acceso a los activos empresariales, desactivando las cuentas inmediatamente al finalizar la relación laboral, revocar derechos o cambiar de rol de un usuario. Desactivar las cuentas en lugar de eliminarlas puede ser necesario para preservar los registros de auditoría.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "6.3",
+                "description": "Requerir que todas las aplicaciones empresariales o de terceros expuestas externamente apliquen la Autenticación Multifactorial (MFA), donde esté disponible. Aplicar MFA a través de un servicio de directorio o un proveedor SSO es una implementación satisfactoria de esta Salvaguarda.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "6.4",
+                "description": "Requerir MFA para el acceso a la red remota.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "6.5",
+                "description": "Requerir MFA para todas las cuentas de acceso administrativo, donde esté disponible, en todos los activos empresariales, ya sean gestionados in situ o a través de un proveedor de servicios.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "6.6",
+                "description": "Establecer y mantener un inventario de los sistemas de autenticación y autorización de la empresa, incluidos aquellos alojados in situ o en un proveedor de servicios remoto. Revisar y actualizar el inventario, como mínimo, anualmente, o más frecuentemente.",
+                "asset_type": "Software",
+                "security_function": "Identificar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "6.7",
+                "description": "Centralizar el control de acceso para todos los activos empresariales a través de un servicio de directorio o un proveedor SSO, donde esté disponible.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "6.8",
+                "description": "Definir y mantener el control de acceso basado en roles, determinando y documentando los derechos de acceso necesarios para cada rol dentro de la empresa para llevar a cabo con éxito sus deberes asignados. Realizar revisiones de control de acceso de los activos empresariales para validar que todos los privilegios estén autorizados, con una frecuencia mínima anual, o más frecuentemente.",
+                "asset_type": "Usuarios",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 7": {
+        "number": "7",
+        "title": "Gestión Continua de Vulnerabilidades",
+        "overview": "Desarrollar un plan para evaluar y rastrear continuamente las vulnerabilidades en todos los activos de la infraestructura de la empresa, con el fin de remediarlas y minimizar la ventana de oportunidad para que los atacantes puedan explotarlas. Monitorear fuentes públicas y privadas de información sobre amenazas y vulnerabilidades.",
+        "safeguards": [
+            {
+                "id": "7.1",
+                "description": "Establecer y mantener un proceso documentado de gestión de vulnerabilidades para los activos de la empresa. Revisar y actualizar la documentación anualmente, o cuando ocurran cambios significativos en la empresa que puedan afectar a esta salvaguarda.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernanza",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "7.2",
+                "description": "Establecer y mantener una estrategia de remediación basada en riesgos documentada en un proceso de remediación, con revisiones mensuales o más frecuentes.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernanza",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "7.3",
+                "description": "Realizar actualizaciones de los sistemas operativos en los activos de la empresa a través de la gestión automatizada de parches con una frecuencia mensual o más frecuente.",
+                "asset_type": "Software",
+                "security_function": "Protección",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "7.4",
+                "description": "Realizar actualizaciones de las aplicaciones en los activos de la empresa a través de la gestión automatizada de parches con una frecuencia mensual o más frecuente.",
+                "asset_type": "Software",
+                "security_function": "Protección",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "7.5",
+                "description": "Realizar escaneos automatizados de vulnerabilidades de los activos internos de la empresa con una frecuencia trimestral o más frecuente.  Realizar tanto escaneos autenticados como no autenticados.",
+                "asset_type": "Software",
+                "security_function": "Identificación",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "7.6",
+                "description": "Realizar escaneos automatizados de vulnerabilidades de los activos expuestos externamente. Realizar escaneos con una frecuencia mensual o más frecuente.",
+                "asset_type": "Software",
+                "security_function": "Identificación",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "7.7",
+                "description": "Remediar las vulnerabilidades detectadas en el software a través de procesos y herramientas con una frecuencia mensual o más frecuente, basándose en el proceso de remediación.",
+                "asset_type": "Software",
+                "security_function": "Respuesta",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 8": {
+        "number": "8",
+        "title": "Gestión de Registros de Auditoría",
+        "overview": "Recopilar, alertar, revisar y conservar los registros de auditoría de eventos que podrían ayudar a detectar, comprender o recuperarse de un ataque.",
+        "safeguards": [
+            {
+                "id": "8.1",
+                "description": "Establecer y mantener un proceso documentado de gestión de registros de auditoría que defina los requisitos de registro de la organización.  Como mínimo, abordar la recopilación, revisión y retención de registros de auditoría para los activos de la organización. Revisar y actualizar la documentación anualmente o cuando ocurran cambios importantes en la organización que puedan afectar a esta Safeguard.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernanza",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.2",
+                "description": "Recopilar registros de auditoría. Asegurarse de que el registro, según el proceso de gestión de registros de auditoría de la organización, ha sido habilitado en los activos de la organización.",
+                "asset_type": "Datos",
+                "security_function": "Detección",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.3",
+                "description": "Asegurarse de que los destinos de registro tienen suficiente almacenamiento para cumplir con el proceso de gestión de registros de auditoría de la organización.",
+                "asset_type": "Datos",
+                "security_function": "Protección",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.4",
+                "description": "Estandarizar la sincronización de tiempo. Configurar al menos dos fuentes de tiempo sincronizadas en los activos de la organización, donde sea compatible.",
+                "asset_type": "Red",
+                "security_function": "Protección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.5",
+                "description": "Configurar el registro de auditoría detallado para los activos de la organización que contengan datos confidenciales. Incluir la fuente de eventos, fecha, nombre de usuario, marca de tiempo, direcciones de origen, direcciones de destino y otros elementos útiles que podrían ayudar en una investigación forense.",
+                "asset_type": "Datos",
+                "security_function": "Detección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.6",
+                "description": "Recopilar registros de auditoría DNS en los activos de la organización, donde sea apropiado y compatible.",
+                "asset_type": "Datos",
+                "security_function": "Detección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.7",
+                "description": "Recopilar registros de auditoría URL en los activos de la organización, donde sea apropiado y compatible.",
+                "asset_type": "Datos",
+                "security_function": "Detección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.8",
+                "description": "Recopilar registros de auditoría de línea de comandos. Ejemplos de implementaciones incluyen la recopilación de registros de auditoría de PowerShell®, BASH y terminales administrativos remotos.",
+                "asset_type": "Datos",
+                "security_function": "Detección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.9",
+                "description": "Centralizar, en la medida de lo posible, la recopilación y retención de registros de auditoría en los activos de la organización de acuerdo con el proceso documentado de gestión de registros de auditoría. Ejemplos de implementaciones incluyen principalmente el uso de una herramienta SIEM para centralizar múltiples fuentes de registro.",
+                "asset_type": "Datos",
+                "security_function": "Detección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.10",
+                "description": "Conservar los registros de auditoría en los activos de la organización durante un mínimo de 90 días.",
+                "asset_type": "Datos",
+                "security_function": "Protección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.11",
+                "description": "Realizar revisiones de los registros de auditoría para detectar anomalías o eventos inusuales que podrían indicar una amenaza potencial. Realizar revisiones con una frecuencia semanal, u otra más frecuente.",
+                "asset_type": "Datos",
+                "security_function": "Detección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "8.12",
+                "description": "Recopilar registros de proveedores de servicios, donde sea compatible. Ejemplos de implementaciones incluyen la recopilación de eventos de autenticación y autorización, eventos de creación y eliminación de datos, y eventos de administración de usuarios.",
+                "asset_type": "Datos",
+                "security_function": "Detección",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 9": {
+        "number": "9",
+        "title": "Email and Web Browser Protections",
+        "overview": "Mejorar las protecciones y detecciones de amenazas provenientes de vectores como correo electrónico y navegadores web. Estos son oportunidades para que los atacantes manipulen el comportamiento humano a través del contacto directo.",
+        "safeguards": [
+            {
+                "id": "9.1",
+                "description": "Asegurar que solo se permitan ejecutar en la empresa navegadores y clientes de correo electrónico totalmente soportados, utilizando únicamente las últimas versiones proporcionadas por el proveedor.",
+                "asset_type": "Software",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "9.2",
+                "description": "Utilizar servicios de filtrado DNS en todos los dispositivos de usuario, incluyendo activos remotos y en el sitio, para bloquear el acceso a dominios maliciosos conocidos.",
+                "asset_type": "Devices",
+                "security_function": "Protect",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "9.3",
+                "description": "Aplicar y actualizar los filtros de URL basados en red para limitar la conexión de un activo empresarial a sitios web potencialmente maliciosos o no autorizados. Ejemplos de implementaciones incluyen filtrado basado en categorías, filtrado basado en reputación o el uso de listas negras. Aplicar filtros para todos los activos empresariales.",
+                "asset_type": "Network",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "9.4",
+                "description": "Restringir, ya sea mediante desinstalación o desactivación, cualquier plugin, extensión y aplicación adicional no autorizada o innecesaria para navegadores o clientes de correo electrónico.",
+                "asset_type": "Software",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "9.5",
+                "description": "Para reducir la posibilidad de correos electrónicos falsificados o modificados de dominios válidos, implementar políticas y verificación de DMARC, comenzando con la implementación de los estándares Sender Policy Framework (SPF) y DomainKeys Identified Mail (DKIM).",
+                "asset_type": "Network",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "9.6",
+                "description": "Bloquear tipos de archivo innecesarios que intenten ingresar al gateway de correo electrónico de la empresa.",
+                "asset_type": "Network",
+                "security_function": "Protect",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "9.7",
+                "description": "Implementar y mantener protecciones anti-malware en los servidores de correo electrónico, como el escaneo de archivos adjuntos y/o la sandboxing.",
+                "asset_type": "Network",
+                "security_function": "Protect",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 10": {
+        "number": "10",
+        "title": "Defensas contra Malware",
+        "overview": "Prevenir o controlar la instalación, propagación y ejecución de aplicaciones, código o scripts maliciosos en los activos empresariales.",
+        "safeguards": [
+            {
+                "id": "10.1",
+                "description": "Implementar y mantener software anti-malware en todos los activos empresariales.",
+                "asset_type": "Dispositivos",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "10.2",
+                "description": "Configurar actualizaciones automáticas para los archivos de firma anti-malware en todos los activos empresariales.",
+                "asset_type": "Dispositivos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "10.3",
+                "description": "Deshabilitar la funcionalidad de ejecución automática y reproducción automática para medios extraíbles.",
+                "asset_type": "Dispositivos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "10.4",
+                "description": "Configurar el software anti-malware para escanear automáticamente medios extraíbles.",
+                "asset_type": "Dispositivos",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "10.5",
+                "description": "Habilitar las funciones anti-explotación en los activos y software empresariales, donde sea posible, como Microsoft® Data Execution Prevention (DEP), Windows® Defender Exploit Guard (WDEG) o Apple® System Integrity Protection (SIP) y Gatekeeper™.",
+                "asset_type": "Dispositivos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "10.6",
+                "description": "Gestionar de forma centralizada el software anti-malware.",
+                "asset_type": "Dispositivos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "10.7",
+                "description": "Utilizar software anti-malware basado en comportamiento.",
+                "asset_type": "Dispositivos",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 11": {
+        "number": "11",
+        "title": "Recuperación de Datos",
+        "overview": "Establecer y mantener prácticas de recuperación de datos suficientes para restaurar los activos empresariales en alcance a un estado pre-incidente y confiable.",
+        "safeguards": [
+            {
+                "id": "11.1",
+                "description": "Establecer y mantener un proceso documentado de recuperación de datos que incluya procedimientos detallados de respaldo. En el proceso, abordar el alcance de las actividades de recuperación, la priorización de la recuperación y la seguridad de los datos respaldados. Revisar y actualizar la documentación anualmente, o cuando ocurran cambios empresariales significativos que podrían afectar esta Salvaguarda.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "11.2",
+                "description": "Realizar respaldos automatizados de los activos empresariales en alcance. Ejecutar respaldos semanalmente, o con mayor frecuencia, según la sensibilidad de los datos.",
+                "asset_type": "Datos",
+                "security_function": "Recuperar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "11.3",
+                "description": "Proteger los datos de recuperación con controles equivalentes a los datos originales. Referenciar la encriptación o la separación de datos, según los requisitos.",
+                "asset_type": "Datos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "11.4",
+                "description": "Establecer y mantener una instancia aislada de datos de recuperación. Ejemplos de implementaciones incluyen, el control de versiones de destinos de respaldo a través de sistemas o servicios fuera de línea, en la nube o fuera del sitio.",
+                "asset_type": "Datos",
+                "security_function": "Recuperar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "11.5",
+                "description": "Probar los respaldos de recuperación trimestralmente, o con mayor frecuencia, para una muestra de activos empresariales en alcance.",
+                "asset_type": "Datos",
+                "security_function": "Recuperar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 12": {
+        "number": "12",
+        "title": "Gestión de la Infraestructura de Red",
+        "overview": "Establecer, implementar y gestionar activamente (rastrear, informar, corregir) los dispositivos de red, con el fin de prevenir que los atacantes exploten servicios de red vulnerables y puntos de acceso.",
+        "safeguards": [
+            {
+                "id": "12.1",
+                "description": "Asegurar que la infraestructura de red esté actualizada. Ejemplos de implementaciones incluyen ejecutar la última versión estable del software y/o utilizar ofertas de 'Network as a Service' (NaaS) actualmente soportadas. Revisar las versiones de software mensualmente, o con mayor frecuencia, para verificar el soporte del software.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "12.2",
+                "description": "Diseñar y mantener una arquitectura de red segura. Una arquitectura de red segura debe abordar la segmentación, el principio de privilegio mínimo y la disponibilidad, como mínimo. Ejemplos de implementaciones pueden incluir documentación, políticas y componentes de diseño.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "12.3",
+                "description": "Gestionar de forma segura la infraestructura de red. Ejemplos de implementaciones incluyen 'Infrastructure-as-Code' (IaC) versionado y el uso de protocolos de red seguros, como SSH y HTTPS.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "12.4",
+                "description": "Establecer y mantener diagramas de arquitectura y/o otra documentación del sistema de red. Revisar y actualizar la documentación anualmente, o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "12.5",
+                "description": "Centralizar el AAA de red.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "12.6",
+                "description": "Adoptar protocolos de gestión de red seguros (p. ej., 802.1X) y protocolos de comunicación segura (p. ej., Wi-Fi Protected Access 2 (WPA2) Enterprise o alternativas más seguras).",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "12.7",
+                "description": "Exigir que los usuarios se autentiquen a servicios VPN y de autenticación gestionados por la empresa antes de acceder a los recursos empresariales en los dispositivos de los usuarios finales.",
+                "asset_type": "Dispositivos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "12.8",
+                "description": "Establecer y mantener recursos de computación dedicados, ya sean físicamente o lógicamente separados, para todas las tareas administrativas o tareas que requieran acceso administrativo. Los recursos de computación deben estar segmentados de la red principal de la empresa y no deben tener acceso a Internet.",
+                "asset_type": "Dispositivos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 13": {
+        "number": "13",
+        "title": "Network Monitoring and Defense",
+        "overview": "Operar procesos y herramientas para establecer y mantener un monitoreo exhaustivo de la red y defensa contra amenazas de seguridad en toda la infraestructura de red y la base de usuarios de la empresa.",
+        "safeguards": [
+            {
+                "id": "13.1",
+                "description": "Centralizar las alertas de eventos de seguridad en los activos empresariales para la correlación y el análisis de registros. La implementación recomendada requiere el uso de un SIEM, que incluye alertas de correlación definidas por el proveedor. Una plataforma de análisis de registros configurada con alertas de correlación relevantes para la seguridad también satisface esta Garantía.",
+                "asset_type": "Red",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.2",
+                "description": "Implementar una solución de detección de intrusiones basada en el host en los activos empresariales, donde sea apropiado y/o compatible.",
+                "asset_type": "Dispositivos",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.3",
+                "description": "Implementar una solución de detección de intrusiones en la red en los activos empresariales, donde sea apropiado. Ejemplos de implementaciones incluyen el uso de un Sistema de Detección de Intrusiones en Red (NIDS) o un servicio equivalente del proveedor de servicios en la nube (CSP).",
+                "asset_type": "Red",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.4",
+                "description": "Realizar filtrado de tráfico entre segmentos de red, donde sea apropiado.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.5",
+                "description": "Gestionar el control de acceso a los activos que se conectan remotamente a los recursos empresariales. Determinar la cantidad de acceso a los recursos empresariales en función del software antivirus instalado, el cumplimiento de la configuración con el proceso de configuración segura de la empresa y asegurarse de que el sistema operativo y las aplicaciones estén actualizados.",
+                "asset_type": "Dispositivos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.6",
+                "description": "Recopilar registros de tráfico de red y/o tráfico de red para su revisión y alertas a partir de dispositivos de red.",
+                "asset_type": "Red",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.7",
+                "description": "Implementar una solución de prevención de intrusiones basada en el host en los activos empresariales, donde sea apropiado y/o compatible. Ejemplos de implementaciones incluyen el uso de un cliente o agente de detección y respuesta (EDR) basado en el host.",
+                "asset_type": "Dispositivos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.8",
+                "description": "Implementar una solución de prevención de intrusiones en la red, donde sea apropiado. Ejemplos de implementaciones incluyen el uso de un Sistema de Prevención de Intrusiones en Red (NIPS) o un servicio equivalente del proveedor de CSP.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.9",
+                "description": "Implementar el control de acceso a nivel de puerto. El control de acceso a nivel de puerto utiliza 802.1x o protocolos similares de control de acceso a la red, como certificados y puede incorporar autenticación de usuario y/o dispositivo.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.10",
+                "description": "Realizar filtrado de la capa de aplicación. Ejemplos de implementaciones incluyen un proxy de filtrado, un firewall de capa de aplicación o un gateway.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "13.11",
+                "description": "Ajustar los umbrales de las alertas de eventos de seguridad mensualmente o con mayor frecuencia.",
+                "asset_type": "Red",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 14": {
+        "number": "14",
+        "title": "Concienciación y Formación en Seguridad",
+        "overview": "Establecer y mantener un programa de concienciación sobre seguridad para influir en el comportamiento del personal, fomentando la seguridad consciente y las habilidades necesarias para reducir los riesgos cibernéticos para la organización.",
+        "safeguards": [
+            {
+                "id": "14.1",
+                "description": "Establecer y mantener un programa de concienciación sobre seguridad. El propósito de un programa de concienciación sobre seguridad es educar a la fuerza laboral de la organización sobre cómo interactuar con los activos y datos de la organización de forma segura. Realizar formación al contratar y, como mínimo, anualmente. Revisar y actualizar el contenido anualmente o cuando ocurran cambios importantes en la organización que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Documentación",
+                "security_function": "Gobierno",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "14.2",
+                "description": "Formar a los miembros del personal para que reconozcan los ataques de ingeniería social, como el phishing, el fraude empresarial (BEC), el pretexto y el 'tailgating'.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "14.3",
+                "description": "Formar a los miembros del personal sobre las mejores prácticas de autenticación. Los temas de ejemplo incluyen MFA, composición de contraseñas y gestión de credenciales.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "14.4",
+                "description": "Formar a los miembros del personal sobre cómo identificar y almacenar, transferir, archivar y destruir de forma segura los datos confidenciales. Esto también incluye formar a los miembros del personal sobre las mejores prácticas de pantalla y escritorio, como bloquear la pantalla cuando se alejen de su activo empresarial, borrar pizarras blancas físicas y virtuales al final de las reuniones y almacenar datos y activos de forma segura.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "14.5",
+                "description": "Formar a los miembros del personal para que sean conscientes de las causas de la exposición involuntaria de datos. Los temas de ejemplo incluyen la entrega incorrecta de datos confidenciales, la pérdida de un dispositivo portátil de usuario o la publicación de datos en audiencias no previstas.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "14.6",
+                "description": "Formar a los miembros del personal para que puedan reconocer un incidente potencial y ser capaces de informarlo.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "14.7",
+                "description": "Formar a los empleados para que comprendan cómo verificar y reportar parches de software obsoletos o cualquier fallo en los procesos y herramientas automatizados. Esto incluye notificar al personal de TI sobre cualquier fallo en los procesos y herramientas automatizados.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "14.8",
+                "description": "Formar a los miembros del personal sobre los peligros de conectarse y transmitir datos a través de redes inseguras para actividades empresariales. Si la organización tiene trabajadores remotos, la formación debe incluir orientación para garantizar que todos los usuarios configuren de forma segura su infraestructura de red doméstica.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "14.9",
+                "description": "Realizar formación de concienciación y habilidades en seguridad específica para los roles. Los ejemplos incluyen cursos de administración de sistemas seguros para los profesionales de TI, la formación sobre las 10 principales vulnerabilidades OWASP® de sensibilización y prevención para los desarrolladores de aplicaciones web y la formación avanzada de sensibilización a la ingeniería social para los puestos clave.",
+                "asset_type": "Usuarios",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 15": {
+        "number": "15",
+        "title": "Gestión de Proveedores de Servicios",
+        "overview": "Desarrollar un proceso para evaluar a los proveedores de servicios que manejan datos sensibles, o son responsables de las plataformas y procesos IT críticos de una empresa, para asegurar que estos proveedores protegen adecuadamente esas plataformas y datos.",
+        "safeguards": [
+            {
+                "id": "15.1",
+                "description": "Establecer y mantener un inventario de proveedores de servicios. El inventario debe listar a todos los proveedores conocidos, incluir clasificaciones y designar un contacto de la empresa para cada proveedor de servicios. Revisar y actualizar el inventario anualmente o cuando ocurran cambios importantes en la empresa que puedan afectar esta Safeguard.",
+                "asset_type": "Usuarios",
+                "security_function": "Identificar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "15.2",
+                "description": "Establecer y mantener una política de gestión de proveedores de servicios. La política debe abordar la clasificación, el inventario, la evaluación, el monitoreo y el cese de actividad de los proveedores de servicios. Revisar y actualizar la política anualmente o cuando ocurran cambios importantes en la empresa que puedan afectar esta Safeguard.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "15.3",
+                "description": "Clasificar proveedores de servicios. Las consideraciones de clasificación pueden incluir uno o más atributos, como la sensibilidad de los datos, el volumen de datos, los requisitos de disponibilidad, las regulaciones aplicables, el riesgo inherente y el riesgo mitigado. Actualizar y revisar las clasificaciones anualmente o cuando ocurran cambios importantes en la empresa que puedan afectar esta Safeguard.",
+                "asset_type": "Usuarios",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "15.4",
+                "description": "Asegurarse de que los contratos con proveedores de servicios incluyan requisitos de seguridad. Ejemplos de requisitos pueden incluir requisitos mínimos de programa de seguridad, notificación y/o respuesta a incidentes y/o brechas de datos, requisitos de cifrado de datos y compromisos de disposición de datos. Estos requisitos de seguridad deben ser consistentes con la política de gestión de proveedores de servicios de la empresa. Revisar los contratos con proveedores de servicios anualmente para asegurar que no falten requisitos de seguridad.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "15.5",
+                "description": "Evaluar a los proveedores de servicios de acuerdo con la política de gestión de proveedores de servicios de la empresa. El alcance de la evaluación puede variar según la clasificación(es) y puede incluir la revisión de informes de evaluación estandarizados, como Service Organization Control 2 (SOC 2) y Payment Card Industry (PCI) Attestation of Compliance (AoC), cuestionarios personalizados o procesos igualmente rigurosos. Reevaluar a los proveedores de servicios anualmente, como mínimo, o con nuevos y renovados contratos.",
+                "asset_type": "Usuarios",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "15.6",
+                "description": "Monitorear a los proveedores de servicios de acuerdo con la política de gestión de proveedores de servicios de la empresa. El monitoreo puede incluir una reevaluación periódica del cumplimiento del proveedor de servicios, el monitoreo de las notas de lanzamiento del proveedor de servicios y el monitoreo en la oscuridad (dark web).",
+                "asset_type": "Datos",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "15.7",
+                "description": "Cese de actividad de los proveedores de servicios de forma segura. Consideraciones de ejemplo incluyen la desactivación de usuarios y cuentas de servicio, la terminación de flujos de datos y la disposición segura de datos empresariales dentro de los sistemas del proveedor de servicios.",
+                "asset_type": "Datos",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 16": {
+        "number": "16",
+        "title": "Seguridad del Software de Aplicación",
+        "overview": "Gestionar el ciclo de vida de seguridad de software desarrollado internamente, alojado o adquirido, para prevenir, detectar y remediar vulnerabilidades de seguridad antes de que afecten a la empresa.",
+        "safeguards": [
+            {
+                "id": "16.1",
+                "description": "Establecer y mantener un proceso de desarrollo de aplicaciones seguro. En este proceso, abordar elementos como: estándares de diseño de aplicaciones seguras, prácticas de codificación segura, capacitación para desarrolladores, gestión de vulnerabilidades, seguridad del código de terceros y procedimientos de pruebas de seguridad de aplicaciones. Revisar y actualizar la documentación anualmente o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Safeguard.",
+                "asset_type": "Documentación",
+                "security_function": "Gobierno",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.2",
+                "description": "Establecer y mantener un proceso para aceptar y abordar informes de vulnerabilidades de software, incluyendo proporcionar medios para que las entidades externas informen. Este proceso debe incluir elementos como: una política de gestión de vulnerabilidades que identifique el proceso de reporte, la parte responsable de manejar los informes de vulnerabilidad y un proceso de recepción, asignación, remediación y pruebas de remediación. Como parte del proceso, utilizar un sistema de seguimiento de vulnerabilidades que incluya calificaciones de gravedad y métricas para medir el tiempo de identificación, análisis y remediación de vulnerabilidades. Revisar y actualizar la documentación anualmente o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Safeguard.\n\nLos desarrolladores de terceros deben considerar esto como una política orientada externamente que ayuda a establecer expectativas con las partes interesadas externas.",
+                "asset_type": "Documentación",
+                "security_function": "Gobierno",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.3",
+                "description": "Realizar análisis de causa raíz en vulnerabilidades de seguridad. Al revisar las vulnerabilidades, el análisis de causa raíz es la tarea de evaluar los problemas subyacentes que crean vulnerabilidades en el código, lo que permite a los equipos de desarrollo ir más allá de simplemente solucionar las vulnerabilidades individuales a medida que surgen.",
+                "asset_type": "Software",
+                "security_function": "Detección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.4",
+                "description": "Establecer y gestionar un inventario actualizado de componentes de terceros utilizados en el desarrollo, a menudo denominado \"lista de materiales\", así como los componentes destinados a su uso futuro. Este inventario debe incluir cualquier riesgo que cada componente de terceros pueda representar. Evaluar la lista mensualmente para identificar cualquier cambio o actualización de estos componentes y validar que el componente sigue siendo soportado.",
+                "asset_type": "Software",
+                "security_function": "Identificación",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.5",
+                "description": "Utilizar componentes de software de terceros actualizados y de confianza. Siempre que sea posible, elegir marcos y bibliotecas probados y comprobados que proporcionen una seguridad adecuada. Adquirir estos componentes de fuentes confiables o evaluar el software para vulnerabilidades antes de su uso.",
+                "asset_type": "Software",
+                "security_function": "Protección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.6",
+                "description": "Establecer y mantener un sistema de calificación de gravedad y un proceso para las vulnerabilidades de aplicaciones que facilita la priorización del orden en el que se solucionan las vulnerabilidades descubiertas. Este proceso incluye establecer un nivel mínimo de aceptabilidad de seguridad para liberar código o aplicaciones. Las calificaciones de gravedad proporcionan una forma sistemática de clasificar las vulnerabilidades que mejora la gestión de riesgos y garantiza que los errores más graves se solucionen primero. Revisar y actualizar el sistema y el proceso anualmente.",
+                "asset_type": "Documentación",
+                "security_function": "Gobierno",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.7",
+                "description": "Utilizar plantillas de configuración estándar y recomendadas de la industria para los componentes de infraestructura de aplicaciones. Esto incluye servidores, bases de datos y servidores web subyacentes, y se aplica a los contenedores en la nube, los componentes del Servicio Plataforma como un Servicio (PaaS) y los componentes SaaS. No permita que el software desarrollado internamente debilite la configuración de endurecimiento.",
+                "asset_type": "Software",
+                "security_function": "Protección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.8",
+                "description": "Mantener entornos separados para los sistemas de producción y no producción.",
+                "asset_type": "Red",
+                "security_function": "Protección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.9",
+                "description": "Asegurar que todo el personal de desarrollo de software reciba capacitación en la escritura de código seguro para su entorno de desarrollo y responsabilidades específicas. La capacitación puede incluir principios de seguridad generales y prácticas estándar de seguridad de aplicaciones. Realizar la capacitación anualmente y diseñarla para promover la seguridad dentro del equipo de desarrollo y construir una cultura de seguridad entre los desarrolladores.",
+                "asset_type": "Usuarios",
+                "security_function": "Protección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.10",
+                "description": "Aplicar principios de diseño seguros en arquitecturas de aplicaciones. Los principios de diseño seguro incluyen el concepto de privilegio mínimo y la aplicación de la mediación para validar cada operación que hace el usuario, promoviendo el concepto de \"nunca confiar en la entrada del usuario\". Ejemplos incluyen garantizar que se realicen comprobaciones de errores y se documenten explícitamente para todas las entradas, incluida el tamaño, el tipo de datos y los rangos o formatos aceptables. El diseño seguro también significa minimizar la superficie de ataque de la infraestructura de aplicaciones, como desactivar puertos y servicios no protegidos, eliminar programas y archivos innecesarios y renombrar o eliminar cuentas predeterminadas.",
+                "asset_type": "Software",
+                "security_function": "Protección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.11",
+                "description": "Aprovechar módulos o servicios probados para componentes de seguridad de aplicaciones, como la gestión de identidad, el cifrado, la auditoría y los registros. Utilizar funciones de plataforma en funciones de seguridad críticas reducirá la carga de trabajo de los desarrolladores y minimizará la probabilidad de errores de diseño o implementación. Los sistemas operativos también proporcionan mecanismos para crear y mantener registros de auditoría seguros.",
+                "asset_type": "Software",
+                "security_function": "Protección",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.12",
+                "description": "Aplicar herramientas de análisis estático y dinámico dentro del ciclo de vida de la aplicación para verificar que se siguen las prácticas de codificación segura.",
+                "asset_type": "Software",
+                "security_function": "Protección",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.13",
+                "description": "Realizar pruebas de penetración en aplicaciones. Para las aplicaciones críticas, las pruebas de penetración autenticadas son más adecuadas para encontrar vulnerabilidades lógicas de negocio que las pruebas de escaneo de código y las pruebas de seguridad automatizadas. Las pruebas de penetración se basan en la habilidad del probador para manipular una aplicación como un usuario autenticado y no autenticado. ",
+                "asset_type": "Software",
+                "security_function": "Detección",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "16.14",
+                "description": "Realizar modelado de amenazas. El modelado de amenazas es el proceso de identificar y abordar las vulnerabilidades de diseño de seguridad de aplicaciones dentro de un diseño, antes de que se cree el código. Se lleva a cabo mediante individuos capacitados para evaluar el diseño de la aplicación y medir los riesgos de seguridad para cada punto de entrada y nivel de acceso. El objetivo es mapear la aplicación, la arquitectura e infraestructura de manera estructurada para comprender sus debilidades.",
+                "asset_type": "Software",
+                "security_function": "Protección",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 17": {
+        "number": "17",
+        "title": "Gestión de la Respuesta a Incidentes",
+        "overview": "Establecer un programa para desarrollar y mantener una capacidad de respuesta a incidentes (por ejemplo, políticas, planes, procedimientos, roles definidos, capacitación y comunicaciones) para prepararse, detectar y responder rápidamente a un ataque.",
+        "safeguards": [
+            {
+                "id": "17.1",
+                "description": "Designar una persona clave, y al menos un respaldo, que gestionará el proceso de gestión de incidentes de la empresa. El personal de gestión es responsable de la coordinación y documentación de los esfuerzos de respuesta y recuperación ante incidentes y puede incluir empleados internos de la empresa, proveedores de servicios o un enfoque híbrido. Si se utiliza un proveedor de servicios, designar al menos una persona interna de la empresa para supervisar cualquier trabajo de terceros. Revisar anualmente, o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Usuarios",
+                "security_function": "Responder",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "17.2",
+                "description": "Establecer y mantener información de contacto para las partes que deben ser informadas de los incidentes de seguridad. Los contactos pueden incluir personal interno, proveedores de servicios, fuerzas del orden, proveedores de seguros cibernéticos, agencias gubernamentales relevantes, socios del Centro de Intercambio de Información y Análisis (ISAC), u otras partes interesadas. Verificar la información de contacto anualmente para garantizar que esté actualizada.",
+                "asset_type": "Documentación",
+                "security_function": "Go governar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "17.3",
+                "description": "Establecer y mantener un proceso documentado de la empresa para que la fuerza laboral reporte incidentes de seguridad. El proceso incluye el plazo de notificación, el personal al que reportar, el mecanismo de notificación y la información mínima a reportar. Asegurar que el proceso esté disponible públicamente para toda la fuerza laboral. Revisar anualmente, o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Documentación",
+                "security_function": "Go governar",
+                "igs": [
+                    "IG1",
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "17.4",
+                "description": "Establecer y mantener un proceso documentado de respuesta a incidentes que aborde los roles y responsabilidades, los requisitos de cumplimiento y un plan de comunicación. Revisar anualmente, o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Documentación",
+                "security_function": "Go governar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "17.5",
+                "description": "Asignar roles y responsabilidades clave para la respuesta a incidentes, incluyendo personal de legal, TI, seguridad de la información, instalaciones, relaciones públicas, recursos humanos, respondientes a incidentes, analistas, y terceros relevantes. Revisar anualmente, o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Usuarios",
+                "security_function": "Responder",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "17.6",
+                "description": "Determinar qué mecanismos primarios y secundarios se utilizarán para comunicarse e informar durante un incidente de seguridad. Los mecanismos pueden incluir llamadas telefónicas, correos electrónicos, chat seguro o cartas de notificación. Tener en cuenta que ciertos mecanismos, como los correos electrónicos, pueden verse afectados durante un incidente de seguridad. Revisar anualmente, o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Usuarios",
+                "security_function": "Responder",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "17.7",
+                "description": "Planificar y llevar a cabo ejercicios y escenarios de respuesta a incidentes rutinarios para el personal clave involucrado en el proceso de respuesta a incidentes para prepararse para responder a incidentes del mundo real. Los ejercicios deben probar los canales de comunicación, la toma de decisiones y los flujos de trabajo. Realizar pruebas anualmente, como mínimo.",
+                "asset_type": "Usuarios",
+                "security_function": "Recuperar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "17.8",
+                "description": "Realizar revisiones post-incidente. Las revisiones post-incidente ayudan a prevenir la recurrencia de incidentes mediante la identificación de lecciones aprendidas y acciones de seguimiento.",
+                "asset_type": "Usuarios",
+                "security_function": "Recuperar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "17.9",
+                "description": "Establecer y mantener umbrales de seguridad del incidente, incluyendo, como mínimo, diferenciar entre un incidente y un evento. Los ejemplos pueden incluir: actividad anormal, vulnerabilidad de seguridad, debilidad de seguridad, brecha de datos, incidente de privacidad, etc. Revisar anualmente, o cuando ocurran cambios importantes en la empresa que puedan afectar a esta Salvaguarda.",
+                "asset_type": "Documentación",
+                "security_function": "Recuperar",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    },
+    "CONTROL 18": {
+        "number": "18",
+        "title": "Penetration Testing",
+        "overview": "Probar la efectividad y la resiliencia de los activos empresariales identificando y explotando vulnerabilidades en los controles (personas, procesos y tecnología), y simulando los objetivos y acciones de un atacante.",
+        "safeguards": [
+            {
+                "id": "18.1",
+                "description": "Establecer y mantener un programa de pruebas de penetración apropiado al tamaño, complejidad, industria y madurez de la empresa. Las características del programa incluyen el alcance, como red, aplicación web, Interfaz de Programación de Aplicaciones (API), servicios alojados y controles en las instalaciones físicas; frecuencia; limitaciones, como horas aceptables y tipos de ataques excluidos; información de contacto del punto de contacto; remediación, como la forma en que se encaminarán los hallazgos internos; y requisitos retrospectivos.",
+                "asset_type": "Documentación",
+                "security_function": "Gobernar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "18.2",
+                "description": "Realizar pruebas de penetración externas periódicas según los requisitos del programa, no menos de una vez al año. Las pruebas de penetración externas deben incluir reconocimiento empresarial y ambiental para detectar información explotable. Las pruebas de penetración requieren habilidades y experiencia especializadas y deben ser realizadas por un tercero cualificado. La prueba puede ser de caja transparente o de caja opaca.",
+                "asset_type": "Red",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "18.3",
+                "description": "Remediar los hallazgos de las pruebas de penetración según el proceso documentado de remediación de vulnerabilidades de la empresa. Esto debe incluir determinar un cronograma y un esfuerzo en términos de recursos basado en el impacto y la priorización de cada hallazgo identificado.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG2",
+                    "IG3"
+                ]
+            },
+            {
+                "id": "18.4",
+                "description": "Validar las medidas de seguridad después de cada prueba de penetración. Si se considera necesario, modificar los conjuntos de reglas y capacidades para detectar las técnicas utilizadas durante la prueba.",
+                "asset_type": "Red",
+                "security_function": "Proteger",
+                "igs": [
+                    "IG3"
+                ]
+            },
+            {
+                "id": "18.5",
+                "description": "Realizar pruebas de penetración internas periódicas según los requisitos del programa, no menos de una vez al año. La prueba puede ser de caja transparente o de caja opaca.",
+                "asset_type": "Red",
+                "security_function": "Detectar",
+                "igs": [
+                    "IG3"
+                ]
+            }
+        ]
+    }
+}
