@@ -1,0 +1,1356 @@
+[
+    {
+        "url": "https://github.com/jerryhoff/WebGoat.NET",
+        "name": ".NET Goat",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://testphp.vulnweb.com",
+        "name": "Acuart",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/dhammon/ai-goat",
+        "name": "AI-Goat",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://demo.testfire.net/",
+        "name": "Altoro Mutual (AltoroJ)",
+        "collection": [
+            "online",
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/satishpatnayak/AndroGoat",
+        "name": "AndroGoat",
+        "collection": [
+            "mobile"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/digininja/authlab",
+        "name": "AuthLab",
+        "collection": [
+            "offline",
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/bwapp/files/bee-box/",
+        "name": "Bee-Box",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/psiinon/bodgeit",
+        "name": "BodgeIt Store",
+        "collection": [
+            "offline",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://sechow.com/bricks/index.html",
+        "name": "Bricks",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/NeuraLegion/brokencrystals#vulnerabilities-overview",
+        "name": "Broken Crystals",
+        "collection": [
+            "offline",
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://bugbait.io",
+        "name": "BugBait - Vulnerable Web Application",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/thebutterflytmp/files/ButterFly%20Project/",
+        "name": "Butterfly Security Project",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://ctflearn.com/",
+        "name": "CTFLearn",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/convisolabs/CVWA",
+        "name": "CVWA - Conviso Vulnerable Web Application",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/RhinoSecurityLabs/cloudgoat",
+        "name": "CloudGoat",
+        "collection": [
+            "offline",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SpiderLabs/CryptOMG",
+        "name": "CryptOMG",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://cyberscavengerhunt.com",
+        "name": "Cyber Scavenger Hunt",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/fridaygoldsmith/bwa_cyclone_transfers",
+        "name": "Cyclone Transfers",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/snsttr/diwa",
+        "name": "DIWA - Deliberately Insecure Web Application",
+        "collection": [
+            "offline",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/stamparm/DSVW",
+        "name": "Damn Small Vulnerable Web (DSVW)",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/AvalZ/DVAS",
+        "name": "Damn Vulnerable Application Scanner (DVAS)",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/rewanthtammana/Damn-Vulnerable-Bank",
+        "name": "Damn Vulnerable Bank",
+        "collection": [
+            "mobile"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/njmulsqb/DVEA/",
+        "name": "Damn Vulnerable Electron App (DVEA)",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/LunaM00n/File-Upload-Lab",
+        "name": "Damn Vulnerable File Upload - DVFU",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/we45/DVFaaS-Damn-Vulnerable-Functions-as-a-Service",
+        "name": "Damn Vulnerable Functions as a Service (DVFaaS)",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application",
+        "name": "Damn Vulnerable GraphQL Application (DVGA)",
+        "collection": [
+            "container",
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/isp1r0/DVNA",
+        "name": "Damn Vulnerable Node Application - DVNA",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/appsecco/dvna",
+        "name": "Damn Vulnerable NodeJS Application - DVNA",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/koenbuyens/Vulnerable-OAuth-2.0-Applications",
+        "name": "Damn Vulnerable OAuth 2.0 Applications",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/anxolerd/dvpwa",
+        "name": "Damn Vulnerable Python Web Application - DVPWA",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/theowni/Damn-Vulnerable-RESTaurant-API-Game",
+        "name": "Damn Vulnerable Restaurant",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/OWASP/DVSA",
+        "name": "Damn Vulnerable Serverless App (DVSA)",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/silentsignal/damn-vulnerable-stateful-web-app",
+        "name": "Damn Vulnerable Stateful WebApp",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/digininja/DVWA",
+        "name": "Damn Vulnerable Web Application - DVWA",
+        "collection": [
+            "offline",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/snoopysecurity/dvws",
+        "name": "Damn Vulnerable Web Services",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/interference-security/DVWS",
+        "name": "Damn Vulnerable Web Sockets",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://defendtheweb.net/",
+        "name": "Defend the Web",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/red-and-black/DjangoGoat",
+        "name": "DjangoGoat",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/k-tamura/easybuggy",
+        "name": "EasyBuggy",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/exploitcoilvuln/files/",
+        "name": "Exploit.co.il Vuln Web App",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/vegabird/xvna",
+        "name": "Extreme Vulnerable Node Application",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://public-firing-range.appspot.com/",
+        "name": "Firing Range",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Orange-Cyberdefense/GOAD",
+        "name": "Game of Active Directory",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/null-gameover/",
+        "name": "GameOver",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/InsiderPhD/Generic-University",
+        "name": "Generic-University",
+        "collection": [
+            "container",
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Checkmarx/Goatlin/",
+        "name": "Goatlin",
+        "collection": [
+            "mobile"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/snyk-labs/nodejs-goof",
+        "name": "Goof",
+        "collection": [
+            "offline",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://www.hackthis.co.uk/",
+        "name": "HackThis",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://www.hackthissite.org",
+        "name": "HackThisSite",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://labs.hackxpert.com/",
+        "name": "HackXpert",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://hack-yourself-first.com/",
+        "name": "HackYourselfFirst",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Hackademic/hackademic",
+        "name": "Hackademic Challenges Project",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/rapid7/hackazon",
+        "name": "Hackazon",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://www.hacking-lab.com/events/",
+        "name": "Hacking Lab",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/iknowjason/hammer",
+        "name": "Hammer",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/lampsecurity/",
+        "name": "LAMPSecurity",
+        "collection": [
+            "container",
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/christophetd/log4shell-vulnerable-app",
+        "name": "Log4Shell sample vulnerable application",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/OWASP/owasp-mstg/tree/master/Crackmes",
+        "name": "MSTG CrackMes",
+        "collection": [
+            "mobile"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/OWASP/MSTG-Hacking-Playground",
+        "name": "MSTG Hacking Playground",
+        "collection": [
+            "mobile"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SpiderLabs/MCIR",
+        "name": "Magical Code Injection Rainbow - MCIR",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/cschneider4711/Marathon",
+        "name": "Marathon",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://community.rapid7.com/docs/DOC-1875",
+        "name": "Metasploitable 2",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/rapid7/metasploitable3/wiki/Vulnerabilities",
+        "name": "Metasploitable 3",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/w3af/files/moth/moth/",
+        "name": "Moth",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://www.irongeek.com/i.php?page=mutillidae/mutillidae-deliberately-vulnerable-php-owasp-top-10",
+        "name": "Mutillidae",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://aspnet.testsparker.com/",
+        "name": "Netsparker Test App .NET",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://php.testsparker.com/",
+        "name": "Netsparker Test App PHP",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://digi.ninja/projects/nosqli_lab.php",
+        "name": "NoSQL Injection Lab",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/aabashkin/nosql-injection-vulnapp",
+        "name": "NoSQL Injection Vulnerable App (NIVA)",
+        "collection": [
+            "offline",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://www.owasp.org/index.php/OWASP_Node_js_Goat_Project",
+        "name": "NodeGoat",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/cr0hn/vulnerable-node",
+        "name": "NodeVulnerable",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/OSTEsayed/OSTE-Vulnerable-Web-Application",
+        "name": "OSTE-Vulnerable-Web-Application",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://owasp.org/www-project-damn-vulnerable-web-sockets/",
+        "name": "OWASP Damn Vulnerable Web Sockets (DVWS)",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://owasp-juice.shop",
+        "name": "OWASP Juice Shop",
+        "collection": [
+            "offline",
+            "online",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://secureby.design/",
+        "name": "OWASP SKF Labs",
+        "collection": [
+            "online",
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SasanLabs/VulnerableApp",
+        "name": "OWASP VulnerableApp",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SasanLabs/VulnerableApp-facade",
+        "name": "OWASP VulnerableApp-facade",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://www.pentesterlab.com/exercises/",
+        "name": "PentesterLab - The Exercises",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://peruggia.sourceforge.net/",
+        "name": "Peruggia",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/DevSlop/Pixi",
+        "name": "Pixi",
+        "collection": [
+            "offline",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/adeyosemanputra/pygoat",
+        "name": "PyGoat",
+        "collection": [
+            "offline",
+            "online",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/insp3ctre/race-the-web",
+        "name": "Race The Web",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://www.owasp.org/index.php/OWASP_Rails_Goat_Project",
+        "name": "Rails Goat",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/sqlmapproject/testenv",
+        "name": "SQL injection test environment",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Audi-1/sqli-labs",
+        "name": "SQLI-labs",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SpiderLabs/SQLol",
+        "name": "SQLol",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/incredibleindishell/SSRF_Vulnerable_Lab",
+        "name": "SSRF Vuln Lab",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://www.samurai-wtf.org/",
+        "name": "Samurai WTF",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://sg6-labs.blogspot.com/2007/12/secgame-1-sauron.html",
+        "name": "Sauron",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/globocom/secDevLabs",
+        "name": "SecDevLabs",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/DataDog/security-labs-pocs",
+        "name": "Security Labs & POCs",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://owasp.org/www-project-security-shepherd/",
+        "name": "Security Shepherd",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://testhtml5.vulnweb.com/",
+        "name": "Security Tweets",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://solyd.com.br/treinamentos/introducao-ao-hacking-e-pentest",
+        "name": "Solyd - Introdução ao Hacking e Pentest",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/dhatanian/ticketmagpie",
+        "name": "TicketMagpie",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/payatu/Tiredful-API",
+        "name": "Tiredful API",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/lucideus-repo/UnSAFE_Bank",
+        "name": "UnSAFE Bank",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/erev0s/VAmPI",
+        "name": "VAmPI",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/detectify/Varnish-H2-Request-Smuggling",
+        "name": "Varnish HTTP/2 Request Smuggling",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/virtualhacking/",
+        "name": "Virtual Hacking Lab",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Yavuzlar/VulnLab",
+        "name": "VulnLab",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/ScaleSec/vulnado",
+        "name": "Vulnado",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/CSPF-Founder/JavaVulnerableLab/",
+        "name": "Vulnerable Java Web Application",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/kaakaww/vuln_node_express",
+        "name": "Vulnerable Node Express",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/mddanish/Vulnerable-OTP-Application",
+        "name": "Vulnerable OTP App",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/yogisec/VulnerableSAMLApp",
+        "name": "Vulnerable SAML App",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/ctxis/VulnerableXsltConsoleApplication",
+        "name": "VulnerableXsltConsoleApplication",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/sectooladdict/wavsep",
+        "name": "WAVSEP - Web Application Vulnerability Scanner Evaluation Project",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://code.google.com/p/wivet/",
+        "name": "WIVET- Web Input Vector Extractor Teaser",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/adamdoupe/WackoPicko",
+        "name": "WackoPicko",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://www.mavensecurity.com/web_security_dojo/",
+        "name": "Web Security Dojo",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://webgoat.github.io/WebGoat/",
+        "name": "WebGoat",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://www.owasp.org/index.php/WebGoatPHP",
+        "name": "WebGoatPHP",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/commjoen/wrongsecrets",
+        "name": "WrongSecrets",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/jbarone/xxelab",
+        "name": "XXE Lab",
+        "collection": [
+            "container",
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/s4n7h0/xvwa",
+        "name": "Xtreme Vulnerable Web Application (XVWA)",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://zero.webappsecurity.com/",
+        "name": "Zero Bank",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://www.itsecgames.com/",
+        "name": "bWAPP",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://owasp.org/www-project-crapi/",
+        "name": "crAPI",
+        "collection": [
+            "offline",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/snoopysecurity/dvws-node",
+        "name": "dvws-node",
+        "collection": [
+            "offline",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://hackxor.sourceforge.net/cgi-bin/index.pl",
+        "name": "Hackxor",
+        "collection": [
+            "offline",
+            "online",
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/omerlh/insecure-deserialisation-net-poc",
+        "name": "insecure-deserialisation-net-poc",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Sjord/jwtdemo/",
+        "name": "jwtdemo",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/playframework/play-webgoat",
+        "name": "play-webgoat",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/sakti/twitterlike",
+        "name": "twitterlike",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/roottusk/vapi",
+        "name": "vAPI",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Aif4thah/VulnerableLightApp",
+        "name": "VulnerableLightApp",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/mattvaldes/vulnerable-api",
+        "name": "vulnerable-api",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/marmicode/websheep",
+        "name": "websheep",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/cider-security-research/cicd-goat",
+        "name": "CI/CD Goat",
+        "collection": [
+            "container"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://pentest-ground.com/",
+        "name": "Pentest-Ground",
+        "collection": [
+            "online"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "Yrprey",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "YrpreyPHP",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "YrpreyBlog",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "YrpreyC",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "YrpreyC++",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyTasksPython",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyTasksNodeJS",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyTasks",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "ypreyPollsPHP",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyPollsPython",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyPollsNodeJS",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyPollsPerl",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "ypreyAPINodeJS",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "ypreyAPIPython",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyLibrary",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyFinance",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyASPC",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "yrpreyASPCPlus",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "YrpreyPathTraversal",
+        "collection": [
+            "offline"
+        ],
+        "is_online": true
+    },
+    {
+        "url": "http://www.bgabank.com/",
+        "name": "BGA Vulnerable BANK App",
+        "collection": [
+            "online"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "https://www.owasp.org/index.php/OWASP_Broken_Web_Applications_Project",
+        "name": "Broken Web Applications Project (BWA) - OWASP",
+        "collection": [
+            "container"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://www.gameofhacks.com/",
+        "name": "Game of Hacks",
+        "collection": [
+            "online"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "https://ginandjuice.shop/",
+        "name": "Gin & Juice Shop",
+        "collection": [
+            "online"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://google-gruyere.appspot.com/",
+        "name": "Gruyere",
+        "collection": [
+            "offline",
+            "online"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "https://hack.me",
+        "name": "Hack.me",
+        "collection": [
+            "online"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacme-bank.aspx",
+        "name": "Hacme Bank",
+        "collection": [
+            "offline"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacme-bank-android.aspx",
+        "name": "Hacme Bank - Android",
+        "collection": [
+            "offline"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacmebooks.aspx",
+        "name": "Hacme Books",
+        "collection": [
+            "offline"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacme-casino.aspx",
+        "name": "Hacme Casino",
+        "collection": [
+            "offline"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacmeshipping.aspx",
+        "name": "Hacme Shipping",
+        "collection": [
+            "offline"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacmetravel.aspx",
+        "name": "Hacme Travel",
+        "collection": [
+            "offline"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://pentesteracademylab.appspot.com",
+        "name": "Pentester Academy",
+        "collection": [
+            "online"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "https://code.google.com/p/puzzlemall/",
+        "name": "Puzzlemall",
+        "collection": [
+            "offline"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://xxe.sourceforge.net/",
+        "name": "XXE",
+        "collection": [
+            "container"
+        ],
+        "is_online": false
+    },
+    {
+        "url": "http://ffuf.me/",
+        "name": "FFUF.me",
+        "collection": [
+            "online",
+            "offline",
+            "container"
+        ],
+        "is_online": false
+    }
+]
