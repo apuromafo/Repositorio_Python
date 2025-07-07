@@ -49,7 +49,7 @@ El script `image_to_ascii.py` toma una imagen como entrada y la convierte en art
 ejemplo visual
 ![./demo/img.png](./demo/img.png)
 ejemplo de salida
-![./img/poc.png](./img/poc.png)
+![./Img/poc.png](./Img/poc.png)
 
 ## Argumentos de Línea de Comandos
 
