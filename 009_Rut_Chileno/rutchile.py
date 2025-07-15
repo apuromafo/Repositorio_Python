@@ -7,6 +7,9 @@ import os
 import re
 from datetime import datetime
 #todo capturas en readme
+author = 'Apuromafo'
+version = '0.0.4'
+date = '14.07.2025'
 
 # Configuración de valores por defecto
 RANGO_INICIAL = 10
