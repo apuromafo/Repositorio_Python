@@ -2,6 +2,9 @@ import requests
 import re
 import json
 from bs4 import BeautifulSoup
+author = 'Apuromafo'
+version = '0.0.1'
+date = '23.06.2024'
 
 def extraer_tablas(url):
     """Extrae las tablas que contienen <tbody> y no tienen atributos."""
