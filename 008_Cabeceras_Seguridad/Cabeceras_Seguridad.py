@@ -2,7 +2,7 @@
 """
 Cabeceras de seguridad inspirado en OWASP Secure Headers
 Autor: Apuromafo
-Versión: 0.0.5
+Versión: 0.0.7
 Fecha: 2025.07.15
 """
 
@@ -29,7 +29,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Constantes
 TIMEOUT = 10  # segundos
-DEFAULT_USER_AGENT = 'CabecerasSegurasScript/0.0.5'
+DEFAULT_USER_AGENT = 'CabecerasSegurasScript/0.0.7'
 
 # Colores para banner
 colores = {
@@ -140,20 +140,19 @@ def load_body(body_arg):
             print(f"{Fore.RED}[!] Error: Formato JSON inválido: {body_arg}{Style.RESET_ALL}")
             return None
 
-def print_status(response):
-    status_code = response.status_code
-    status_description = response.reason
-    http_version = f"HTTP/{response.raw.version // 10}.{response.raw.version % 10}"
-    location = response.headers.get("Location")
+def print_status(response_data):
     data = []
-    if http_version:
-        data.append(["HTTP", http_version])
-    if status_code:
-        data.append(["Código de estado", status_code])
-    if location:
-        data.append(["Location", location])
-    if status_description:
-        data.append(["Descripción", status_description])
+    if 'url' in response_data:
+        data.append(["URL", response_data['url']])
+    if 'http_version' in response_data:
+        data.append(["HTTP", response_data['http_version']])
+    if 'status_code' in response_data:
+        data.append(["Código de estado", response_data['status_code']])
+    if 'location' in response_data:
+        data.append(["Location", response_data['location']])
+    if 'status_description' in response_data:
+        data.append(["Descripción", response_data['status_description']])
+    
     if data:
         table = tabulate(data, tablefmt="grid", stralign="left", numalign="right")
         print(f"\n{Fore.CYAN}[+] Información de respuesta{Style.RESET_ALL}")
@@ -193,7 +192,7 @@ def suggest_headers_to_remove(headers):
         if header in headers
     }
     if present_suggestions:
-        print(f"\n{Fore.RED}[!] Cabeceras que podrían eliminarse{Style.RESET_ALL}")
+        print(f"\n[!] Cabeceras que podrían eliminarse:")
         for header, value in present_suggestions.items():
             print(f"[!] Cabecera: {Fore.RED}{header}{Style.RESET_ALL} = {value}")
 
@@ -206,7 +205,6 @@ def print_security_headers(headers):
     present_headers = [h for h in security_headers if h in headers or h.lower() in headers]
     missing_headers = [h for h in security_headers if h not in headers and h.lower() not in headers]
 
-    # Imprimir cabeceras presentes
     print(f"\nCabeceras de seguridad presentes:")
     if present_headers:
         for header in present_headers:
@@ -214,7 +212,6 @@ def print_security_headers(headers):
     else:
         print("No se encontraron cabeceras de seguridad presentes.")
 
-    # Imprimir cabeceras faltantes
     print(f"\n[!] Cabeceras de seguridad faltantes:")
     if missing_headers:
         for header in missing_headers:
@@ -284,7 +281,6 @@ def save_to_json(data, filename='output.json'):
         json.dump(data, json_file, ensure_ascii=False, indent=4)
     print(f"{Fore.GREEN}[+] Headers guardados como {filename}{Style.RESET_ALL}")
 
-# Función de procesamiento de métodos HTTP
 def procesar_solicitud(url, headers, proxies, method, body=None, cert=None):
     session = requests.Session()
     session.headers.update(headers)
@@ -314,8 +310,8 @@ def procesar_solicitud(url, headers, proxies, method, body=None, cert=None):
 
 def main():
     parser = argparse.ArgumentParser(description='Herramienta para análisis de cabeceras HTTP de seguridad')
-    parser.add_argument('-b', '--body', type=str, help='Cuerpo de la solicitud en formato JSON (cadena o archivo)')
     parser.add_argument('url', type=str, nargs='?', help='URL de destino')
+    parser.add_argument('-b', '--body', type=str, help='Cuerpo de la solicitud en formato JSON (cadena o archivo)')
     parser.add_argument('-v', '--verb', type=str, choices=['GET', 'POST', 'PUT', 'HEAD', 'DELETE', 'PATCH', 'OPTIONS'], default='GET', help='Verbo HTTP')
     parser.add_argument('-o', '--output', type=str, default='output.json', help='Nombre del archivo de salida JSON')
     parser.add_argument('-H', '--header', type=str, nargs='+', help='Encabezados (se pueden especificar múltiples)')
@@ -324,73 +320,109 @@ def main():
     parser.add_argument('-s', '--silent', action='store_true', help='Modo silencioso (solo salida JSON)')
     parser.add_argument('-i', '--info', action='store_true', help='Mostrar información de los encabezados')
     parser.add_argument('-ua', '--user-agent', type=str, default=DEFAULT_USER_AGENT, help='Establecer un User-Agent personalizado')
+    parser.add_argument('-j', '--json-file', type=str, help='Ruta al archivo JSON con datos estáticos para analizar')
     
     args = parser.parse_args()
 
-    if not args.url:
-        args.url = input("Introduce la URL: ")
-
-    if not args.url.startswith(("http://", "https://")):
-        args.url = "https://" + args.url
-
-    try:
-        normalized_url = normalize_url(args.url)
-    except Exception as e:
-        print(f"{Fore.RED}[!] Error en URL: {e}{Style.RESET_ALL}")
-        sys.exit(1)
-
     if not args.silent:
         print_banner()
+
+    # Lógica para leer desde archivo JSON o hacer solicitud web
+    if args.json_file:
+        try:
+            with open(args.json_file, 'r') as f:
+                output_data = json.load(f)
+            print(f"{Fore.CYAN}[+] Leyendo datos de {args.json_file}{Style.RESET_ALL}")
+            
+            # Formatear la información para print_status, ya que no hay un objeto response
+            headers = output_data.get('headers', {})
+            response_data = {
+                'url': output_data.get('url', ''),
+                'status_code': output_data.get('status_code', ''),
+                'location': headers.get('Location', ''),
+                'status_description': requests.status_codes._codes.get(output_data.get('status_code', ''), [''])[0],
+                'http_version': 'N/A'
+            }
+            
+        except FileNotFoundError:
+            print(f"{Fore.RED}[!] Error: Archivo no encontrado: {args.json_file}{Style.RESET_ALL}")
+            sys.exit(1)
+        except json.JSONDecodeError:
+            print(f"{Fore.RED}[!] Error: Formato JSON inválido en el archivo: {args.json_file}{Style.RESET_ALL}")
+            sys.exit(1)
+        
+    else:
+        if not args.url:
+            args.url = input("Introduce la URL: ")
+
+        if not args.url.startswith(("http://", "https://")):
+            args.url = "https://" + args.url
+
+        try:
+            normalized_url = normalize_url(args.url)
+        except Exception as e:
+            print(f"{Fore.RED}[!] Error en URL: {e}{Style.RESET_ALL}")
+            sys.exit(1)
+
         print(f"{Fore.CYAN}[+] URL objetivo: {normalized_url}{Style.RESET_ALL}")
 
-    headers = {
-        'User-Agent': args.user_agent
-    }
-    if args.header:
-        headers.update(parse_headers(args.header))
+        headers = {
+            'User-Agent': args.user_agent
+        }
+        if args.header:
+            headers.update(parse_headers(args.header))
 
-    proxies = {}
-    if args.proxy:
-        proxy_parts = args.proxy.split('@')
-        if len(proxy_parts) == 2:
-            auth, host = proxy_parts
-            user_pass = auth.split(':')
-            if len(user_pass) == 2:
-                user, password = user_pass
-                proxy_url = f"http://{host}"
-                proxies = {"http": proxy_url, "https": proxy_url}
-                print(f"{Fore.CYAN}[+] Usando proxy con autenticación: {host}{Style.RESET_ALL}")
-        else:
-            proxies = {
-                "http": f"http://{args.proxy}",
-                "https": f"http://{args.proxy}"
-            }
-            print(f"{Fore.CYAN}[+] Usando proxy: {args.proxy}{Style.RESET_ALL}")
+        proxies = {}
+        if args.proxy:
+            proxy_parts = args.proxy.split('@')
+            if len(proxy_parts) == 2:
+                auth, host = proxy_parts
+                user_pass = auth.split(':')
+                if len(user_pass) == 2:
+                    user, password = user_pass
+                    proxy_url = f"http://{host}"
+                    proxies = {"http": proxy_url, "https": proxy_url}
+                    print(f"{Fore.CYAN}[+] Usando proxy con autenticación: {host}{Style.RESET_ALL}")
+            else:
+                proxies = {
+                    "http": f"http://{args.proxy}",
+                    "https": f"http://{args.proxy}"
+                }
+                print(f"{Fore.CYAN}[+] Usando proxy: {args.proxy}{Style.RESET_ALL}")
 
-    body = load_body(args.body) if args.body else None
+        body = load_body(args.body) if args.body else None
+        response = procesar_solicitud(normalized_url, headers, proxies, args.verb, body, args.cert)
 
-    response = procesar_solicitud(normalized_url, headers, proxies, args.verb, body, args.cert)
+        # Creación del diccionario de salida con la URL
+        output_data = {
+            "url": normalized_url,
+            "status_code": response.status_code,
+            "headers": dict(response.headers),
+            "ip": get_ip(normalized_url),
+            "timestamp": datetime.now().isoformat()
+        }
+        save_to_json(output_data, args.output)
 
-    output_data = {
-        "url": normalized_url,
-        "status_code": response.status_code,
-        "headers": dict(response.headers),
-        "ip": get_ip(normalized_url),
-        "timestamp": datetime.now().isoformat()
-    }
-
-    save_to_json(output_data, args.output)
-
-    if not args.silent:
-        print_status(response)
-        if args.info:
-            print_header(response.headers)
+        # Usar un diccionario para pasar los datos a print_status
+        response_data = {
+            'url': normalized_url,
+            'status_code': response.status_code,
+            'status_description': response.reason,
+            'http_version': f"HTTP/{response.raw.version // 10}.{response.raw.version % 10}",
+            'location': response.headers.get("Location")
+        }
         
-        print_special_headers(response.headers)
-        print_security_headers(response.headers)
+    # Lógica de impresión para ambos casos (JSON o solicitud en vivo)
+    if not args.silent:
+        print_status(response_data)
+        if args.info:
+            print_header(output_data['headers'])
+        
+        print_special_headers(output_data['headers'])
+        print_security_headers(output_data['headers'])
         print("\n Información Adicional: Sugerencias [Buenas prácticas]\n ")
-        suggest_headers_to_remove(response.headers)
-        suggest_recommended_headers(response.headers)
+        suggest_headers_to_remove(output_data['headers'])
+        suggest_recommended_headers(output_data['headers'])
         print_tiempo()
 
 if __name__ == "__main__":
