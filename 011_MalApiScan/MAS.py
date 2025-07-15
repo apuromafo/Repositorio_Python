@@ -4,6 +4,10 @@ import json
 import os
 import glob
 from datetime import datetime
+author = 'Apuromafo'
+version = '0.0.1'
+date = '23.06.2025'
+
 
 #malapi.json es obtenido desde github (010_malapi_json) que a su vez proviene de malapi.io
 MALAPI_JSON_PATH = r"malapi.json"  # Cambia esto a tu ruta específica
