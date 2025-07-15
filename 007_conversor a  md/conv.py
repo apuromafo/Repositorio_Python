@@ -4,6 +4,9 @@ import argparse
 import subprocess # Necesario para ejecutar comandos externos como markitdown o docker
 import sys # Necesario para verificar los argumentos de la línea de comandos
 import datetime # Importar para añadir fecha y hora a los nombres de archivo
+author = 'Apuromafo'
+version = '0.0.1'
+date = '14.07.2025'
 
 def check_docker_available():
     """Verifica si Docker está instalado y accesible."""
