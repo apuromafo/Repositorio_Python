@@ -54,22 +54,22 @@ def generar_degradado_colores(color_inicio, color_fin, pasos):
 # Texto ASCII art
 # Fuente: https://patorjk.com/software/taag/#p=display&f=Alligator2&t=Rut%0AChileno
 texto = """
-:::::::::  :::    ::: :::::::::::                                              
-:+:    :+: :+:    :+:     :+:                                                  
-+:+    +:+ +:+    +:+     +:+                                                  
-+#++:++#:  +#+    +:+     +#+                                                  
-+#+    +#+ +#+    +#+     +#+                                                  
-#+#    #+# #+#    #+#     #+#                                                  
-###    ###  ########      ###                                                  
- ::::::::  :::    ::: ::::::::::: :::        :::::::::: ::::    :::  ::::::::  
-:+:    :+: :+:    :+:     :+:     :+:        :+:        :+:+:   :+: :+:    :+: 
-+:+        +:+    +:+     +:+     +:+        +:+        :+:+:+  +:+ +:+    +:+ 
-+#+        +#++:++#++     +#+     +#+        +#++:++#   +#+ +:+ +#+ +#+    +:+ 
-+#+        +#+    +#+     +#+     +#+        +#+        +#+  +#+#+# +#+    +#+ 
-#+#    #+# #+#    #+#     #+#     #+#        #+#        #+#   #+#+# #+#    #+# 
- ########  ###    ### ########### ########## ########## ###    ####  ########  
+:::::::::   :::     ::: :::::::::::                     
+:+:   :+:  :+:     :+:      :+:                        
++:+   +:+  +:+     +:+      +:+                        
++#++:++#:  +#+     +:+      +#+                        
++#+   +#+  +#+     +#+      +#+                        
+#+#   #+#  #+#     #+#      #+#                        
+###   ###   ########       ###                        
+ ::::::::  :::     ::: ::::::::::: :::          :::::::::: ::::    :::  :::::::: 
+:+:   :+:  :+:     :+:      :+:     :+:          :+:        :+:+:   :+: :+:    :+:
++:+        +:+     +:+      +:+     +:+          +:+        :+:+:+  +:+ +:+    +:+
++#+        +#++:++#++      +#+     +#+          +#++:++#   +#+ +:+ +#+ +#+    +:+
++#+        +#+     +#+      +#+     +#+          +#+        +#+  +#+#  +#+    +#+
+#+#   #+#  #+#     #+#      #+#     #+#          #+#        #+#   #+#+# #+#    #+#
+ ########  ###     ### ########### ########## ########## ###    ####   ########  
 
-                        v03 by Apuromafo
+                      v04 by Apuromafo
 """
 
 # Generar colores degradados para el texto
@@ -100,11 +100,23 @@ def validar_rut(rut):
     return calcular_digito_verificador(rut_sin_digito) == digito_verificador
 
 # Función para generar un RUT aleatorio
-def generar_rut_aleatorio(rango_millones_inicial, rango_millones_final, con_puntos, con_guion):
+def generar_rut_aleatorio(rango_millones_inicial, rango_millones_final, con_puntos, con_guion, con_dv=True):
     rut_numero = random.randint(rango_millones_inicial * 1000000, (rango_millones_final + 1) * 1000000 - 1)
     rut_str = str(rut_numero).zfill(8)
-    digito = calcular_digito_verificador(rut_str)
 
+    if not con_dv:
+        if con_guion:
+            if con_puntos:
+                return f"{rut_str[:2]}.{rut_str[2:5]}.{rut_str[5:8]}-"
+            else:
+                return f"{rut_str[:2]}{rut_str[2:5]}{rut_str[5:8]}-"
+        else:
+            if con_puntos:
+                return f"{rut_str[:2]}.{rut_str[2:5]}.{rut_str[5:8]}"
+            else:
+                return f"{rut_str}"
+
+    digito = calcular_digito_verificador(rut_str)
     if con_guion:
         if con_puntos:
             return f"{rut_str[:2]}.{rut_str[2:5]}.{rut_str[5:8]}-{digito}"
@@ -117,13 +129,14 @@ def generar_rut_aleatorio(rango_millones_inicial, rango_millones_final, con_punt
             return f"{rut_str}{digito}"
 
 # Función para generar RUTs secuenciales
-def generar_ruts_secuenciales(rut_inicial, cantidad, con_puntos=False, con_guion=False):
+def generar_ruts_secuenciales(rut_inicial, cantidad, con_puntos=False, con_guion=False, con_dv=True):
     """
     Genera una lista de RUTs secuenciales.
     :param rut_inicial: RUT inicial desde donde comenzar la secuencia.
     :param cantidad: Cantidad de RUTs a generar.
     :param con_puntos: Incluir puntos en el formato.
     :param con_guion: Incluir guion antes del dígito verificador.
+    :param con_dv: Generar con o sin dígito verificador.
     :return: Lista de RUTs generados.
     """
     ruts = []
@@ -132,6 +145,20 @@ def generar_ruts_secuenciales(rut_inicial, cantidad, con_puntos=False, con_guion
 
     for i in range(cantidad):
         rut_str = str(rut_inicial + i).zfill(8)  # Incrementar y asegurar longitud de 8 dígitos
+
+        if not con_dv:
+            if con_guion:
+                if con_puntos:
+                    ruts.append(f"{rut_str[:2]}.{rut_str[2:5]}.{rut_str[5:8]}-")
+                else:
+                    ruts.append(f"{rut_str[:2]}{rut_str[2:5]}{rut_str[5:8]}-")
+            else:
+                if con_puntos:
+                    ruts.append(f"{rut_str[:2]}.{rut_str[2:5]}.{rut_str[5:8]}")
+                else:
+                    ruts.append(f"{rut_str}")
+            continue
+
         digito = calcular_digito_verificador(rut_str)
         if con_guion:
             if con_puntos:
@@ -181,6 +208,8 @@ def principal():
                         help='Generar RUTs con puntos. Por defecto: sin puntos.')
     parser.add_argument('-g', '--con-guion', action='store_true',
                         help='Generar RUTs con guión. Por defecto: sin guión.')
+    parser.add_argument('-sdv', '--sin-digito-verificador', action='store_true',
+                        help='Generar RUTs sin el dígito verificador.')
     parser.add_argument('-o', '--rut-inicial', type=int, 
                         help='RUT inicial para generación secuencial.')
     parser.add_argument('-f', '--archivo', type=str, default=ARCHIVO_DEFAULT,
@@ -286,6 +315,8 @@ def principal():
             cantidad = int(input(f"Ingrese la cantidad de RUTs a generar [por defecto: {CANTIDAD_DEFAULT}]: ") or CANTIDAD_DEFAULT)
             con_puntos = input("¿Desea generar RUTs con puntos? (s/n) [por defecto: n]: ").strip().lower() == 's'
             con_guion = input("¿Desea generar RUTs con guión? (s/n) [por defecto: n]: ").strip().lower() == 's'
+            # Modificación: la nueva pregunta para el modo interactivo
+            con_dv = input("¿Desea incluir el dígito verificador? (s/n) [por defecto: s]: ").strip().lower() != 'n'
             mostrar_opciones = input("¿Desea mostrar la tabla de opciones? (s/n) [por defecto: n]: ").strip().lower() == 's'
             archivo = input(f"Ingrese el nombre del archivo de salida [por defecto: {ARCHIVO_DEFAULT}]: ") or ARCHIVO_DEFAULT
             
@@ -293,7 +324,8 @@ def principal():
             ruts = []
             print("\nRUTs generados (Aleatorios):")
             for _ in range(cantidad):
-                rut = generar_rut_aleatorio(rango_inicial, rango_final, con_puntos, con_guion)
+                # Modificación: se pasa el nuevo parámetro con_dv a la función
+                rut = generar_rut_aleatorio(rango_inicial, rango_final, con_puntos, con_guion, con_dv)
                 ruts.append(rut)
                 print(rut)
 
@@ -304,6 +336,7 @@ def principal():
                 'cantidad': cantidad,
                 'con_puntos': con_puntos,
                 'con_guion': con_guion,
+                'con_digito_verificador': con_dv,
                 'archivo': archivo,
             }, mostrar_opciones)
 
@@ -316,21 +349,25 @@ def principal():
                     f"Cantidad: {cantidad}",
                     f"Con puntos: {'Sí' if con_puntos else 'No'}",
                     f"Con guión: {'Sí' if con_guion else 'No'}",
+                    f"Con dígito verificador: {'Sí' if con_dv else 'No'}",
                     f"Archivo de salida: {archivo}"
                 ]
                 print("\n".join(opciones))
- 
-        else:
+    
+        else: # modo secuencial
             rut_inicial = int(input("Ingrese el RUT inicial para generación secuencial [por defecto: 12345678]: ") or 12345678)
             cantidad = int(input(f"Ingrese la cantidad de RUTs a generar [por defecto: {CANTIDAD_DEFAULT}]: ") or CANTIDAD_DEFAULT)
             con_puntos = input("¿Desea generar RUTs con puntos? (s/n) [por defecto: n]: ").strip().lower() == 's'
             con_guion = input("¿Desea generar RUTs con guión? (s/n) [por defecto: n]: ").strip().lower() == 's'
+            # Modificación: la nueva pregunta para el modo interactivo
+            con_dv = input("¿Desea incluir el dígito verificador? (s/n) [por defecto: s]: ").strip().lower() != 'n'
             mostrar_opciones = input("¿Desea mostrar la tabla de opciones? (s/n) [por defecto: n]: ").strip().lower() == 's'
             archivo = input(f"Ingrese el nombre del archivo de salida [por defecto: {ARCHIVO_DEFAULT}]: ") or ARCHIVO_DEFAULT
-            rango_inicial = rut_inicial 
+            rango_inicial = rut_inicial
             rango_final = rut_inicial + cantidad
             # Generar RUTs
-            ruts = generar_ruts_secuenciales(rut_inicial, cantidad, con_puntos, con_guion)
+            # Modificación: se pasa el nuevo parámetro con_dv a la función
+            ruts = generar_ruts_secuenciales(rut_inicial, cantidad, con_puntos, con_guion, con_dv)
             print("\nRUTs generados (Secuenciales):")
             for rut in ruts:
                 print(rut)
@@ -342,6 +379,7 @@ def principal():
                 'cantidad': cantidad,
                 'con_puntos': con_puntos,
                 'con_guion': con_guion,
+                'con_digito_verificador': con_dv,
                 'archivo': archivo,
             }, mostrar_opciones)
 
@@ -354,12 +392,12 @@ def principal():
                     f"Cantidad: {cantidad}",
                     f"Con puntos: {'Sí' if con_puntos else 'No'}",
                     f"Con guión: {'Sí' if con_guion else 'No'}",
+                    f"Con dígito verificador: {'Sí' if con_dv else 'No'}",
                     f"Archivo de salida: {archivo}"
                 ]
                 print("\n".join(opciones))
 
-    else:
-        # Ejecutar según los argumentos de línea de comandos
+    else: # Ejecutar con argumentos de línea de comandos
         ruts = []
         if args.modo == 'a':
             if args.rango is None or len(args.rango) != 2:
@@ -368,7 +406,8 @@ def principal():
                 rango_inicial, rango_final = args.rango
             
             for _ in range(args.cantidad):
-                rut = generar_rut_aleatorio(rango_inicial, rango_final, args.con_puntos, args.con_guion)
+                # Se pasa el nuevo argumento a la función
+                rut = generar_rut_aleatorio(rango_inicial, rango_final, args.con_puntos, args.con_guion, not args.sin_digito_verificador)
                 ruts.append(rut)
                 print(rut)
 
@@ -379,6 +418,7 @@ def principal():
                 'cantidad': args.cantidad,
                 'con_puntos': args.con_puntos,
                 'con_guion': args.con_guion,
+                'con_digito_verificador': not args.sin_digito_verificador,
                 'archivo': args.archivo,
             }, args.verbose)
 
@@ -387,22 +427,24 @@ def principal():
                 print("Error: Debes especificar un RUT inicial para el modo secuencial.")
                 return
         
-        # Definir rango inicial y final para el modo secuencial
-            rango_inicial = args.rut_inicial // 1000000  # Asumiendo que el RUT inicial es en millones
-            rango_final = rango_inicial  # Si solo generas desde el RUT inicial
+            # Definir rango inicial y final para el modo secuencial
+            rango_inicial = args.rut_inicial // 1000000
+            rango_final = rango_inicial
 
-            ruts = generar_rut_secuencial(args.rut_inicial, args.cantidad, args.con_puntos, args.con_guion)
+            # Se pasa el nuevo argumento a la función
+            ruts = generar_ruts_secuenciales(args.rut_inicial, args.cantidad, args.con_puntos, args.con_guion, not args.sin_digito_verificador)
             for rut in ruts:
                 print(rut)
-                # Guardar resultados en el archivo
-                guardar_resultados(args.archivo, ruts, {
-                    'modo': 'secuencial',
-                    'rut_inicial': args.rut_inicial,
-                    'cantidad': args.cantidad,
-                    'con_puntos': args.con_puntos,
-                    'con_guion': args.con_guion,
-                    'archivo': args.archivo,
-                }, args.verbose)
+            # Guardar resultados en el archivo
+            guardar_resultados(args.archivo, ruts, {
+                'modo': 'secuencial',
+                'rut_inicial': args.rut_inicial,
+                'cantidad': args.cantidad,
+                'con_puntos': args.con_puntos,
+                'con_guion': args.con_guion,
+                'con_digito_verificador': not args.sin_digito_verificador,
+                'archivo': args.archivo,
+            }, args.verbose)
 
 if __name__ == '__main__':
     principal()
