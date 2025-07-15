@@ -2,9 +2,10 @@
 """
 Mini herramienta con uso de socket para validar puertos abiertos.
 Autor: Apuromafo
-Versión: 0.0.3
-Fecha: 28.11.2024
+Versión: 0.0.4 - Mejoras en estructura, manejo de errores y soporte IPv6
+Fecha: 29.11.2024
 """
+
 import os
 import sys
 import subprocess
@@ -13,12 +14,18 @@ import ssl
 import logging
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
+from typing import List, Tuple, Optional
+
 
 # Configuración de logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 # Diccionario de puertos y servicios comunes
-SERVICIOS_COMUNES = {
+COMMON_SERVICES = {
     21: "FTP",
     22: "SSH",
     23: "Telnet",
@@ -34,128 +41,132 @@ SERVICIOS_COMUNES = {
     8080: "HTTP alternativo",
 }
 
-def verificar_dependencias():
-    """Verifica si nmap y los módulos necesarios están instalados."""
+def check_dependencies():
+    """Verifica si nmap está instalado."""
     try:
-        # Verificar si nmap está instalado
-        subprocess.run(["nmap", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        subprocess.run(["nmap", "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
     except FileNotFoundError:
-        logging.error("Nmap no está instalado. Por favor, instala nmap antes de continuar.")
+        logging.error("Nmap no está instalado. Por favor, instálalo antes de continuar.")
         sys.exit(1)
 
-    # Verificar si los módulos necesarios están instalados
-    required_modules = ["socket", "argparse", "concurrent"]
-    missing_modules = []
-    for module in required_modules:
-        try:
-            __import__(module)
-        except ImportError:
-            missing_modules.append(module)
 
-    if missing_modules:
-        logging.error(f"Faltan los siguientes módulos: {', '.join(missing_modules)}. Instalándolos automáticamente...")
-        try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", *missing_modules])
-        except Exception as e:
-            logging.error(f"Error al instalar los módulos: {e}")
-            sys.exit(1)
-
-def grab_banner(sock, puerto):
-    """Intenta obtener el banner de un servicio en un socket dado."""
+def grab_banner(sock: socket.socket, port: int) -> str:
+    """
+    Intenta obtener el banner del servicio conectado al puerto especificado.
+    """
     try:
-        sock.settimeout(3)  # Timeout ajustado para dar más tiempo a la respuesta
+        sock.settimeout(3)
 
-        # Enviar un comando dependiendo del puerto
-        if puerto == 80 or puerto == 8080:  # HTTP/HTTP alternativo
+        if port == 80 or port == 8080:
             sock.sendall(b'HEAD / HTTP/1.1\r\nHost: example.com\r\n\r\n')
-        elif puerto == 443:  # HTTPS (usando SSL)
+        elif port == 443:
             context = ssl.create_default_context()
             with context.wrap_socket(sock, server_hostname=sock.getpeername()[0]) as ssock:
                 ssock.sendall(b'HEAD / HTTP/1.1\r\nHost: example.com\r\n\r\n')
                 return ssock.recv(1024).decode(errors='replace').strip()
-        elif puerto == 21:  # FTP
+        elif port == 21:
             sock.sendall(b'USER anonymous\r\n')
-        elif puerto == 22:  # SSH
-            sock.sendall(b'\r\n')  # Simplemente intenta abrir la conexión
-        elif puerto == 25:  # SMTP
+        elif port == 22:
+            pass  # SSH ya devuelve un banner inicial
+        elif port == 25:
             sock.sendall(b'EHLO example.com\r\n')
-        elif puerto == 110:  # POP3
+        elif port == 110:
             sock.sendall(b'CAPA\r\n')
         else:
-            return "Protocolo no soportado para banner grabbing."
+            return "Banner no soportado."
 
-        # Intentar recibir el banner
-        banner = sock.recv(1024).decode(errors='replace').strip()
-        return banner if banner else "No se pudo obtener el banner."
+        return sock.recv(1024).decode(errors='replace').strip() or "Sin banner"
     except socket.timeout:
-        return "Timeout al obtener el banner."
+        return "Timeout al leer banner."
     except UnicodeDecodeError:
-        return "Error de codificación al obtener el banner."
+        return "Codificación inválida."
     except Exception as e:
-        logging.error(f'Error al obtener banner: {e}')
-        return "Error desconocido al obtener el banner."
+        return f"Error: {e}"
 
-def scan_port(objetivo, puerto):
-    """Escanea un único puerto y devuelve el puerto si está abierto."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(1)  # Timeout para evitar bloqueos prolongados
-        result = s.connect_ex((objetivo, puerto))
-        if result == 0:
-            logging.info(f'Puerto {puerto} está abierto.')
-            banner = grab_banner(s, puerto)
-            servicio = SERVICIOS_COMUNES.get(puerto, "Desconocido")
-            return puerto, banner, servicio
+
+def scan_port(target: str, port: int) -> Optional[Tuple[int, str, str]]:
+    """Escanea un único puerto y devuelve información si está abierto."""
+    try:
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+            sock.settimeout(1)
+            result = sock.connect_ex((target, port))
+            if result == 0:
+                logging.debug(f"Puerto {port} está abierto.")
+                banner = grab_banner(sock, port)
+                service = COMMON_SERVICES.get(port, "Desconocido")
+                return port, banner, service
+    except Exception as e:
+        logging.warning(f"Error al escanear puerto {port}: {e}")
     return None
 
-def scaner(objetivo, puertos):
-    """Escanea una lista de puertos en un objetivo dado."""
-    puertos_abiertos = []
-    try:
-        with ThreadPoolExecutor(max_workers=100) as executor:
-            resultados = list(executor.map(lambda p: scan_port(objetivo, p), puertos))
-            puertos_abiertos = [result for result in resultados if result is not None]
-    except Exception as e:
-        logging.error(f'Error durante el escaneo de puertos: {e}')
-        logging.info('Deteniendo el escaneo y registrando resultados hasta este punto.')
-        raise  # Relanzar la excepción para que se capture en main
-    return puertos_abiertos
 
-def parse_ports(port_args):
+def parse_ports(port_args: List[str]) -> List[int]:
     """Parses a list of ports from command line arguments, allowing ranges."""
     ports = []
     for arg in port_args:
-        if '-' in arg:  # Si es un rango
+        if '-' in arg:
             start, end = map(int, arg.split('-'))
-            ports.extend(range(start, end + 1))  # Incluye ambos extremos
+            ports.extend(range(start, end + 1))
         else:
-            ports.append(int(arg))  # Añade el puerto individual
+            ports.append(int(arg))
     return ports
 
+
+def scanner(target: str, ports: List[int]) -> List[Tuple[int, str, str]]:
+    """Ejecuta escaneo multihilo sobre los puertos dados."""
+    open_ports = []
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        results = executor.map(lambda p: scan_port(target, p), ports)
+        for result in results:
+            if result:
+                open_ports.append(result)
+    return open_ports
+
+
 def main():
-    # Verificar dependencias antes de iniciar
-    verificar_dependencias()
+    parser = argparse.ArgumentParser(description="Escáner de puertos simple con banner grabbing.")
+    parser.add_argument('target', help='IP o dominio objetivo.')
+    parser.add_argument('--ports', nargs='*', default=['1-1024'],
+                        help='Lista de puertos o rangos (ej: 80 443 20-100).')
+    parser.add_argument('--verbose', action='store_true', help='Mostrar salida detallada.')
 
-    # Configuración de argumentos de línea de comandos
-    parser = argparse.ArgumentParser(description='Escáner de puertos simple con banner grabbing.')
-    parser.add_argument('objetivo', help='IP o dominio a escanear.')
-    parser.add_argument('--puertos', nargs='*', default=['1-65535'],
-                        help='Lista de puertos a escanear (puede incluir rangos como 20-80).')
     args = parser.parse_args()
+    if not args.target:
+        parser.print_help()
+        sys.exit(1)
 
-    # Parsear los puertos usando la función definida
-    puertos = parse_ports(args.puertos)
-    logging.info(f'Iniciando el escaneo en {args.objetivo}...')
+    logging_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.getLogger().setLevel(logging_level)
+
+    check_dependencies()
 
     try:
-        puertos_abiertos = scaner(args.objetivo, puertos)
-        if puertos_abiertos:
-            for puerto, banner, servicio in puertos_abiertos:
-                print(f'Puerto {puerto} está abierto. Banner: {banner}, Servicio: {servicio}')
-        else:
-            print('No se encontraron puertos abiertos.')
-    except Exception as e:
-        logging.error(f'Se ha producido un error durante el escaneo: {e}')
-        logging.info('El escaneo se ha detenido. Verifica el log para más detalles.')
+        target_ip = socket.gethostbyname(args.target)
+    except socket.gaierror:
+        logging.error("No se pudo resolver el nombre de host.")
+        sys.exit(1)
 
-if __name__ == '__main__':
+    logging.info(f"Iniciando escaneo en {args.target} ({target_ip})")
+
+    try:
+        ports_to_scan = parse_ports(args.ports)
+        open_ports = scanner(target_ip, ports_to_scan)
+
+        if open_ports:
+            print("\n[+] Puertos abiertos encontrados:")
+            for port, banner, service in open_ports:
+                print(f"Port {port} ({service}):")
+                print(f" Banner: {banner}\n")
+        else:
+            print("[*] No se encontraron puertos abiertos.")
+
+    except KeyboardInterrupt:
+        logging.info("Escaneo interrumpido por el usuario.")
+        sys.exit(0)
+    except Exception as e:
+        logging.error(f"Ocurrió un error durante el escaneo: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
     main()
