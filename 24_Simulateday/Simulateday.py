@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 descripcion = 'Pequeño script para ver la rutina diaria y el calendario laboral'
 autor = 'Apuromafo'
-version = '0.0.6' # Versión actualizada: Control de faketime por línea de comandos
-fecha = '18.07.2025' # Fecha de última actualización
+version = '0.0.7' # Versión actualizada: Muestra el día de la semana del próximo feriado
+fecha = '11.08.2025' # Fecha de última actualización
 
 # ======================================
 import datetime
@@ -47,17 +47,21 @@ feriados_chile_extendidos = [
     {"fecha": "2025-04-18", "nombre": "Viernes Santo"},
     {"fecha": "2025-05-01", "nombre": "Día del Trabajador"},
     {"fecha": "2025-05-21", "nombre": "Día de las Glorias Navales"},
-    {"fecha": "2025-06-29", "nombre": "San Pedro y San Pablo (trasladable)"},
+    {"fecha": "2025-06-29", "nombre": "San Pedro y San Pablo (trasladable) elección primaria presidencial (irrenunciable de segunda categoría)"},
     {"fecha": "2025-07-16", "nombre": "Día de la Virgen del Carmen"},
     {"fecha": "2025-08-15", "nombre": "Asunción de la Virgen"},
-    {"fecha": "2025-09-18", "nombre": "Fiestas Patrias"},
-    {"fecha": "2025-09-19", "nombre": "Día de las Glorias del Ejército"},
-    {"fecha": "2025-10-12", "nombre": "Encuentro de Dos Mundos (trasladable)"},
+    {"fecha": "2025-08-20", "nombre": "5 Nacimiento del Prócer de la Independencia (válido solamente en las comunas de Chillán y Chillán Viejo"},
+    {"fecha": "2025-09-18", "nombre": "Fiestas Patrias(Día de la Independencia)"},
+    {"fecha": "2025-09-19", "nombre": "Día de las Glorias del Ejército(Día de las Fuerzas Armadas)"},
+    {"fecha": "2025-10-12", "nombre": "Encuentro de Dos Mundos (Día de la Raza)"},
+    {"fecha": "2025-10-31", "nombre": "Día Nacional de las Iglesias Evangélicas y Protestantes (feriado religioso)"},
     {"fecha": "2025-11-01", "nombre": "Día de Todos los Santos"},
+    {"fecha": "2025-11-16", "nombre": "elecciones presidencial (primera vuelta) y congresistas (irrenunciable de segunda categoría"},
     {"fecha": "2025-11-29", "nombre": "Día de la Iglesia Evangélica"},
     {"fecha": "2025-12-08", "nombre": "Inmaculada Concepción"},
+    {"fecha": "2025-12-14", "nombre": "elección presidencial (segunda vuelta) (irrenunciable de segunda categoría) (el que este feriado tenga lugar dependerá de la primera vuelta de esta elección)"},
     {"fecha": "2025-12-25", "nombre": "Navidad"},
-
+    #miércoles 31/12/2025 feriado bancario de fin de año (derogado en 01/08/2025)
     # Feriados 2026
     {"fecha": "2026-01-01", "nombre": "Año Nuevo"},
     {"fecha": "2026-04-03", "nombre": "Viernes Santo"},
@@ -156,13 +160,25 @@ meses_espanol = {
     12: "Diciembre"
 }
 
+# Diccionario para traducir los nombres de los días de la semana al español
+dias_semana_espanol = {
+    0: "Lunes",
+    1: "Martes",
+    2: "Miércoles",
+    3: "Jueves",
+    4: "Viernes",
+    5: "Sábado",
+    6: "Domingo"
+}
+
 def imprimir_hora(actividad, hora):
     """Imprime la actividad y la hora en formato legible."""
     print(f"{actividad}: {hora.strftime('%I:%M %p')}")
 
 def encontrar_proximo_feriado_mes_actual():
     """
-    Encuentra el feriado más cercano en el mes actual que aún no ha ocurrido.
+    Encuentra el feriado más cercano en el mes actual que aún no ha ocurrido
+    y devuelve la información completa, incluyendo el día de la semana.
     """
     ahora = datetime.datetime.now()
     hoy_date = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -174,6 +190,8 @@ def encontrar_proximo_feriado_mes_actual():
         fecha_feriado_dt = datetime.datetime.strptime(feriado_info["fecha"], "%Y-%m-%d")
         if fecha_feriado_dt.year == ahora.year and fecha_feriado_dt.month == ahora.month:
             if fecha_feriado_dt >= hoy_date:
+                # Agregamos el día de la semana al diccionario
+                feriado_info["dia_semana"] = dias_semana_espanol[fecha_feriado_dt.weekday()]
                 feriados_mes_actual.append(feriado_info)
     
     feriados_mes_actual.sort(key=lambda x: datetime.datetime.strptime(x["fecha"], "%Y-%m-%d"))
@@ -191,13 +209,13 @@ def generar_mini_calendario():
     mes_actual = ahora.month
     dia_actual = ahora.day
 
-    dias_semana_espanol = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
+    dias_semana_espanol_abrev = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
 
     cal = calendar.TextCalendar(calendar.MONDAY)
     calendario_mes = cal.formatmonth(año_actual, mes_actual)
 
     lineas_calendario = calendario_mes.split("\n")
-    lineas_calendario[1] = " ".join(dias_semana_espanol)
+    lineas_calendario[1] = " ".join(dias_semana_espanol_abrev)
 
     nombre_mes_espanol = meses_espanol[mes_actual]
     lineas_calendario[0] = f"    {nombre_mes_espanol} {año_actual}"
@@ -238,7 +256,7 @@ def generar_mini_calendario():
                         temp_line = " " + temp_line
             temp_line = " ".join(parts).strip()
             if not temp_line.startswith("[") and temp_line.startswith(" "):
-                 temp_line = temp_line.strip()
+                    temp_line = temp_line.strip()
 
         lineas_calendario[i] = temp_line
 
@@ -263,7 +281,8 @@ def generar_mini_calendario():
     proximo_feriado = encontrar_proximo_feriado_mes_actual()
     if proximo_feriado:
         fecha_prox_feriado = datetime.datetime.strptime(proximo_feriado["fecha"], "%Y-%m-%d")
-        print(f"Próximo feriado en el mes: {proximo_feriado['nombre']} ({fecha_prox_feriado.day} de {meses_espanol[fecha_prox_feriado.month]})")
+        # Aquí es donde se usa la nueva información del día de la semana
+        print(f"Próximo feriado en el mes: {proximo_feriado['nombre']} ({proximo_feriado['dia_semana']}, {fecha_prox_feriado.day} de {meses_espanol[fecha_prox_feriado.month]})")
     else:
         print("No hay feriados restantes este mes.")
 
@@ -310,14 +329,14 @@ def simular_dia():
     elif ahora >= hora_estudio:
         print("El tiempo para estudiar ya pasó.")
     else:
-        pass 
+        pass
 
     if not alguna_actividad_futura and (ahora >= hora_estudio or (ahora.hour >= hora_salir_trabajo.hour and (not (ahora < hora_estudio) or 'estudiar' in locals() and estudiar in ["no", "n"]))):
         print("\n--- ¡El día ha terminado y todas las actividades han sido completadas! ---")
     elif alguna_actividad_futura:
         print("\n--- Fin del día ---")
     else:
-         print("\n--- El día ha terminado para las actividades principales. ---")
+        print("\n--- El día ha terminado para las actividades principales. ---")
 
 
 if __name__ == "__main__":
@@ -355,8 +374,7 @@ if __name__ == "__main__":
         print("==============================================")
         generar_mini_calendario()
         simular_dia()
-
-
+        
     # --- Ejemplos de ejecución con Faketime (comentados para no ejecutar automáticamente) ---
     # Para usar estos, descomenta el bloque 'with' específico y comenta la lógica 'if args.fecha' de arriba.
     # Estos son solo ejemplos de cómo usarías el faketime directamente en el código.
@@ -436,4 +454,4 @@ if __name__ == "__main__":
     with create_faketime_context(2029, 1, 1, 8, 0):
         generar_mini_calendario()
         simular_dia()
-    '''
+    '''        
