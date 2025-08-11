@@ -1,7 +1,8 @@
 # Mini Script para Rutina Diaria y Calendario Laboral
 
 ## 📌 Descripción
-Este script es una herramienta simple para visualizar tu rutina diaria y el calendario laboral en Chile, con soporte para feriados extendidos hasta 2030. Incluye un modo de simulación de tiempo (Faketime) para probar fechas ficticias.
+Este script es una herramienta simple para visualizar tu rutina diaria y el calendario laboral en Chile, con soporte para feriados extendidos hasta 2030. 
+Incluye un modo de simulación de tiempo (Faketime) para probar fechas ficticias.
 
 
 ## ⏳ Fecha de última actualización
@@ -20,10 +21,10 @@ Este script es una herramienta simple para visualizar tu rutina diaria y el cale
 ## 🔍 Ejemplos de Uso
 ```bash
 # Ejecutar el script normalmente
-python script.py
+python Simulateday.py
 
 # Prueba con Faketime (ejemplo)
-python script.py --fecha 2026-04-03 --hora 10:00
+python Simulateday.py --fecha 2026-04-03 --hora 10:00
 ```
 
 ## 🧪 Features destacadas

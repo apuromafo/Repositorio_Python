@@ -175,7 +175,7 @@ def suggest_headers_to_remove(headers):
         "X-CalculatedBETarget", "X-Cocoon-Version", "X-Content-Encoded-By", "X-DiagInfo",
         "X-Envoy-Attempt-Count", "X-Envoy-External-Address", "X-Envoy-Internal",
         "X-Envoy-Original-Dst-Host", "X-Envoy-Upstream-Service-Time", "X-FEServer",
-        "X-Framework", "X-Generated-By", "X-Generator", "X-Jitsi-Release",
+        "X-Framework", "X-Generated-By", "X-Generator", "X-Jitsi-Release","X-Magento-Tags",
         "X-Joomla-Version", "X-Kubernetes-PF-FlowSchema-UI", "X-Kubernetes-PF-PriorityLevel-UID",
         "X-LiteSpeed-Cache", "X-LiteSpeed-Purge", "X-LiteSpeed-Tag", "X-LiteSpeed-Vary",
         "X-Litespeed-Cache-Control", "X-Mod-Pagespeed", "X-Nextjs-Cache",
