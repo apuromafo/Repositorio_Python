@@ -58,3 +58,5 @@ retos_Script_python/script2/*.lock
 005_extrae_correo/salida.csv
 /40_md_portswigger/portswigger_academy_content_md_cleaned_final_v4
 *.log
+41_request/poc.py
+/45_cursoteca resolver/old
