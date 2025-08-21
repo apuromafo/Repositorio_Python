@@ -151,7 +151,7 @@ def main():
                        help="Modo fuerza bruta: prueba todas las secuencias en cada línea Base64.")
 
     parser.add_argument("-e", "--encode", action="store_true", help="Modo codificación.")
-    parser.add_argument("-alg", "--algoritmos", default="321", metavar="SEQ",
+    parser.add_argument("-alg", "--algoritmos", default="123", metavar="SEQ",
                         help="Secuencia: 1=Invertir, 2=ROT13, 3=Base64. Por defecto: 321")
 
     args = parser.parse_args()
