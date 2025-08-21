@@ -50,7 +50,7 @@ feriados_chile_extendidos = [
     {"fecha": "2025-06-29", "nombre": "San Pedro y San Pablo (trasladable) elección primaria presidencial (irrenunciable de segunda categoría)"},
     {"fecha": "2025-07-16", "nombre": "Día de la Virgen del Carmen"},
     {"fecha": "2025-08-15", "nombre": "Asunción de la Virgen"},
-    {"fecha": "2025-08-20", "nombre": "5 Nacimiento del Prócer de la Independencia (válido solamente en las comunas de Chillán y Chillán Viejo"},
+    {"fecha": "2025-08-20", "nombre": " Nacimiento del Prócer de la Independencia (válido solamente en las comunas de Chillán y Chillán Viejo"},
     {"fecha": "2025-09-18", "nombre": "Fiestas Patrias(Día de la Independencia)"},
     {"fecha": "2025-09-19", "nombre": "Día de las Glorias del Ejército(Día de las Fuerzas Armadas)"},
     {"fecha": "2025-10-12", "nombre": "Encuentro de Dos Mundos (Día de la Raza)"},
