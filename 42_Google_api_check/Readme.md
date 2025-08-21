@@ -85,5 +85,5 @@ Detalles de vulnerabilidad (Acceso sin restricción de clave)
   * **Uso Ético**: Esta herramienta está diseñada para ser utilizada por **profesionales de la seguridad** que tienen el permiso explícito del propietario del activo digital que están auditando.
   * **Responsabilidad**: El uso de esta herramienta en sistemas sin autorización previa es ilegal y puede tener consecuencias legales graves.
   * **Confidencialidad**: Los resultados de la auditoría deben manejarse con la máxima confidencialidad y ser comunicados únicamente al propietario o al equipo de seguridad responsable.
-
+  * ** inspirado en gmapsapiscanner  
 -----
