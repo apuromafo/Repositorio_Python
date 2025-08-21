@@ -61,3 +61,4 @@ retos_Script_python/script2/*.lock
 41_request/poc.py
 /45_cursoteca resolver/old
 /37_owasp_vulns/Old
+41_request curl_to_python_request/poc.py
