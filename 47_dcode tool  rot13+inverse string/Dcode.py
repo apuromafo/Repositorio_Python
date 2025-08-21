@@ -137,43 +137,79 @@ def is_plausible_text(s):
 
     # 5. Decisión final: baja entropía + palabras clave o suficientes letras
     return has_keyword or (entropy < 4.5 and letters > 5)
-
 def main():
     parser = argparse.ArgumentParser(
         description="Dcode.py - Fuerza bruta de secuencias de decodificación.",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
-    # Ahora permitimos -s, -a y -fb combinados, pero validaremos lógicamente
+    # Permitimos -s, -a y -fb en cualquier combinación (validaremos después)
     parser.add_argument("-s", "--string", help="Procesa una cadena directamente.")
     parser.add_argument("-a", "--archivo", help="Procesa cada línea de un archivo.")
     parser.add_argument("-fb", "--fuerzabruta", action="store_true",
-                       help="Modo fuerza bruta: prueba todas las secuencias en cada línea Base64.")
+                       help="Modo fuerza bruta: prueba todas las secuencias posibles.")
 
     parser.add_argument("-e", "--encode", action="store_true", help="Modo codificación.")
-    parser.add_argument("-alg", "--algoritmos", default="123", metavar="SEQ",
+    parser.add_argument("-alg", "--algoritmos", default="321", metavar="SEQ",
                         help="Secuencia: 1=Invertir, 2=ROT13, 3=Base64. Por defecto: 321")
 
     args = parser.parse_args()
 
-    # Validación lógica de argumentos
-    if args.fuerzabruta and args.string:
-        print("Error: -fb (fuerza bruta) no se puede usar con -s.")
-        return
-    if args.fuerzabruta and not args.archivo:
-        print("Error: -fb requiere -a ARCHIVO.")
-        return
-    if not args.fuerzabruta and not args.string and not args.archivo:
-        print("Error: Debes usar -s, -a, o -fb con -a.")
-        return
+    # Validación lógica
     if args.encode and args.fuerzabruta:
         print("Error: -fb solo funciona en modo decodificación.")
+        return
+    if not args.fuerzabruta and not args.string and not args.archivo:
+        print("Error: Debes usar -s, -a, o -fb con -s/-a.")
         return
 
     all_sequences = generate_all_sequences()
 
-    # Modo: cadena única
-    if args.string and not args.fuerzabruta:
+    # === Modo: Fuerza bruta sobre cadena única ===
+    if args.fuerzabruta and args.string:
+        print(f"\n🔍 [Fuerza Bruta] Cadena: {args.string}")
+        found = False
+        for seq in all_sequences:
+            result = apply_algorithm_sequence(args.string, seq, encode_mode=False)
+            if result is not None and is_plausible_text(result):
+                entropy = shannon_entropy(result)
+                print(f"    ✅ [{seq}] → Entropía: {entropy:.3f} | {repr(result)}")
+                found = True
+        if not found:
+            print(f"    ❌ Ninguna secuencia produjo un resultado válido.")
+        return
+
+    # === Modo: Fuerza bruta sobre archivo ===
+    if args.fuerzabruta and args.archivo:
+        if not os.path.exists(args.archivo):
+            print(f"Error: Archivo '{args.archivo}' no encontrado.")
+            return
+
+        with open(args.archivo, 'r', encoding='utf-8-sig') as file:
+            for line_num, line in enumerate(file, 1):
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                if stripped.startswith('#'):
+                    print(f"Línea {line_num} (comentario): {stripped}")
+                    continue
+                if not is_encoded_string(stripped):
+                    continue
+
+                print(f"\n🔍 [Fuerza Bruta] Línea {line_num}: {stripped}")
+                found = False
+                for seq in all_sequences:
+                    result = apply_algorithm_sequence(stripped, seq, encode_mode=False)
+                    if result is not None and is_plausible_text(result):
+                        entropy = shannon_entropy(result)
+                        print(f"    ✅ [{seq}] → Entropía: {entropy:.3f} | {repr(result)}")
+                        found = True
+                if not found:
+                    print(f"    ❌ Ninguna secuencia produjo un resultado válido.")
+        return
+
+    # === Modo: cadena única normal ===
+    if args.string:
         try:
             result = apply_algorithm_sequence(args.string, args.algoritmos, args.encode)
             if result is not None:
@@ -184,40 +220,7 @@ def main():
             print(f"Error: {e}")
         return
 
-    # Modo: archivo con fuerza bruta
-    # Modo: archivo con fuerza bruta
-    if args.fuerzabruta:
-        if not os.path.exists(args.archivo):
-            print(f"Error: Archivo '{args.archivo}' no encontrado.")
-            return
-
-        with open(args.archivo, 'r', encoding='utf-8-sig') as file:
-            for line_num, line in enumerate(file, 1):
-                stripped = line.strip()
-                if not stripped:
-                    continue  # Saltar vacías
-
-                if stripped.startswith('#'):
-                    print(f"Línea {line_num} (comentario): {stripped}")
-                    continue
-
-                if not is_encoded_string(stripped):
-                    continue  # No parece Base64
-
-                print(f"\n🔍 [Fuerza Bruta] Línea {line_num}: {stripped}")
-                found = False
-                for seq in all_sequences:
-                    result = apply_algorithm_sequence(stripped, seq, encode_mode=False)
-                    if result is not None and is_plausible_text(result):
-                        entropy = shannon_entropy(result)
-                        # Mostramos el resultado + entropía + secuencia
-                        print(f"    ✅ [{seq}] → Entropía: {entropy:.3f} | {repr(result)}")
-                        found = True
-                if not found:
-                    print(f"    ❌ [{stripped}] → Ninguna secuencia válida (entropía alta o sin patrones)")
-        return
-
-    # Modo: archivo normal (sin -fb)
+    # === Modo: archivo normal ===
     if args.archivo:
         if not os.path.exists(args.archivo):
             print(f"Error: Archivo '{args.archivo}' no encontrado.")
@@ -228,7 +231,6 @@ def main():
                 stripped = line.strip()
                 if not stripped:
                     continue
-
                 if stripped.startswith('#'):
                     print(f"Línea {line_num}: {stripped}")
                     continue
@@ -251,6 +253,6 @@ def main():
                             print(f"Línea {line_num}: Error al decodificar con {args.algoritmos}.")
                     else:
                         print(f"Línea {line_num}: {stripped}")
-
+                        
 if __name__ == "__main__":
     main()
