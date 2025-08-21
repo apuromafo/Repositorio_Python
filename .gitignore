@@ -60,3 +60,4 @@ retos_Script_python/script2/*.lock
 *.log
 41_request/poc.py
 /45_cursoteca resolver/old
+/37_owasp_vulns/Old

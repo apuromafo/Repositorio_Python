@@ -1,0 +1,742 @@
+[
+    {
+        "url": "http://sechow.com/bricks/index.html",
+        "name": "Bricks",
+        "is_online": true
+    },
+    {
+        "url": "http://demo.testfire.net/",
+        "name": "Altoro Mutual (AltoroJ)",
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/bwapp/files/bee-box/",
+        "name": "Bee-Box",
+        "is_online": true
+    },
+    {
+        "url": "http://testphp.vulnweb.com",
+        "name": "Acuart",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/dhammon/ai-goat",
+        "name": "AI-Goat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/satishpatnayak/AndroGoat",
+        "name": "AndroGoat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/jerryhoff/WebGoat.NET",
+        "name": ".NET Goat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/digininja/authlab",
+        "name": "AuthLab",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/psiinon/bodgeit",
+        "name": "BodgeIt Store",
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/thebutterflytmp/files/ButterFly%20Project/",
+        "name": "Butterfly Security Project",
+        "is_online": true
+    },
+    {
+        "url": "https://cyberscavengerhunt.com",
+        "name": "Cyber Scavenger Hunt",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/NeuraLegion/brokencrystals#vulnerabilities-overview",
+        "name": "Broken Crystals",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/convisolabs/CVWA",
+        "name": "CVWA - Conviso Vulnerable Web Application",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/RhinoSecurityLabs/cloudgoat",
+        "name": "CloudGoat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SpiderLabs/CryptOMG",
+        "name": "CryptOMG",
+        "is_online": true
+    },
+    {
+        "url": "https://bugbait.io",
+        "name": "BugBait - Vulnerable Web Application",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/stamparm/DSVW",
+        "name": "Damn Small Vulnerable Web (DSVW)",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/fridaygoldsmith/bwa_cyclone_transfers",
+        "name": "Cyclone Transfers",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/snsttr/diwa",
+        "name": "DIWA - Deliberately Insecure Web Application",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/AvalZ/DVAS",
+        "name": "Damn Vulnerable Application Scanner (DVAS)",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/rewanthtammana/Damn-Vulnerable-Bank",
+        "name": "Damn Vulnerable Bank",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/njmulsqb/DVEA/",
+        "name": "Damn Vulnerable Electron App (DVEA)",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/LunaM00n/File-Upload-Lab",
+        "name": "Damn Vulnerable File Upload - DVFU",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/we45/DVFaaS-Damn-Vulnerable-Functions-as-a-Service",
+        "name": "Damn Vulnerable Functions as a Service (DVFaaS)",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application",
+        "name": "Damn Vulnerable GraphQL Application (DVGA)",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/isp1r0/DVNA",
+        "name": "Damn Vulnerable Node Application - DVNA",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/koenbuyens/Vulnerable-OAuth-2.0-Applications",
+        "name": "Damn Vulnerable OAuth 2.0 Applications",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/anxolerd/dvpwa",
+        "name": "Damn Vulnerable Python Web Application - DVPWA",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/appsecco/dvna",
+        "name": "Damn Vulnerable NodeJS Application - DVNA",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/theowni/Damn-Vulnerable-RESTaurant-API-Game",
+        "name": "Damn Vulnerable Restaurant",
+        "is_online": true
+    },
+    {
+        "url": "https://defendtheweb.net/",
+        "name": "Defend the Web",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/silentsignal/damn-vulnerable-stateful-web-app",
+        "name": "Damn Vulnerable Stateful WebApp",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/snoopysecurity/dvws",
+        "name": "Damn Vulnerable Web Services",
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/exploitcoilvuln/files/",
+        "name": "Exploit.co.il Vuln Web App",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/OWASP/DVSA",
+        "name": "Damn Vulnerable Serverless App (DVSA)",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/digininja/DVWA",
+        "name": "Damn Vulnerable Web Application - DVWA",
+        "is_online": true
+    },
+    {
+        "url": "https://public-firing-range.appspot.com/",
+        "name": "Firing Range",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/red-and-black/DjangoGoat",
+        "name": "DjangoGoat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/interference-security/DVWS",
+        "name": "Damn Vulnerable Web Sockets",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/k-tamura/easybuggy",
+        "name": "EasyBuggy",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/vegabird/xvna",
+        "name": "Extreme Vulnerable Node Application",
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/null-gameover/",
+        "name": "GameOver",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Orange-Cyberdefense/GOAD",
+        "name": "Game of Active Directory",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/InsiderPhD/Generic-University",
+        "name": "Generic-University",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Checkmarx/Goatlin/",
+        "name": "Goatlin",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/snyk-labs/nodejs-goof",
+        "name": "Goof",
+        "is_online": true
+    },
+    {
+        "url": "https://www.hackthis.co.uk/",
+        "name": "HackThis",
+        "is_online": true
+    },
+    {
+        "url": "https://hack-yourself-first.com/",
+        "name": "HackYourselfFirst",
+        "is_online": true
+    },
+    {
+        "url": "https://www.hackthissite.org",
+        "name": "HackThisSite",
+        "is_online": true
+    },
+    {
+        "url": "https://labs.hackxpert.com/",
+        "name": "HackXpert",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Hackademic/hackademic",
+        "name": "Hackademic Challenges Project",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/rapid7/hackazon",
+        "name": "Hackazon",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/iknowjason/hammer",
+        "name": "Hammer",
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/lampsecurity/",
+        "name": "LAMPSecurity",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/christophetd/log4shell-vulnerable-app",
+        "name": "Log4Shell sample vulnerable application",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/OWASP/owasp-mstg/tree/master/Crackmes",
+        "name": "MSTG CrackMes",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/OWASP/MSTG-Hacking-Playground",
+        "name": "MSTG Hacking Playground",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SpiderLabs/MCIR",
+        "name": "Magical Code Injection Rainbow - MCIR",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/cschneider4711/Marathon",
+        "name": "Marathon",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/rapid7/metasploitable3/wiki/Vulnerabilities",
+        "name": "Metasploitable 3",
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/w3af/files/moth/moth/",
+        "name": "Moth",
+        "is_online": true
+    },
+    {
+        "url": "http://aspnet.testsparker.com/",
+        "name": "Netsparker Test App .NET",
+        "is_online": true
+    },
+    {
+        "url": "http://www.irongeek.com/i.php?page=mutillidae/mutillidae-deliberately-vulnerable-php-owasp-top-10",
+        "name": "Mutillidae",
+        "is_online": true
+    },
+    {
+        "url": "http://php.testsparker.com/",
+        "name": "Netsparker Test App PHP",
+        "is_online": true
+    },
+    {
+        "url": "https://digi.ninja/projects/nosqli_lab.php",
+        "name": "NoSQL Injection Lab",
+        "is_online": true
+    },
+    {
+        "url": "https://community.rapid7.com/docs/DOC-1875",
+        "name": "Metasploitable 2",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/aabashkin/nosql-injection-vulnapp",
+        "name": "NoSQL Injection Vulnerable App (NIVA)",
+        "is_online": true
+    },
+    {
+        "url": "https://owasp.org/www-project-damn-vulnerable-web-sockets/",
+        "name": "OWASP Damn Vulnerable Web Sockets (DVWS)",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/cr0hn/vulnerable-node",
+        "name": "NodeVulnerable",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/OSTEsayed/OSTE-Vulnerable-Web-Application",
+        "name": "OSTE-Vulnerable-Web-Application",
+        "is_online": true
+    },
+    {
+        "url": "https://www.owasp.org/index.php/OWASP_Node_js_Goat_Project",
+        "name": "NodeGoat",
+        "is_online": true
+    },
+    {
+        "url": "https://code.google.com/p/puzzlemall/",
+        "name": "Puzzlemall",
+        "is_online": true
+    },
+    {
+        "url": "https://secureby.design/",
+        "name": "OWASP SKF Labs",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SasanLabs/VulnerableApp",
+        "name": "OWASP VulnerableApp",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SasanLabs/VulnerableApp-facade",
+        "name": "OWASP VulnerableApp-facade",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/adeyosemanputra/pygoat",
+        "name": "PyGoat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/DevSlop/Pixi",
+        "name": "Pixi",
+        "is_online": true
+    },
+    {
+        "url": "https://owasp-juice.shop",
+        "name": "OWASP Juice Shop",
+        "is_online": true
+    },
+    {
+        "url": "http://www.samurai-wtf.org/",
+        "name": "Samurai WTF",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/insp3ctre/race-the-web",
+        "name": "Race The Web",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/sqlmapproject/testenv",
+        "name": "SQL injection test environment",
+        "is_online": true
+    },
+    {
+        "url": "http://peruggia.sourceforge.net/",
+        "name": "Peruggia",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Audi-1/sqli-labs",
+        "name": "SQLI-labs",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/SpiderLabs/SQLol",
+        "name": "SQLol",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/incredibleindishell/SSRF_Vulnerable_Lab",
+        "name": "SSRF Vuln Lab",
+        "is_online": true
+    },
+    {
+        "url": "https://owasp.org/www-project-security-shepherd/",
+        "name": "Security Shepherd",
+        "is_online": true
+    },
+    {
+        "url": "http://sg6-labs.blogspot.com/2007/12/secgame-1-sauron.html",
+        "name": "Sauron",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/globocom/secDevLabs",
+        "name": "SecDevLabs",
+        "is_online": true
+    },
+    {
+        "url": "http://testhtml5.vulnweb.com/",
+        "name": "Security Tweets",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/DataDog/security-labs-pocs",
+        "name": "Security Labs & POCs",
+        "is_online": true
+    },
+    {
+        "url": "https://www.owasp.org/index.php/OWASP_Rails_Goat_Project",
+        "name": "Rails Goat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/dhatanian/ticketmagpie",
+        "name": "TicketMagpie",
+        "is_online": true
+    },
+    {
+        "url": "https://sourceforge.net/projects/virtualhacking/",
+        "name": "Virtual Hacking Lab",
+        "is_online": true
+    },
+    {
+        "url": "https://www.pentesterlab.com/exercises/",
+        "name": "PentesterLab - The Exercises",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/payatu/Tiredful-API",
+        "name": "Tiredful API",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/lucideus-repo/UnSAFE_Bank",
+        "name": "UnSAFE Bank",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/erev0s/VAmPI",
+        "name": "VAmPI",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/detectify/Varnish-H2-Request-Smuggling",
+        "name": "Varnish HTTP/2 Request Smuggling",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Yavuzlar/VulnLab",
+        "name": "VulnLab",
+        "is_online": true
+    },
+    {
+        "url": "http://solyd.com.br/treinamentos/introducao-ao-hacking-e-pentest",
+        "name": "Solyd - Introdução ao Hacking e Pentest",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/CSPF-Founder/JavaVulnerableLab/",
+        "name": "Vulnerable Java Web Application",
+        "is_online": true
+    },
+    {
+        "url": "https://webgoat.github.io/WebGoat/",
+        "name": "WebGoat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/kaakaww/vuln_node_express",
+        "name": "Vulnerable Node Express",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/mddanish/Vulnerable-OTP-Application",
+        "name": "Vulnerable OTP App",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/ScaleSec/vulnado",
+        "name": "Vulnado",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/yogisec/VulnerableSAMLApp",
+        "name": "Vulnerable SAML App",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/ctxis/VulnerableXsltConsoleApplication",
+        "name": "VulnerableXsltConsoleApplication",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/adamdoupe/WackoPicko",
+        "name": "WackoPicko",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/sectooladdict/wavsep",
+        "name": "WAVSEP - Web Application Vulnerability Scanner Evaluation Project",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/jbarone/xxelab",
+        "name": "XXE Lab",
+        "is_online": true
+    },
+    {
+        "url": "http://www.mavensecurity.com/web_security_dojo/",
+        "name": "Web Security Dojo",
+        "is_online": true
+    },
+    {
+        "url": "https://owasp.org/www-project-crapi/",
+        "name": "crAPI",
+        "is_online": true
+    },
+    {
+        "url": "http://zero.webappsecurity.com/",
+        "name": "Zero Bank",
+        "is_online": true
+    },
+    {
+        "url": "https://www.owasp.org/index.php/WebGoatPHP",
+        "name": "WebGoatPHP",
+        "is_online": true
+    },
+    {
+        "url": "http://www.itsecgames.com/",
+        "name": "bWAPP",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/s4n7h0/xvwa",
+        "name": "Xtreme Vulnerable Web Application (XVWA)",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/commjoen/wrongsecrets",
+        "name": "WrongSecrets",
+        "is_online": true
+    },
+    {
+        "url": "http://xxe.sourceforge.net/",
+        "name": "XXE",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/snoopysecurity/dvws-node",
+        "name": "dvws-node",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Sjord/jwtdemo/",
+        "name": "jwtdemo",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/playframework/play-webgoat",
+        "name": "play-webgoat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/omerlh/insecure-deserialisation-net-poc",
+        "name": "insecure-deserialisation-net-poc",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/sakti/twitterlike",
+        "name": "twitterlike",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/roottusk/vapi",
+        "name": "vAPI",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/mattvaldes/vulnerable-api",
+        "name": "vulnerable-api",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/Aif4thah/VulnerableLightApp",
+        "name": "VulnerableLightApp",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/cider-security-research/cicd-goat",
+        "name": "CI/CD Goat",
+        "is_online": true
+    },
+    {
+        "url": "https://github.com/marmicode/websheep",
+        "name": "websheep",
+        "is_online": true
+    },
+    {
+        "url": "https://pentest-ground.com/",
+        "name": "Pentest-Ground",
+        "is_online": true
+    },
+    {
+        "url": "http://hackxor.sourceforge.net/cgi-bin/index.pl",
+        "name": "Hackxor",
+        "is_online": true
+    },
+    {
+        "url": "https://yrprey.com",
+        "name": "YrpreyPathTraversal",
+        "is_online": true
+    },
+    {
+        "url": "https://www.owasp.org/index.php/OWASP_Broken_Web_Applications_Project",
+        "name": "Broken Web Applications Project (BWA) - OWASP",
+        "is_online": false
+    },
+    {
+        "url": "http://www.gameofhacks.com/",
+        "name": "Game of Hacks",
+        "is_online": false
+    },
+    {
+        "url": "http://google-gruyere.appspot.com/",
+        "name": "Gruyere",
+        "is_online": false
+    },
+    {
+        "url": "https://ginandjuice.shop/",
+        "name": "Gin & Juice Shop",
+        "is_online": false
+    },
+    {
+        "url": "https://www.hacking-lab.com/events/",
+        "name": "Hacking Lab",
+        "is_online": false
+    },
+    {
+        "url": "http://www.bgabank.com/",
+        "name": "BGA Vulnerable BANK App",
+        "is_online": false
+    },
+    {
+        "url": "https://ctflearn.com/",
+        "name": "CTFLearn",
+        "is_online": false
+    },
+    {
+        "url": "https://hack.me",
+        "name": "Hack.me",
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacme-bank.aspx",
+        "name": "Hacme Bank",
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacme-bank-android.aspx",
+        "name": "Hacme Bank - Android",
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacmebooks.aspx",
+        "name": "Hacme Books",
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacme-casino.aspx",
+        "name": "Hacme Casino",
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacmeshipping.aspx",
+        "name": "Hacme Shipping",
+        "is_online": false
+    },
+    {
+        "url": "http://www.mcafee.com/us/downloads/free-tools/hacmetravel.aspx",
+        "name": "Hacme Travel",
+        "is_online": false
+    },
+    {
+        "url": "http://pentesteracademylab.appspot.com",
+        "name": "Pentester Academy",
+        "is_online": false
+    },
+    {
+        "url": "https://code.google.com/p/wivet/",
+        "name": "WIVET- Web Input Vector Extractor Teaser",
+        "is_online": false
+    },
+    {
+        "url": "http://ffuf.me/",
+        "name": "FFUF.me",
+        "is_online": false
+    }
+]

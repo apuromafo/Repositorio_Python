@@ -1,153 +1,70 @@
+-----
 
-# `curl_to_request.py` - Conversor de Comandos `cURL` a Python
+### 💻 `curl2py` - Conversor de Comandos `curl` a Scripts de `requests`
 
-`curl_to_request.py` es una herramienta de línea de comandos que convierte automáticamente comandos `cURL` en scripts Python 3 limpios y ejecutables, usando la popular librería `requests`.
+**`curl2py`** es un script de Python que automatiza la conversión de uno o varios comandos `curl` en código Python, utilizando la popular librería `requests`. Su objetivo principal es ayudar a los profesionales de la seguridad y desarrolladores a automatizar peticiones web complejas extraídas de la consola o de archivos de texto.
 
-El script soporta múltiples modos de uso para una máxima flexibilidad, incluyendo el manejo de peticiones **GET**, **POST**, **PUT**, y **DELETE**, con soporte completo para **headers**, **cookies** y **datos JSON**.
+**Advertencia:** Esta herramienta está diseñada para ser utilizada por profesionales de la seguridad y desarrolladores con fines de **auditoría, automatización y pruebas**. El uso de este script en sistemas sin autorización previa es ilegal y no está respaldado.
+
+### ✨ Características Principales
+
+  * **Versatilidad de Entrada**: Acepta comandos `curl` directamente como argumento, desde la entrada estándar (consola) o desde un archivo de texto.
+  * **Análisis Robusto**: Analiza y extrae automáticamente el método HTTP (`GET`, `POST`), la URL, las cabeceras (`-H`), las cookies (`-b`), y los datos (`-d`).
+  * **Generación de Código Limpio**: Genera un script de Python con un formato legible y bien estructurado, listo para ser ejecutado.
+  * **Manejo de Respuestas**: El código generado incluye lógica para manejar y mostrar diferentes tipos de contenido de respuesta, como JSON, HTML y archivos binarios.
+  * **Salida Flexible**: Permite imprimir el script generado en la consola o guardarlo directamente en un archivo `.py`.
 
 -----
 
-## Características
+### 🚀 Requisitos
 
-  * **Conversión Rápida**: Convierte cualquier comando `cURL` en un script Python funcional.
-  * **Modos de Uso Múltiples**:
-      * **Interactiva**: Pega tu comando `cURL` o una ruta de archivo directamente en la consola.
-      * **Argumento de Archivo**: Proporciona la ruta de un archivo de texto con el comando `cURL`.
-  * **Generación de Archivos**: Al finalizar, puedes elegir si el script generado se muestra en la consola o se guarda en un archivo `.py`.
-  * **Manejo de Datos**: Extrae y formatea automáticamente `headers`, `cookies` y el cuerpo de datos (`-d`, `--data`).
-  * **Manejo de Errores**: Incluye bloques `try...except` para una ejecución segura de las peticiones.
+Este script no requiere librerías externas para su ejecución, ya que el código generado se basa en la librería `requests`.
 
------
-
-## Requisitos
-
-  * Python 3.x
-  * La librería `requests`. Instálala con el siguiente comando:
-    ```bash
-    pip install requests
-    ```
-
------
-
-## Guía de Uso
-
-### 1\. Modo Interactivo
-
-Este es el método más rápido y flexible. Solo ejecuta el script sin argumentos y te pedirá la entrada.
+Para ejecutar los scripts resultantes, necesitas instalar `requests`:
 
 ```bash
-python curl_to_request.py
+pip install requests
 ```
 
-Al ver el mensaje, puedes:
+### 📖 Uso
 
-  * **Pegar un comando `cURL`**: El script leerá lo que pegues hasta que ingreses una línea en blanco (presionando Enter dos veces).
+Para usar el script, ejecuta `curl2py.py` seguido de la opción de entrada deseada.
 
-    ```bash
-    Pegue aquí sus comandos curl o la ruta de un archivo.
-    Para finalizar, ingrese una línea en blanco y presione Enter dos veces.
-    curl -X GET 'https://api.github.com/users/google'
+#### 1\. Desde la línea de comandos
 
-    ```
-
-      * **Pegar la ruta de un archivo**: Si la primera línea es una ruta válida a un archivo, el script leerá su contenido y lo procesará.
-
-    <!-- end list -->
-
-    ```bash
-    Pegue aquí sus comandos curl o la ruta de un archivo.
-    Para finalizar, ingrese una línea en blanco y presione Enter dos veces.
-    C:\Users\tu_usuario\Documents\comandos.txt
-    ```
-
-### 2\. Modo con Argumento
-
-Si ya tienes un archivo con tus comandos, puedes pasarlo directamente como un argumento.
+Si tienes un comando `curl` simple, puedes pasarlo como argumento:
 
 ```bash
-# Ejemplo: archivo llamado `comandos.txt`
-python curl_to_request.py comandos.txt
+python curl2py.py "curl 'https://api.example.com/data' -H 'User-Agent: MyAgent'"
 ```
 
-### 3\. Opciones de Salida
+#### 2\. Desde un archivo
 
-Después de procesar la entrada, el script te preguntará cómo quieres el resultado:
+Si tienes una lista de comandos `curl` en un archivo de texto (por ejemplo, `comandos.txt`), puedes usar la ruta del archivo como argumento.
 
+```bash
+python curl2py.py comandos.txt
 ```
-Presione ENTER para mostrar en pantalla o escriba un nombre de archivo para guardar (ej: mi_script.py):
+
+#### 3\. Modo Interactivo (Consola)
+
+Si no pasas ningún argumento, el script entrará en modo interactivo. Podrás pegar tus comandos `curl` directamente en la consola.
+
+```bash
+python curl2py.py
+# Pega aquí tus comandos.
+# Para finalizar, pulsa Enter en una línea vacía y luego Ctrl+D (Linux/macOS) o Ctrl+Z (Windows).
 ```
 
-  * **Mostrar en Consola**: Presiona **Enter** para ver el código impreso directamente.
-  * **Guardar en Archivo**: Escribe un nombre de archivo (ej. `api_request.py`) y presiona **Enter**. El script guardará el código en ese archivo.
+### 📁 Salida
+
+El script te preguntará si deseas guardar el resultado en un archivo o imprimirlo en la consola.
+
+  * **Guardar en un archivo**: Ingresa el nombre del archivo (ej. `script_de_prueba.py`) cuando se te solicite. El script añadirá automáticamente la extensión `.py` si no la has incluido.
+  * **Mostrar en la consola**: Simplemente presiona `Enter` sin escribir nada para ver el script impreso en tu terminal.
 
 -----
 
-## Ejemplo de un `cURL` y su Salida
+### ⚠️ Advertencia de Seguridad
 
-**Comando de entrada (en un archivo o pegado):**
-
-```bash
-curl 'https://httpbin.org/post' \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json' \
-  --data-raw '{
-    "message": "Hola, mundo!"
-  }'
-```
-
-**Salida generada (`mi_script.py`):**
-
-```python
-# -*- coding: utf-8 -*-
-import requests
-import json
-import urllib.parse
-from datetime import datetime
-
-# --- Solicitud POST a: https://httpbin.org/post ---
-try:
-    response = requests.post(
-        'https://httpbin.org/post',
-        headers={
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        json={
-            "message": "Hola, mundo!"
-        }
-    )
-    response.raise_for_status()
-
-    content_type = response.headers.get('Content-Type', 'unknown')
-    print(f"Tipo de contenido: {content_type}")
-
-    if 'application/json' in content_type:
-        try:
-            data = response.json()
-            print(json.dumps(data, indent=4))
-        except json.JSONDecodeError as e:
-            print(f"Advertencia: No se pudo parsear como JSON. Imprimiendo texto sin procesar. Error: {e}")
-            print(response.text)
-    elif 'text/html' in content_type:
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filename = f"content_{timestamp}.html"
-        print(f"Contenido es HTML. Guardando en: {filename}")
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(response.text)
-    elif 'text/' in content_type:
-        print("Contenido es texto. Imprimiendo texto:")
-        print(response.text)
-    elif 'application/octet-stream' in content_type:
-        filename = 'response_content'
-        with open(filename, 'wb') as f:
-            f.write(response.content)
-        print(f"Archivo binario descargado: {filename}")
-    else:
-        print("Tipo de contenido no reconocido. Imprimiendo texto sin procesar:")
-        print(response.text)
-
-except requests.exceptions.RequestException as e:
-    print(f"Error en la solicitud: {e}")
-
-print("\n" + "="*80 + "\n")
-```
+El código generado por este script replica la funcionalidad de los comandos `curl` originales. Es responsabilidad del usuario asegurarse de que las peticiones se realizan a sistemas en los que tiene **autorización explícita** para hacerlo. El uso de este script para actividades no autorizadas es una violación de la ley.
