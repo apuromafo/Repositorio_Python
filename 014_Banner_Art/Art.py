@@ -1,137 +1,144 @@
 #!/usr/bin/env python3
-# Descripción: Herramienta para generación de mini strings tipo art ascii
+# -*- coding: utf-8 -*-
+# Descripción: Herramienta para la generación de arte ASCII.
 # Autor: Apuromafo
-# Versión: 0.0.5
-# Fecha: 12.02.2025
+# Versión: 1.0.0
+# Fecha: 21.08.2025
 
 import argparse
 import random
-import unicodedata
 import sys
+import os
 
-# Intentar importar pyfiglet; si falla, mostrar un mensaje al usuario
 try:
     import pyfiglet
 except ImportError:
-    print("El módulo 'pyfiglet' no está instalado.")
-    print("Por favor, instálalo ejecutando el siguiente comando:")
-    print("pip install pyfiglet")
+    print("Error: El módulo 'pyfiglet' no está instalado.")
+    print("Por favor, instálalo ejecutando: pip install pyfiglet")
     sys.exit(1)
 
-def imprimir_banner():
+def print_banner():
+    """Imprime un banner de bienvenida en arte ASCII."""
     banner = r"""
-  __   ____  ____
- / _\ (  _ \(_  _)
-/    \ )   /  )(
-\_/\_/(__\_) (__)   
-                     v0.0.5 Apuromafo
+  __  ____ ____
+ / _\ ( _ \( _ )
+/    \ )  /  )(
+\_/\_/(__\_) (__)
+                  v1.0.0 Optimizada
 """
     print(banner)
 
-def ajustar_texto(resultado_ascii):
+def get_adjusted_text(ascii_text):
     """
-    Ajusta el texto eliminando el margen común más grande de todas las líneas.
+    Ajusta el texto ASCII eliminando el margen común más grande de todas las líneas.
+    Esto permite una mejor alineación del resultado.
     """
-    lineas = resultado_ascii.splitlines()
-    
-    # Encontrar el número mínimo de espacios iniciales compartidos por todas las líneas
-    min_espacios = float('inf')
-    for linea in lineas:
-        if linea.strip():  # Ignorar líneas vacías
-            espacios_iniciales = len(linea) - len(linea.lstrip())
-            min_espacios = min(min_espacios, espacios_iniciales)
-    
-    # Si no hay líneas no vacías, devolver el texto original
-    if min_espacios == float('inf'):
-        return resultado_ascii
-    
-    # Eliminar el margen común más grande de todas las líneas
-    lineas_ajustadas = [linea[min_espacios:] for linea in lineas]
-    return "\n".join(lineas_ajustadas)
+    lines = ascii_text.splitlines()
+    non_empty_lines = [line for line in lines if line.strip()]
 
-def generar_arte_ascii():
+    if not non_empty_lines:
+        return ascii_text
+
+    min_indent = min(len(line) - len(line.lstrip()) for line in non_empty_lines)
+    
+    adjusted_lines = [line[min_indent:] for line in lines]
+    return "\n".join(adjusted_lines)
+
+def setup_arg_parser():
+    """Configura y devuelve el analizador de argumentos de la línea de comandos."""
+    parser = argparse.ArgumentParser(
+        description="Generador de arte ASCII con opciones de personalización."
+    )
+    parser.add_argument(
+        "-s", "--string", type=str, required=True,
+        help="Cadena de texto para convertir a arte ASCII."
+    )
+    parser.add_argument(
+        "-r", "--random", action="store_true",
+        help="Seleccionar una fuente aleatoria."
+    )
+    parser.add_argument(
+        "-f", "--font", type=str, default="slant",
+        help="Fuente a utilizar. Por defecto es 'slant'."
+    )
+    parser.add_argument(
+        "-w", "--width", type=int, default=200,
+        help="Ancho máximo del banner. Por defecto es 200."
+    )
+    parser.add_argument(
+        "-j", "--justify", type=str, choices=["left", "center", "right"],
+        default="center", help="Justificación del texto. Por defecto es 'center'."
+    )
+    parser.add_argument(
+        "-o", "--output", type=str,
+        help="Prefijo del archivo para guardar las versiones original y ajustada."
+    )
+    return parser
+
+def generate_ascii_art():
     """
-    Genera arte ASCII a partir de una cadena de texto, con opciones de fuente aleatoria, ancho y justificación.
+    Genera arte ASCII a partir de la cadena de texto y argumentos del usuario.
     """
-    # Crear un objeto de análisis de argumentos
-    analizador = argparse.ArgumentParser(description='Generador de arte ASCII')
-    
-    # Agregar argumentos para personalizar la salida
-    analizador.add_argument('-s', '--cadena', type=str, required=True, help='Cadena de texto para convertir a ASCII')
-    analizador.add_argument('-r', '--aleatorio', action='store_true', help='Seleccionar una fuente aleatoria')
-    analizador.add_argument('-f', '--fuente', type=str, default='slant', help='Fuente a utilizar (ver opciones disponibles en pyfiglet)')
-    analizador.add_argument('-w', '--ancho', type=int, default=200, help='Ancho máximo del banner')
-    analizador.add_argument('-j', '--justificacion', type=str, choices=['izquierda', 'centro', 'derecha'], default='centro', help='Justificación del texto')
-    analizador.add_argument('-o', '--salida', type=str, help='Prefijo del archivo para guardar las versiones original y ajustada')
-    
-    # Analizar los argumentos proporcionados por el usuario
-    argumentos = analizador.parse_args()
+    parser = setup_arg_parser()
+    args = parser.parse_args()
 
-    # Lista de fuentes disponibles
-    lista_fuentes = pyfiglet.FigletFont.getFonts()
-
-    # Seleccionar fuente aleatoria si se indica la opción `-r`
-    if argumentos.aleatorio:
-        fuente_seleccionada = random.choice(lista_fuentes)
-        print(f"Se ha seleccionado la fuente aleatoria: {fuente_seleccionada}")
-    else:
-        fuente_seleccionada = argumentos.fuente
-
-    # Verificar si la fuente especificada existe
-    if fuente_seleccionada not in lista_fuentes:
-        print(f"La fuente '{fuente_seleccionada}' no se encontró. Por favor, elige una de las siguientes:")
-        for fuente in lista_fuentes:
-            print(fuente)
+    # Obtener la lista de fuentes disponibles.
+    try:
+        fonts_list = pyfiglet.FigletFont.getFonts()
+    except Exception as e:
+        print(f"Error al obtener la lista de fuentes de pyfiglet: {e}")
         sys.exit(1)
 
-    # Mapear justificación en español a inglés para pyfiglet
-    justificacion_pyfiglet = {
-        "izquierda": "left",
-        "centro": "center",
-        "derecha": "right"
-    }
+    # Seleccionar la fuente.
+    selected_font = args.font
+    if args.random:
+        selected_font = random.choice(fonts_list)
+        print(f"Fuente aleatoria seleccionada: {selected_font}")
+    
+    if selected_font not in fonts_list:
+        print(f"La fuente '{selected_font}' no se encontró.")
+        print("Por favor, elige una de las fuentes disponibles o usa -r para una aleatoria.")
+        print(f"Fuentes disponibles:\n{', '.join(fonts_list)}")
+        sys.exit(1)
 
-    # Generar arte ASCII original
+    # Generar el arte ASCII.
     try:
-        resultado_original = pyfiglet.figlet_format(
-            argumentos.cadena,
-            font=fuente_seleccionada,
-            width=argumentos.ancho,
-            justify=justificacion_pyfiglet[argumentos.justificacion]
+        original_art = pyfiglet.figlet_format(
+            args.string,
+            font=selected_font,
+            width=args.width,
+            justify=args.justify
         )
     except Exception as e:
-        print(f"Error al generar el arte ASCII original: {e}")
+        print(f"Error al generar el arte ASCII: {e}")
         sys.exit(1)
 
-    # Generar arte ASCII ajustado (alineado a la izquierda)
-    resultado_ajustado = ajustar_texto(resultado_original)
+    # Ajustar el arte ASCII y mostrarlo.
+    adjusted_art = get_adjusted_text(original_art)
+    print("\n--- Resultado ---")
+    print(adjusted_art)
 
-    # Mostrar resultados en la consola
-    #print("\n--- Arte ASCII ORIGINAL ---\n")
-    #print(resultado_original)
+    # Guardar en archivos si se especifica la opción de salida.
+    if args.output:
+        save_output(original_art, adjusted_art, args.output)
 
-    #print("\n--- Arte ASCII AJUSTADO (Alineado a la izquierda) ---\n")
-    print("\n")
-    print(resultado_ajustado)
+def save_output(original_text, adjusted_text, prefix):
+    """Guarda el arte ASCII original y ajustado en archivos."""
+    try:
+        # Guardar la versión original.
+        original_filename = f"{prefix}_original.txt"
+        with open(original_filename, "w", encoding="utf-8") as f:
+            f.write(original_text)
+        print(f"\nEl arte ASCII original se guardó en: {os.path.abspath(original_filename)}")
 
-    # Si se especificó un archivo de salida, guardar ambas versiones
-    if argumentos.salida:
-        try:
-            # Guardar versión original
-            archivo_original = f"{argumentos.salida}_original.txt"
-            with open(archivo_original, 'w', encoding='utf-8', newline='\n') as archivo:
-                archivo.write(resultado_original)
-            print(f"\nEl arte ASCII original se guardó en {archivo_original}")
-
-            # Guardar versión ajustada
-            archivo_ajustado = f"{argumentos.salida}_ajustado.txt"
-            with open(archivo_ajustado, 'w', encoding='utf-8', newline='\n') as archivo:
-                archivo.write(resultado_ajustado)
-            print(f"El arte ASCII ajustado se guardó en {archivo_ajustado}")
-        except IOError as e:
-            print(f"Error al escribir en el archivo: {e}")
-            sys.exit(1)
+        # Guardar la versión ajustada.
+        adjusted_filename = f"{prefix}_ajustado.txt"
+        with open(adjusted_filename, "w", encoding="utf-8") as f:
+            f.write(adjusted_text)
+        print(f"El arte ASCII ajustado se guardó en: {os.path.abspath(adjusted_filename)}")
+    except IOError as e:
+        print(f"Error al escribir los archivos: {e}")
 
 if __name__ == "__main__":
-    imprimir_banner()
-    generar_arte_ascii()
+    print_banner()
+    generate_ascii_art()
