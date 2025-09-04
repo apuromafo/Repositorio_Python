@@ -8,6 +8,14 @@ import os
 import re
 import math
 from collections import Counter
+from itertools import permutations
+
+# Mapeo de números a nombres de algoritmos
+ALGORITHM_NAMES = {
+    '1': 'Invertir',
+    '2': 'ROT13',
+    '3': 'Base64'
+}
 
 def shannon_entropy(s):
     """Calcula la entropía de Shannon de una cadena."""
@@ -16,7 +24,6 @@ def shannon_entropy(s):
     counts = Counter(s)
     probs = [n / len(s) for n in counts.values()]
     return -sum(p * math.log2(p) for p in probs if p > 0)
-    
     
 def reverse_string(s):
     """Invierte la cadena."""
@@ -78,13 +85,23 @@ def is_encoded_string(s):
 
 def generate_all_sequences():
     """Genera todas las combinaciones únicas de 1,2,3 de longitud 1 a 3."""
-    from itertools import permutations
     algorithms = ['1', '2', '3']
     sequences = []
     for r in range(1, 4):
         for perm in permutations(algorithms, r):
             sequences.append(''.join(perm))
     return sequences
+
+def get_sequence_description(sequence):
+    """
+    Convierte una secuencia de algoritmos (p. ej., '321') en una descripción clara con números.
+    """
+    parts = []
+    for algo_num in sequence:
+        name = ALGORITHM_NAMES.get(algo_num, 'Desconocido')
+        parts.append(f"{name} ({algo_num})")
+    return ' → '.join(parts)
+
 def is_plausible_text(s):
     """
     Heurística mejorada: combina palabras clave, legibilidad y entropía de Shannon.
@@ -137,6 +154,7 @@ def is_plausible_text(s):
 
     # 5. Decisión final: baja entropía + palabras clave o suficientes letras
     return has_keyword or (entropy < 4.5 and letters > 5)
+
 def main():
     parser = argparse.ArgumentParser(
         description="Dcode.py - Fuerza bruta de secuencias de decodificación.",
@@ -173,10 +191,19 @@ def main():
             result = apply_algorithm_sequence(args.string, seq, encode_mode=False)
             if result is not None and is_plausible_text(result):
                 entropy = shannon_entropy(result)
-                print(f"    ✅ [{seq}] → Entropía: {entropy:.3f} | {repr(result)}")
+                description = get_sequence_description(seq)
+                print(f"    ✅ [{description}] → Entropía: {entropy:.3f} | {repr(result)}")
                 found = True
         if not found:
             print(f"    ❌ Ninguna secuencia produjo un resultado válido.")
+        
+        print("\n---")
+        print("💡 Nota sobre el modo de Fuerza Bruta:")
+        print("La secuencia de algoritmos de los resultados válidos (ej. 'Invertir (1) → ROT13 (2) → Base64 (3)')")
+        print("muestra el orden de decodificación. Puedes usar esta secuencia numérica (ej. '123')")
+        print("directamente con el parámetro '-alg' para decodificar otras cadenas de manera rápida.")
+        print("Ejemplo: python Dcode.py -s 'cadena_codificada' -alg 123")
+        print("---\n")
         return
 
     # === Modo: Fuerza bruta sobre archivo ===
@@ -202,22 +229,40 @@ def main():
                     result = apply_algorithm_sequence(stripped, seq, encode_mode=False)
                     if result is not None and is_plausible_text(result):
                         entropy = shannon_entropy(result)
-                        print(f"    ✅ [{seq}] → Entropía: {entropy:.3f} | {repr(result)}")
+                        description = get_sequence_description(seq)
+                        print(f"    ✅ [{description}] → Entropía: {entropy:.3f} | {repr(result)}")
                         found = True
                 if not found:
                     print(f"    ❌ Ninguna secuencia produjo un resultado válido.")
+        
+        print("\n---")
+        print("💡 Nota sobre el modo de Fuerza Bruta:")
+        print("La secuencia de algoritmos de los resultados válidos (ej. 'Invertir (1) → ROT13 (2) → Base64 (3)')")
+        print("muestra el orden de decodificación. Puedes usar esta secuencia numérica (ej. '123')")
+        print("directamente con el parámetro '-alg' para decodificar otras cadenas de manera rápida.")
+        print("Ejemplo: python Dcode.py -a 'archivo.txt' -alg 123")
+        print("---\n")
         return
 
     # === Modo: cadena única normal ===
     if args.string:
         try:
+            description = get_sequence_description(args.algoritmos)
+            print(f"Aplicando secuencia: {description}")
             result = apply_algorithm_sequence(args.string, args.algoritmos, args.encode)
             if result is not None:
-                print(result)
+                print(f"Resultado: {result}")
             else:
                 print("Error: No se pudo procesar la cadena.")
         except Exception as e:
             print(f"Error: {e}")
+        
+        print("\n---")
+        print("💡 Nota sobre el modo de Algoritmo Directo:")
+        print("Si no conoces la secuencia de decodificación, puedes usar la opción de fuerza bruta (-fb)")
+        print("para encontrarla automáticamente. Luego, puedes usar la secuencia numérica (ej. '123')")
+        print("con el parámetro '-alg' para un uso más rápido.")
+        print("---\n")
         return
 
     # === Modo: archivo normal ===
@@ -225,6 +270,9 @@ def main():
         if not os.path.exists(args.archivo):
             print(f"Error: Archivo '{args.archivo}' no encontrado.")
             return
+
+        description = get_sequence_description(args.algoritmos)
+        print(f"Aplicando la secuencia de decodificación: {description}")
 
         with open(args.archivo, 'r', encoding='utf-8-sig') as file:
             for line_num, line in enumerate(file, 1):
@@ -239,7 +287,7 @@ def main():
                     try:
                         encoded = apply_algorithm_sequence(stripped, args.algoritmos, True)
                         if encoded is not None:
-                            print(f"Línea {line_num}: {encoded}")
+                            print(f"Línea {line_num} (Codificado): {encoded}")
                         else:
                             print(f"Línea {line_num}: Error al codificar.")
                     except Exception as e:
@@ -248,11 +296,19 @@ def main():
                     if is_encoded_string(stripped):
                         result = apply_algorithm_sequence(stripped, args.algoritmos, False)
                         if result is not None:
-                            print(f"Línea {line_num}: {result}")
+                            print(f"Línea {line_num} (Decodificado): {result}")
                         else:
-                            print(f"Línea {line_num}: Error al decodificar con {args.algoritmos}.")
+                            print(f"Línea {line_num}: Error al decodificar.")
                     else:
                         print(f"Línea {line_num}: {stripped}")
-                        
+        
+        print("\n---")
+        print("💡 Nota sobre el modo de Algoritmo Directo:")
+        print("Si no conoces la secuencia de decodificación, puedes usar la opción de fuerza bruta (-fb)")
+        print("para encontrarla automáticamente. Luego, puedes usar la secuencia numérica (ej. '123')")
+        print("con el parámetro '-alg' para un uso más rápido.")
+        print("---\n")
+        return
+
 if __name__ == "__main__":
     main()
