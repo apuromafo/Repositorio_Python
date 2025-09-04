@@ -1,0 +1,4 @@
+ markitdown hecho por microsoft tiene mas alcance html, pdf , documentos, ppt a md
+luego de clonar el repositorio se ha añadido
+pip install 'markitdown[pdf, docx, pptx]'
+

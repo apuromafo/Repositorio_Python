@@ -1,0 +1,27 @@
+HTTP/2 405 Method Not Allowed
+Date: Wed, 03 Sep 2025 20:00:45 GMT
+Content-Length: 0
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: no-referrer
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline'
+Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS
+Access-Control-Max-Age: 3600
+Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization
+Vary: Origin
+Cross-Origin-Embedder-Policy: unsafe-none
+Cross-Origin-Opener-Policy: same-origin-allow-popups
+Cross-Origin-Resource-Policy: same-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()
+Cache-Control: no-cache, no-store, must-revalidate, private
+Pragma: no-cache
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: JSESSIONID=valorcookie; Path=/; Secure
+Set-Cookie: rememberMe=deleteMe; Path=/; Max-Age=0; Expires=Tue, 02-Sep-2025 20:00:45 GMT
+Allow: POST,OPTIONS
+Server: Jetty(9.4.35.v20201120)
+X-Appengine-Flex-Applatency: 0.068
+Via: 1.1 google
+Alt-Svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
