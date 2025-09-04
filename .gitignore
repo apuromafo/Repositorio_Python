@@ -1,64 +1,29 @@
-/Generador_Rut/.obsidian
-/Generador_Rut/old
-/Rut_Chileno/.obsidian
-/Rut_Chileno/old
-/conv_html_md/old
-Analisis_header_eml/*.api
-*.rar
-/.obsidian
-retos_Script_python/script2/usuarios/*.db
-retos_Script_python/script2/*.lock
-*.pyc
-*.db
-*.api
-011_MalApiScan/conv_mdgit.py
-008_Cabeceras_Seguridad/*.json
-008_Cabeceras_Seguridad/*.log
-008_Cabeceras_Seguridad/*.txt
-/003_retos_Script_python/script2/old
-/009_Rut_Chileno/.obsidian
-001_Analisis_header_eml/demo/*.txt
-011_MalApiScan/*.txt
-013_passwd/*.log
-016_video/video_descargado.mp4
-016_video/conversion_errors.log
-005_extrae_correo/poc
-005_extrae_correo/poc.txt
-008_Cabeceras_Seguridad/pruebas_verbos.py
-/006_Extrae_apk/herramientas
-/006_Apk/herramientas
-/20_wget/poc
-/20_wget/poc2
-/20_wget/poc3
-011_MalApiScan/poc.txt
-/21_sha256/brute/hide
-/011_MalApiScan/hide
-22_rotacion/poc.txt
-/23_vigenere/diccionario
-/25_driver_window/temp
-*.apk
-*.jks
-*.smali
-006_Apk/output/decompiled/unknown/firebase-components.properties
-/006_Apk/output
-009_Rut_Chileno/poc.txt
-009_Rut_Chileno/prueba.txt
-009_Rut_Chileno/ruts_generados.txt
-009_Rut_Chileno/singuion
-016_video/2025-05-02 13-54-02.mkv
-27_IP report/config.py
-27_IP report/listaIP.txt
-006_Apk/key.py
-006_Apk/ssl.py
-*.txt
-32_upload/upload_nextcloud_credencial_personal.py
-/32_upload/validando_docker
-/32_upload_nextcloud/privado
-009_Rut_Chileno/rut
 005_extrae_correo/salida.csv
-/40_md_portswigger/portswigger_academy_content_md_cleaned_final_v4
-*.log
-41_request/poc.py
-/45_cursoteca resolver/old
+005_extrae_correo/salida.txt
+007_conversor a  md/007_conversor a  md.rar
+008_Cabeceras_Seguridad/demo.json
+008_Cabeceras_Seguridad/output3.json
+008_Cabeceras_Seguridad/output.json
+008_Cabeceras_Seguridad/output1.json
+008_Cabeceras_Seguridad/output2.json
+008_Cabeceras_Seguridad/output4.json
+008_Cabeceras_Seguridad/output5.json
+008_Cabeceras_Seguridad/output6.json
 /37_owasp_vulns/Old
+29_certificado_cert/output/dominio.segurosdigital.cl.txt
 41_request curl_to_python_request/poc.py
+41_request curl_to_python_request/demo_curl.txt
+/43_cve_check/cve_data
+45_cursoteca resolver/links_udemy_limpios_feed_2025-08-11_09-58-48.txt
+45_cursoteca resolver/links_udemy_paginas_1-20_2025-08-18_13-20-33.txt
+45_cursoteca resolver/links_udemy_paginas_1-30_2025-08-11_10-03-45.txt
+45_cursoteca resolver/old/links_cursos_unicos_2025-08-04_11-08-08.txt
+45_cursoteca resolver/old/links_udemy_desde_archivo_2025-08-04_16-24-06.txt
+45_cursoteca resolver/old/links_udemy_desde_archivo_2025-08-04_17-15-28.txt
+45_cursoteca resolver/old/links_udemy_limpios_2025-08-04_11-14-01.txt
+45_cursoteca resolver/old/links_udemy_limpios_2025-08-04_13-35-24.txt
+45_cursoteca resolver/old/links_udemy_limpios_2025-08-04_16-34-46.txt
+/45_cursoteca resolver/old
+2.gitignore
+009_Rut_Chileno/rut_pruebas.txt
+009_Rut_Chileno/poc.txt
