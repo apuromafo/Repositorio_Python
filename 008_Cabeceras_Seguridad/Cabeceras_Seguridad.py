@@ -1,11 +1,45 @@
+#-------------------------------------------------------------------------------------------------
+#    Cabeceras de seguridad - Analizador de encabezados HTTP.
+#
+# Descripción:
+#     Este script se conecta a una URL o lee un archivo JSON para analizar los encabezados de
+#     respuesta HTTP en busca de configuraciones relacionadas con la seguridad.
+#     Ofrece sugerencias para mejorar la seguridad, identificar encabezados faltantes
+#     y señalar información que podría exponer la infraestructura.
+#
+# Forma de uso:
+#     - Analizar una URL en vivo:
+#         python Cabeceras_Seguridad.py <URL> [opciones]
+#         Ejemplo: python Cabeceras_Seguridad.py https://ejemplo.com -i
+#
+#     - Analizar un archivo JSON (generado con 'convert_headers.py'):
+#         python Cabeceras_Seguridad.py -j <archivo.json> [opciones]
+#         Ejemplo: python Cabeceras_Seguridad.py -j demo.json -i
+#
+#     - Opciones comunes:
+#         -i, --info       Mostrar todos los encabezados presentes.
+#         -v, --verb       Especificar el verbo HTTP (ej: POST).
+#         -H, --header     Añadir encabezados personalizados.
+# -------------------------------------------------------------------------------------------------
+# ==============================================================================
+# --- HISTORIAL DE VERSIONES ---
+# ==============================================================================
+# v0.1.0 (2025-09-04) - [LANZAMIENTO]
+#     ✅ Añadido: Bloque de 'Forma de uso' para una referencia rápida.
+#     ✅ Mejorado: Lógica de análisis de JSON para la 'Descripción' del estado HTTP.
+#     ✅ Corregido: Errores menores en el código y la presentación.
+# ------------------------------------------------------------------------------
+# v0.0.7 (2025-07-15) - [INICIO]
+#     ✅ Prototipo funcional inicial.
+#     ✅ Análisis de cabeceras de seguridad comunes.
+#     ✅ Soporte para solicitudes web y archivos JSON.
+#     ❌ Pendiente: Historial de versiones detallado y comentarios.
+# ==============================================================================
 #!/usr/bin/env python
 """
 Cabeceras de seguridad inspirado en OWASP Secure Headers
 Autor: Apuromafo
-Versión: 0.0.7
-Fecha: 2025.07.15
 """
-
 import argparse
 import requests
 from requests.auth import HTTPProxyAuth
