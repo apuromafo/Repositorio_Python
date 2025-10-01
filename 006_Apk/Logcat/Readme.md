@@ -1,54 +1,88 @@
-# README del Script de Logcat Interactivo
+ 
 
-Este script proporciona una interfaz interactiva para capturar y analizar logs de aplicaciones Android en ejecución utilizando ADB (Android Debug Bridge).  Permite seleccionar dispositivos, aplicaciones, niveles de log y guardar los logs en un archivo.
+# README del Script de Logcat para Auditoría (`logcat_filter.py`)
 
-## Características Principales
+Este script (`logcat_filter.py`) es una herramienta de **línea de comandos** diseñada para simplificar y automatizar la captura de logs de **ADB Logcat**, enfocándose en una aplicación específica. Está optimizado para **auditoría y depuración** al aplicar automáticamente filtros de nivel (`Info`+) y organizar la salida en archivos separados por severidad.
 
-*   **Selección de Dispositivo:** El script busca automáticamente dispositivos Android conectados a través de ADB y permite al usuario seleccionar el dispositivo deseado.
-*   **Selección de Aplicación:**  El script lista las aplicaciones instaladas en el dispositivo seleccionado y permite al usuario elegir la aplicación para la cual se capturarán los logs.
-*   **Filtrado por Niveles de Log:** El usuario puede especificar los niveles de log que desea ver (Verbose, Debug, Info, Warning, Error).
-*   **Captura Automática de Logs:**  El script puede lanzar automáticamente la aplicación seleccionada para iniciar la captura de logs.
-*   **Guardado de Logs:** Los logs capturados se guardan en un archivo con un nombre basado en el nombre del paquete de la aplicación y la fecha/hora actual.
-*   **Detección de Crashes:** El script detecta crashes dentro de la aplicación y muestra los detalles relevantes en la consola.
-*   **Coloración de Logs:** Los logs se muestran coloreados según su nivel (Verbose, Debug, Info, Warning, Error) para facilitar la identificación visual.
+## 🚀 Características Clave (Afin al Script)
 
-## Requisitos Previos
+  * **Enfoque en la App:** Prioriza la captura de logs para una aplicación específica, ya sea mediante el nombre del paquete como argumento, la **detección automática de la app en primer plano**, o la selección de una lista filtrada de apps de usuario.
+  * **Filtro de Nivel Hardcodeado:** Aplica un filtro de nivel **`I` (Info)** por defecto (mostrando Info, Warning, Error, y Fatal) para reducir el ruido del log del sistema.
+  * **Selección de Dispositivo Asistida:** Detecta múltiples dispositivos conectados y permite la **selección interactiva** o mediante el argumento `--device`.
+  * **Detección Inteligente de Paquetes:** Intenta obtener el paquete en primer plano (*Foreground App*). Si falla, ofrece un menú de **aplicaciones de usuario filtradas** (excluyendo la mayoría de los paquetes de Google/AOSP).
+  * **Output Estructurado y Persistente:** Crea un directorio de sesión único y guarda los logs en archivos separados por nivel de severidad (e.g., `error.log`, `info.log`).
+  * **Visualización Mejorada:** Muestra los logs en la consola con **coloración por nivel**, **contador de líneas** y **tiempo relativo** desde el inicio de la sesión.
 
-*   **ADB (Android Debug Bridge):**  Debe estar instalado y configurado correctamente en tu sistema. Asegúrate de que ADB pueda comunicarse con tus dispositivos Android.
-*   **Python 3:** El script está escrito en Python 3.
-*   **colorama:**  Una biblioteca para colorear la salida en la consola (instalable con `pip install colorama`).
+-----
 
-## Instalación y Ejecución
+## 🛠 Requisitos Previos
 
-1.  Guarda el código como un archivo `.py` (por ejemplo, `logcat_interactive.py`).
-2.  Asegúrate de que el archivo tenga permisos de ejecución: `chmod +x logcat_interactive.py`.
-3.  Ejecuta el script desde la terminal: `./logcat_interactive.py`.
+  * **ADB (Android Debug Bridge):** Debe estar instalado y accesible en el `PATH` del sistema.
+  * **Python 3:** El script está escrito en Python 3.
+  * **`colorama`:** Una biblioteca para manejar colores en la consola.
 
-## Uso del Script
+### Instalación de dependencias:
 
-1.  **Iniciar Sesión:** El script iniciará un menú interactivo donde podrás seleccionar las opciones.
-2.  **Seleccionar Dispositivo:** Selecciona el dispositivo Android conectado a través de ADB.
-3.  **Seleccionar Aplicación:** Selecciona la aplicación para la cual deseas capturar los logs.
-4.  **Configurar Niveles de Log (Opcional):** Elige los niveles de log que quieres ver. Por defecto, se muestran todos los niveles.
-5.  **Lanzar Aplicación (Opcional):** Decide si quieres que el script lance automáticamente la aplicación seleccionada.
-6.  **Captura de Logs:** El script comenzará a capturar los logs de la aplicación y los mostrará en la consola, coloreados según su nivel.
-7.  **Detener Captura:** Presiona `Ctrl+C` para detener la captura de logs. Los logs se guardarán en un archivo.
+```bash
+pip install colorama
+```
 
-## Parámetros y Opciones (Interfaz Interactiva)
+-----
 
-*   **Niveles de Log:** Se permite seleccionar niveles de log individuales o todos los niveles.
-*   **Lanzar Aplicación:**  Se pregunta al usuario si desea lanzar la aplicación automáticamente.
-*   **Selección del Dispositivo:** El script busca y presenta una lista de dispositivos ADB disponibles.
+## 💻 Uso del Script
 
-## Variables Importantes
+El script funciona principalmente mediante argumentos de línea de comandos.
 
-*   `__version__`: La versión actual del script (4.0.0).
-*   `LOG_LEVELS`: Una cadena que define los niveles de log disponibles ("VDIWE").
-*   `LOG_LEVELS_MAP`: Un diccionario que mapea las letras de los niveles de log a sus índices numéricos.
+### 1\. Detección Automática (Modo por Defecto)
 
-## Notas Técnicas
+Ejecuta el script sin argumentos. Intentará **detectar la aplicación en primer plano** y usar su nombre de paquete como filtro. Si la detección falla, te preguntará el paquete o te permitirá seleccionarlo de una lista.
 
-*   El script utiliza la biblioteca `subprocess` para ejecutar comandos ADB.
-*   La biblioteca `colorama` se utiliza para colorear la salida en la consola, mejorando la legibilidad.
-*   Se manejan excepciones (como `CalledProcessError`) para proporcionar mensajes de error más informativos.
-*   El script incluye un mecanismo de espera para asegurar que la aplicación esté completamente iniciada antes de comenzar a capturar los logs.
+```bash
+./logcat_filter.py
+```
+
+### 2\. Filtrado por Paquete Específico
+
+Proporciona el nombre del paquete directamente como argumento posicional.
+
+```bash
+./logcat_filter.py com.nombre.paquete
+```
+
+### 3\. Uso de un Dispositivo Específico
+
+Si tienes varios dispositivos conectados, usa el argumento `-d` o `--device` con el número de serie.
+
+```bash
+./logcat_filter.py -d 12345ABCDE
+./logcat_filter.py com.nombre.paquete --device 12345ABCDE
+```
+
+### Flujo de Ejecución
+
+1.  El script selecciona o te pide que selecciones un dispositivo.
+2.  Muestra información detallada del dispositivo.
+3.  Determina el paquete a auditar (argumento, detección automática o selección manual).
+4.  Crea la carpeta de logs con formato: `paquete-modelo-(Android_VXXX)_YYYYMMDD_HHMMSS`.
+5.  **Limpia el buffer de logcat** (`adb logcat -c`).
+6.  Comienza la captura, mostrando el *output* filtrado y coloreado en la consola.
+7.  Presiona **`Ctrl+C`** para detener la sesión. Todos los logs se cerrarán y se guardarán de forma segura en el directorio creado.
+
+-----
+
+## 📁 Estructura del Output
+
+Todos los logs se guardan dentro del directorio `log_sessions/` en una carpeta de sesión descriptiva.
+
+| Archivo de Log | Contenido Guardado |
+| :--- | :--- |
+| `fatal.log` | Logs de nivel **F** |
+| `error.log` | Logs de nivel **E** (y **F**) |
+| `warning.log` | Logs de nivel **W** |
+| `info.log` | Logs de nivel **I** |
+| `debug.log` | Logs de nivel **D** |
+| `verbose.log` | Logs de nivel **V** |
+
+-----
+
+> **Nota Técnica:** El script utiliza el formato `logcat -v brief` y realiza el filtrado de nivel mínimo (`I`) y por paquete **internamente en Python** para un control más preciso y una mejor experiencia de usuario en la consola.
