@@ -1,0 +1,21 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones por Debilidad CWE-215 generados automáticamente por organizarlo.py.",
+        "ESTRUCTURA": "Clave de regla (nombre interno) -> Propiedades de la regla."
+    },
+    "DUMP_STATEMENTS": {
+        "id_regla": "1",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "(?:DUMP|dump)\\s*(?:\\([^)]*\\)|;)",
+        "descripcion": "Comando DUMP (RPG/CL - IBM i) detectado en el código",
+        "categoria": "Insecure Configuration",
+        "cwe": "CWE-215: Information Exposure Through Debug Information",
+        "owasp": "A05:2021 – Security Misconfiguration",
+        "descripcion_corta_hallazgo": "Se encontró un comando DUMP, que puede exponer información de depuración.",
+        "recomendacion_mitigacion": "Eliminar sentencias DUMP y usar mecanismos de *logging* seguros en entornos de producción.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/215.html|https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+        "url_mitigacion": "https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html",
+        "origen": "IBM i Legacy"
+    }
+}

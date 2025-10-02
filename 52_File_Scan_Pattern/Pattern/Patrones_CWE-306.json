@@ -1,0 +1,19 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones por Debilidad CWE-306 generados automáticamente por organizarlo.py.",
+        "ESTRUCTURA": "Clave de regla (nombre interno) -> Propiedades de la regla."
+    },
+    "JAVA_AUTOLOGIN_ENABLED": {
+        "id_regla": "1111",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "enableAutoLogin",
+        "descripcion": "Habilitación de Autologin (Configuración Insegura)",
+        "categoria": "authentication",
+        "cwe": "CWE-306: Missing Authentication for Critical Function",
+        "owasp": "A01:2021 - Broken Access Control",
+        "descripcion_corta_hallazgo": "Funcionalidad de autologin habilitada, lo que aumenta el riesgo de secuestro de sesión.",
+        "recomendacion_mitigacion": "Deshabilitar o proteger rigurosamente las funcionalidades de autologin/recordar contraseña.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/306.html"
+    }
+}

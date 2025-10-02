@@ -1,0 +1,45 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones por Debilidad CWE-327 generados automáticamente por organizarlo.py.",
+        "ESTRUCTURA": "Clave de regla (nombre interno) -> Propiedades de la regla."
+    },
+    "WEAK_HASHING_ALGO": {
+        "id_regla": "1158",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "(?i)(?:hash|algoritm|algo|crypt)\\s*=\\s*(?:'|\\\")?(?:MD5|SHA1|sha1|md5)(?:'|\\\")?",
+        "descripcion": "Uso de algoritmo de Hash Débil o Inseguro (MD5/SHA1)",
+        "categoria": "Security Misconfiguration",
+        "cwe": "CWE-327: Use of a Broken or Risky Cryptographic Algorithm",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "descripcion_corta_hallazgo": "Se detectó el uso de un algoritmo de hashing débil (MD5 o SHA1), que es vulnerable a ataques de colisión y fuerza bruta.",
+        "recomendacion_mitigacion": "Reemplazar algoritmos débiles con funciones de hash modernas y seguras (ej. SHA-256 o bcrypt para contraseñas).",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/327.html"
+    },
+    "JAVA_WEAK_HASH_MD5": {
+        "id_regla": "1105",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "MessageDigest\\.getInstance\\(\"MD5\"\\)",
+        "descripcion": "Uso de Algoritmo de Hash Débil (MD5)",
+        "categoria": "weak_cryptography",
+        "cwe": "CWE-327: Use of a Broken or Risky Cryptographic Algorithm",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "descripcion_corta_hallazgo": "Uso de MD5, un algoritmo considerado inseguro para hashing seguro.",
+        "recomendacion_mitigacion": "Usar SHA-256 o superior. Para contraseñas, use funciones modernas como Argon2 o Bcrypt.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/327.html"
+    },
+    "JAVA_WEAK_HASH_SHA1": {
+        "id_regla": "1106",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "MessageDigest\\.getInstance\\(\"SHA-1\"\\)",
+        "descripcion": "Uso de Algoritmo de Hash Débil (SHA-1)",
+        "categoria": "weak_cryptography",
+        "cwe": "CWE-327: Use of a Broken or Risky Cryptographic Algorithm",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "descripcion_corta_hallazgo": "Uso de SHA-1, obsoleto y vulnerable a ataques de colisión.",
+        "recomendacion_mitigacion": "Usar SHA-256 o superior. Para contraseñas, use funciones modernas como Argon2 o Bcrypt.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/327.html"
+    }
+}

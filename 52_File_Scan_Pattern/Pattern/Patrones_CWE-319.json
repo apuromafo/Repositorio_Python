@@ -1,0 +1,19 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones por Debilidad CWE-319 generados automáticamente por organizarlo.py.",
+        "ESTRUCTURA": "Clave de regla (nombre interno) -> Propiedades de la regla."
+    },
+    "JAVA_INSECURE_SOCKET": {
+        "id_regla": "1103",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "new\\s+Socket\\(\"[^\"]+\",\\s*\\d+\\)",
+        "descripcion": "Conexión de Socket sin Cifrado (Sospecha)",
+        "categoria": "insecure_communication",
+        "cwe": "CWE-319: Cleartext Transmission of Sensitive Information",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "descripcion_corta_hallazgo": "Instanciación de Socket que puede resultar en transmisión de datos sensibles sin cifrado.",
+        "recomendacion_mitigacion": "Utilice SSL/TLS (SSLSocket) para cifrar las comunicaciones de red.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/319.html"
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones por Debilidad CWE-693 generados automáticamente por organizarlo.py.",
+        "ESTRUCTURA": "Clave de regla (nombre interno) -> Propiedades de la regla."
+    },
+    "JAVA_WEAK_CSP": {
+        "id_regla": "1110",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "setHeader\\(.*\"Content-Security-Policy\".*\".*script.*\"",
+        "descripcion": "Configuración Débil de CSP (Content-Security-Policy)",
+        "categoria": "security_headers",
+        "cwe": "CWE-693: Protection Mechanism Failure",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "descripcion_corta_hallazgo": "Cabecera CSP que permite 'unsafe-inline' o 'unsafe-eval', debilitando la defensa contra XSS.",
+        "recomendacion_mitigacion": "Establecer una CSP estricta, evitando `unsafe-inline` y `unsafe-eval`. Usar hashes o nonces.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/693.html"
+    }
+}

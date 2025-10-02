@@ -1,0 +1,77 @@
+{
+  "binary_analysis": {
+    "description": "Herramientas para análisis de archivos binarios",
+    "tools": [
+      {
+        "name": "strings",
+        "command": "strings <archivo> | grep -iE 'password|secret|key|token|api'",
+        "use_case": "Extracción rápida de cadenas legibles en binarios",
+        "platform": "Linux/Windows/Mac"
+      },
+      {
+        "name": "binwalk",
+        "command": "binwalk -e <archivo>",
+        "use_case": "Análisis y extracción de firmware/embedded",
+        "platform": "Linux/Mac",
+        "install": "apt-get install binwalk"
+      },
+      {
+        "name": "radare2",
+        "command": "r2 <archivo>",
+        "use_case": "Análisis binario profundo y reversing",
+        "platform": "Linux/Windows/Mac",
+        "install": "https://rada.re/n/"
+      },
+      {
+        "name": "Ghidra",
+        "command": "GUI-based",
+        "use_case": "Análisis estático avanzado (NSA tool)",
+        "platform": "Linux/Windows/Mac",
+        "install": "https://ghidra-sre.org/"
+      }
+    ]
+  },
+  "large_files": {
+    "description": "Estrategias para archivos muy grandes",
+    "recommendations": [
+      "Usar 'head -n 10000 <archivo>' para analizar primeras líneas",
+      "Dividir archivo: 'split -l 50000 <archivo> chunk_'",
+      "Buscar patrones específicos: 'grep -n \"PASSWORD\" <archivo>'"
+    ]
+  },
+  "compressed_files": {
+    "description": "Archivos comprimidos y empaquetados",
+    "tools": [
+      {
+        "name": "unzip/tar",
+        "command": "unzip <archivo.zip> -d output/ && scan output/",
+        "use_case": "Extraer y escanear contenido"
+      },
+      {
+        "name": "zipgrep",
+        "command": "zipgrep 'password' <archivo.zip>",
+        "use_case": "Buscar sin extraer"
+      }
+    ]
+  },
+  "specialized_scanners": {
+    "description": "Herramientas especializadas complementarias",
+    "tools": [
+      {
+        "name": "truffleHog",
+        "use_case": "Buscar secretos en repositorios Git",
+        "install": "pip install trufflehog"
+      },
+      {
+        "name": "gitleaks",
+        "use_case": "Detectar credenciales hardcodeadas en Git",
+        "install": "https://github.com/gitleaks/gitleaks"
+      },
+      {
+        "name": "detect-secrets",
+        "use_case": "Prevenir commits con secretos",
+        "install": "pip install detect-secrets"
+      }
+    ]
+  }
+}

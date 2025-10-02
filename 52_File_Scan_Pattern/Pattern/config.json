@@ -1,0 +1,23 @@
+{
+  "version": "1.2",
+  "scan_config": {
+    "exclude_extensions": [".exe", ".dll", ".so", ".bin", ".obj", ".pyc"],
+    "max_file_size_mb": 100,
+    "binary_detection_threshold": 0.05,
+    "timeout_per_file_seconds": 30
+  },
+  "performance": {
+    "buffer_size": 100,
+    "enable_multiprocessing": false,
+    "max_workers": 4
+  },
+  "output": {
+    "show_progress": true,
+    "verbose_level": "INFO",
+    "color_output": true
+  },
+  "paths": {
+    "patterns_dir": "./Pattern",
+    "suggestions_file": "./Patterns/suggestions.json"
+  }
+}

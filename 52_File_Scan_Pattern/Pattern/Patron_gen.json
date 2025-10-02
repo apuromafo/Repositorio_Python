@@ -1,0 +1,238 @@
+{
+  "_METADATA_": {
+    "descripcion": "Patrones de seguridad generales y tokens específicos de terceros migrados de lista RPG.",
+    "idioma": "Multilenguaje/Genérico",
+    "version": "1.1"
+  },
+  
+  "GEN_HARDCODED_PASSWORD": {
+    "patron": "password\\s*=\\s*[\"']([^\"']+)",
+    "id_regla": 4001,
+    "es_sensible": true,
+    "descripcion": "Asignación directa de un valor a una variable llamada 'password'.",
+    "cwe": "CWE-259",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Hardcoded Secrets",
+    "activo": true
+  },
+  
+  "GEN_HARDCODED_USERNAME": {
+    "patron": "username\\s*=\\s*[\"']([^\"']+)",
+    "id_regla": 4002,
+    "es_sensible": true,
+    "descripcion": "Asignación directa de un valor a una variable llamada 'username'.",
+    "cwe": "CWE-200",
+    "owasp": "N/A",
+    "categoria": "Information Disclosure",
+    "activo": true
+  },
+  
+  "GEN_HARDCODED_APIKEY": {
+    "patron": "(?i)apikey\\s*=\\s*[\"']([^\"']+)",
+    "id_regla": 4003,
+    "es_sensible": true,
+    "descripcion": "Asignación directa de un valor a una variable llamada 'apikey'.",
+    "cwe": "CWE-259",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Hardcoded Secrets",
+    "activo": true
+  },
+  
+  "GEN_HARDCODED_SECRET": {
+    "patron": "(?i)secret\\s*=\\s*[\"']([^\"']+)",
+    "id_regla": 4004,
+    "es_sensible": true,
+    "descripcion": "Asignación directa de un valor a una variable llamada 'secret'.",
+    "cwe": "CWE-259",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Hardcoded Secrets",
+    "activo": true
+  },
+  
+  "GEN_OAUTH_CLIENT_SECRET": {
+    "patron": "(?i)client_secret\\s*=\\s*['\\\"]?([^&'\\s\\\"]+)['\\\"]?",
+    "id_regla": 4005,
+    "es_sensible": true,
+    "descripcion": "Identificación de una clave secreta de cliente OAuth.",
+    "cwe": "CWE-259",
+    "owasp": "MASVS-AUTH-3",
+    "categoria": "Hardcoded Secrets",
+    "activo": true
+  },
+  
+  "GEN_HARDCODED_TOKEN": {
+    "patron": "(?i)token\\s*=\\s*[\"']([^\"']+)",
+    "id_regla": 4006,
+    "es_sensible": true,
+    "descripcion": "Asignación directa de un valor a una variable llamada 'token'.",
+    "cwe": "CWE-259",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Hardcoded Secrets",
+    "activo": true
+  },
+  
+  "TOKEN_STRIPE_API_KEY": {
+    "patron": "sk_[live|test]_[0-9a-zA-Z]{24}",
+    "id_regla": 5001,
+    "es_sensible": true,
+    "descripcion": "Clave secreta de la API de Stripe.",
+    "cwe": "CWE-540",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Third-Party Token",
+    "activo": true
+  },
+  
+  "TOKEN_GOOGLE_OAUTH": {
+    "patron": "ya29\\.[0-9A-Za-z\\-_]+",
+    "id_regla": 5002,
+    "es_sensible": true,
+    "descripcion": "Token de acceso de Google OAuth (comienza con ya29).",
+    "cwe": "CWE-200",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Third-Party Token",
+    "activo": true
+  },
+  
+  "TOKEN_GOOGLE_CLOUD_KEY": {
+    "patron": "AIza[0-9A-Za-z\\-_]{35}",
+    "id_regla": 5003,
+    "es_sensible": true,
+    "descripcion": "Clave de API de Google Cloud (comienza con AIza).",
+    "cwe": "CWE-540",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Third-Party Token",
+    "activo": true
+  },
+  
+  "TOKEN_SQUARE_ACCESS": {
+    "patron": "sq0atp-[0-9A-Za-z\\-_]{22}",
+    "id_regla": 5004,
+    "es_sensible": true,
+    "descripcion": "Token de acceso de Square (pago).",
+    "cwe": "CWE-200",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Third-Party Token",
+    "activo": true
+  },
+  
+  "TOKEN_PAYPAL_BRAINTREE": {
+    "patron": "(?i)access_token\\$production\\$[0-9a-z]{16}\\$[0-9a-f]{32}",
+    "id_regla": 5005,
+    "es_sensible": true,
+    "descripcion": "Token de acceso de producción de PayPal/Braintree.",
+    "cwe": "CWE-200",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Third-Party Token",
+    "activo": true
+  },
+  
+  "TOKEN_TWILIO_KEY": {
+    "patron": "SK[0-9a-fA-F]{32}",
+    "id_regla": 5006,
+    "es_sensible": true,
+    "descripcion": "Clave de API de Twilio (comienza con SK).",
+    "cwe": "CWE-540",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Third-Party Token",
+    "activo": true
+  },
+  
+  "TOKEN_SLACK_USER_BOT": {
+    "patron": "(xox[pboa]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})",
+    "id_regla": 5007,
+    "es_sensible": true,
+    "descripcion": "Token de usuario o bot de Slack.",
+    "cwe": "CWE-200",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Third-Party Token",
+    "activo": true
+  },
+  
+  "GEN_SSH_PASS_COMMAND": {
+    "patron": "sshpass -p.*['|\"]",
+    "id_regla": 4007,
+    "es_sensible": true,
+    "descripcion": "Contraseña de SSH codificada directamente en un comando de shell o script.",
+    "cwe": "CWE-798",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Hardcoded Credentials",
+    "activo": true
+  },
+  
+  "GEN_CREDS_IN_URI": {
+    "patron": "([\\w+]{1,24})(://)([^$<]{1})([^\\s\";]{1,}):([^$<]{1})([^\\s\";]{1,})@[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,24}([^\\s]+)",
+    "id_regla": 4008,
+    "es_sensible": true,
+    "descripcion": "Credenciales (usuario:contraseña) incrustadas en una URI (ej. ftp://user:pass@host).",
+    "cwe": "CWE-522",
+    "owasp": "MASVS-STORAGE-2",
+    "categoria": "Hardcoded Credentials",
+    "activo": true
+  },
+  
+  "VULN_XML_EXTERNAL_ENTITY": {
+    "patron": "<!ENTITY\\s+%s\\s+SYSTEM\\s+[\"'][^\"']+[\"']\\s*>",
+    "id_regla": 6001,
+    "es_sensible": true,
+    "descripcion": "Definición de una entidad externa XML (posible vector de ataque XXE).",
+    "cwe": "CWE-611",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "categoria": "Vulnerability Vector",
+    "activo": true
+  },
+  
+  "INFO_SQL_QUERY": {
+    "patron": "\\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE)\\b",
+    "id_regla": 7001,
+    "es_sensible": false,
+    "descripcion": "Detección de comandos SQL, indicando potencial interacción con base de datos.",
+    "cwe": "N/A",
+    "owasp": "N/A",
+    "categoria": "Information",
+    "activo": true
+  },
+  
+  "INFO_IP_ADDRESS": {
+    "patron": "(?:\\b(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b)",
+    "id_regla": 7002,
+    "es_sensible": false,
+    "descripcion": "Detección de una dirección IP IPv4.",
+    "cwe": "N/A",
+    "owasp": "N/A",
+    "categoria": "Information",
+    "activo": true
+  },
+  
+  "INFO_HTTP_URL": {
+    "patron": "(http://[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])",
+    "id_regla": 7003,
+    "es_sensible": false,
+    "descripcion": "URL con protocolo HTTP (no seguro).",
+    "cwe": "N/A",
+    "owasp": "N/A",
+    "categoria": "Information",
+    "activo": true
+  },
+  
+  "INFO_HTTPS_URL": {
+    "patron": "(https://[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])",
+    "id_regla": 7004,
+    "es_sensible": false,
+    "descripcion": "URL con protocolo HTTPS.",
+    "cwe": "N/A",
+    "owasp": "N/A",
+    "categoria": "Information",
+    "activo": true
+  },
+  
+  "INFO_SLACK_WEBHOOK": {
+    "patron": "https://hooks\\.slack\\.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}",
+    "id_regla": 7005,
+    "es_sensible": false,
+    "descripcion": "URL de Webhook de Slack, puede ser usada para enviar mensajes y podría exponer datos.",
+    "cwe": "CWE-200",
+    "owasp": "N/A",
+    "categoria": "Information",
+    "activo": true
+  }
+}
