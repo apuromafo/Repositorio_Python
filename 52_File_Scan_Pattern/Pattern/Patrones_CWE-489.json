@@ -1,0 +1,34 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones por Debilidad CWE-489 generados automáticamente por organizarlo.py.",
+        "ESTRUCTURA": "Clave de regla (nombre interno) -> Propiedades de la regla."
+    },
+    "DEBUG_CONFIG": {
+        "id_regla": "2",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "DEBUG\\s*\\(\\s*\\*YES\\s*\\)",
+        "descripcion": "Configuración DEBUG(*YES) (RPG/CL - IBM i) detectada",
+        "categoria": "Insecure Configuration",
+        "cwe": "CWE-489: Active Debug Code",
+        "owasp": "A05:2021 – Security Misconfiguration",
+        "descripcion_corta_hallazgo": "Se encontró una configuración de depuración activa (`DEBUG(*YES)`), lo que expone detalles internos.",
+        "recomendacion_mitigacion": "Desactivar la depuración activa en entornos de producción para prevenir la exposición de información.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/489.html|https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+        "url_mitigacion": "https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html",
+        "origen": "IBM i Legacy"
+    },
+    "JAVA_DEBUG_MODE_LOG4J": {
+        "id_regla": "1114",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "setParameter\\(\"log4j2\\.debug\",\\s*\"true\"\\)",
+        "descripcion": "Modo Debug de Log4j2 Activado (Informativo)",
+        "categoria": "debug",
+        "cwe": "CWE-489: Active Debug Code",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "descripcion_corta_hallazgo": "Activación explícita del modo debug en log4j2. Puede exponer información detallada de la configuración.",
+        "recomendacion_mitigacion": "Asegúrese de que esta configuración esté deshabilitada en entornos de producción.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/489.html"
+    }
+}

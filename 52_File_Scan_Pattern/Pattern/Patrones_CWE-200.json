@@ -1,0 +1,50 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones por Debilidad CWE-200 generados automáticamente por organizarlo.py.",
+        "ESTRUCTURA": "Clave de regla (nombre interno) -> Propiedades de la regla."
+    },
+    "IP_ADDRESSES": {
+        "id_regla": "4",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "\\b(?:192\\.168\\.|10\\.|172\\.(?:1[6-9]|2[0-9]|3[01])\\.|127\\.0\\.0\\.1)\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b",
+        "descripcion": "Dirección IP privada hardcodeada detectada (Genérico)",
+        "categoria": "Information Disclosure",
+        "cwe": "CWE-200: Information Exposure",
+        "owasp": "A01:2021 – Broken Access Control",
+        "descripcion_corta_hallazgo": "Se encontró una dirección IP privada hardcodeada, revelando detalles de la red interna.",
+        "recomendacion_mitigacion": "Evitar hardcodear direcciones IP. Usar variables de entorno, DNS internos o nombres de servicio.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/200.html|https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+        "url_mitigacion": "https://cheatsheetseries.owasp.org/cheatsheets/Configuration_Management_Cheat_Sheet.html",
+        "origen": "Genérico/Red"
+    },
+    "SYSTEM_PATHS": {
+        "id_regla": "5",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "(?:[C-Z]:\\\\|/usr/|/etc/|/var/|/home/)[\\w\\\\/.-]+",
+        "descripcion": "Ruta de sistema hardcodeada detectada (Genérico)",
+        "categoria": "Information Disclosure",
+        "cwe": "CWE-200: Information Exposure",
+        "owasp": "A05:2021 – Security Misconfiguration",
+        "descripcion_corta_hallazgo": "Se encontró una ruta de sistema (ej. `/etc/`, `C:\\`) hardcodeada, exponiendo la estructura del servidor.",
+        "recomendacion_mitigacion": "Evitar hardcodear rutas absolutas. Usar variables de entorno o rutas relativas.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/200.html|https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+        "url_mitigacion": "https://cheatsheetseries.owasp.org/cheatsheets/Configuration_Management_Cheat_Sheet.html",
+        "origen": "Genérico/Sistema"
+    },
+    "AWS_ACCOUNT_ID": {
+        "id_regla": "1154",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "[0-9]{12}",
+        "descripcion": "AWS Account ID (identifier)",
+        "categoria": "identifier",
+        "cwe": "CWE-200",
+        "owasp": "A01:2021 - Broken Access Control",
+        "descripcion_corta_hallazgo": "Se encontró un ID de Cuenta de AWS. Esto no es un secreto, pero es información sensible de la infraestructura.",
+        "recomendacion_mitigacion": "Considerar su exposición como información sensible y evitar su divulgación innecesaria en logs o errores.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/200.html|https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+        "url_mitigacion": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+    }
+}

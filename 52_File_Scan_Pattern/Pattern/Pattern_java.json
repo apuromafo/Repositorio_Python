@@ -1,0 +1,216 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones de Análisis Estático de Código (SAST) para Java.",
+        "ID_INICIO": 1100
+    },
+    
+    "JAVA_CMD_INJECTION": {
+        "id_regla": "1100",
+        "es_sensible": true,
+        "activo": true,
+        "patron": "Runtime\\.getRuntime\\(\\)\\.exec\\((?!\"\\w+\")[^\\)]+\\)",
+        "descripcion": "Inyección de Comandos (Runtime.exec con entrada no validada)",
+        "categoria": "vulnerability",
+        "cwe": "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+        "owasp": "A03:2021 - Injection",
+        "descripcion_corta_hallazgo": "Uso de Runtime.exec() con entrada no validada puede permitir la ejecución remota de comandos.",
+        "recomendacion_mitigacion": "Utilice la API ProcessBuilder o sanee estrictamente todos los argumentos que provienen de fuentes externas/usuario.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/78.html"
+    },
+    
+    "JAVA_SQL_INJECTION": {
+        "id_regla": "1101",
+        "es_sensible": true,
+        "activo": true,
+        "patron": "createStatement\\(\\)\\.executeUpdate\\(\".*?\"\\s*\\+\\s*\\w+",
+        "descripcion": "Inyección de SQL (Concatenación de consultas)",
+        "categoria": "sql_injection",
+        "cwe": "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+        "owasp": "A03:2021 - Injection",
+        "descripcion_corta_hallazgo": "Concatenación directa de consultas SQL con datos de usuario. Utilice consultas preparadas.",
+        "recomendacion_mitigacion": "Reemplace la concatenación directa de strings en SQL por PreparedStatement con parámetros.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/89.html"
+    },
+    
+    "JAVA_HARDCODED_SECRET_KEY": {
+        "id_regla": "1102",
+        "es_sensible": true,
+        "activo": true,
+        "patron": "javax\\.crypto\\.spec\\.SecretKeySpec\\(\\s*(\"[^\"]+\"|\\w+)\\.getBytes\\(\\)",
+        "descripcion": "Clave Criptográfica Hardcodeada (SecretKeySpec)",
+        "categoria": "hardcoded_secrets",
+        "cwe": "CWE-798: Use of Hard-coded Credentials",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "descripcion_corta_hallazgo": "Clave criptográfica codificada en el código fuente (ej. AES/DES key).",
+        "recomendacion_mitigacion": "Utilice un KeyStore seguro (JKS, PKCS12) o un servicio de gestión de secretos (Vault).",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/798.html"
+    },
+    
+    "JAVA_INSECURE_SOCKET": {
+        "id_regla": "1103",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "new\\s+Socket\\(\"[^\"]+\",\\s*\\d+\\)",
+        "descripcion": "Conexión de Socket sin Cifrado (Sospecha)",
+        "categoria": "insecure_communication",
+        "cwe": "CWE-319: Cleartext Transmission of Sensitive Information",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "descripcion_corta_hallazgo": "Instanciación de Socket que puede resultar en transmisión de datos sensibles sin cifrado.",
+        "recomendacion_mitigacion": "Utilice SSL/TLS (SSLSocket) para cifrar las comunicaciones de red.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/319.html"
+    },
+    
+    "JAVA_XXE_RISK": {
+        "id_regla": "1104",
+        "es_sensible": true,
+        "activo": true,
+        "patron": "XMLReaderFactory\\.createXMLReader\\(\\)",
+        "descripcion": "Posible XML External Entity (XXE)",
+        "categoria": "vulnerability",
+        "cwe": "CWE-611: Improper Restriction of XML External Entity Reference",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "descripcion_corta_hallazgo": "Creación de XMLReader sin deshabilitar entidades externas. Riesgo de lectura de archivos locales o ataques DoS.",
+        "recomendacion_mitigacion": "Deshabilite explícitamente la resolución de entidades externas (ej. `factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)`).",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/611.html"
+    },
+    
+    "JAVA_WEAK_HASH_MD5": {
+        "id_regla": "1105",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "MessageDigest\\.getInstance\\(\"MD5\"\\)",
+        "descripcion": "Uso de Algoritmo de Hash Débil (MD5)",
+        "categoria": "weak_cryptography",
+        "cwe": "CWE-327: Use of a Broken or Risky Cryptographic Algorithm",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "descripcion_corta_hallazgo": "Uso de MD5, un algoritmo considerado inseguro para hashing seguro.",
+        "recomendacion_mitigacion": "Usar SHA-256 o superior. Para contraseñas, use funciones modernas como Argon2 o Bcrypt.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/327.html"
+    },
+    
+    "JAVA_WEAK_HASH_SHA1": {
+        "id_regla": "1106",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "MessageDigest\\.getInstance\\(\"SHA-1\"\\)",
+        "descripcion": "Uso de Algoritmo de Hash Débil (SHA-1)",
+        "categoria": "weak_cryptography",
+        "cwe": "CWE-327: Use of a Broken or Risky Cryptographic Algorithm",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "descripcion_corta_hallazgo": "Uso de SHA-1, obsoleto y vulnerable a ataques de colisión.",
+        "recomendacion_mitigacion": "Usar SHA-256 o superior. Para contraseñas, use funciones modernas como Argon2 o Bcrypt.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/327.html"
+    },
+    
+    "JAVA_INSECURE_DESERIALIZATION": {
+        "id_regla": "1107",
+        "es_sensible": true,
+        "activo": true,
+        "patron": "new\\s+java\\.io\\.ObjectInputStream",
+        "descripcion": "Deserialización Insegura",
+        "categoria": "deserialization",
+        "cwe": "CWE-502: Deserialization of Untrusted Data",
+        "owasp": "A08:2021 - Software and Data Integrity Failures",
+        "descripcion_corta_hallazgo": "Uso de ObjectInputStream con datos no confiables que puede provocar ejecución remota de código (RCE).",
+        "recomendacion_mitigacion": "Evitar la deserialización de objetos. Usar formatos de datos neutrales (JSON, XML) o limitar las clases permitidas (Look-ahead or Java Serial Filter).",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/502.html"
+    },
+    
+    "JAVA_REFLECTED_XSS": {
+        "id_regla": "1108",
+        "es_sensible": true,
+        "activo": true,
+        "patron": "response\\.getWriter\\(\\)\\.println\\(.*\\w+\\.getParameter\\(.*\\)",
+        "descripcion": "Cross-Site Scripting (XSS) Reflejado",
+        "categoria": "xss",
+        "cwe": "CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+        "owasp": "A03:2021 - Injection",
+        "descripcion_corta_hallazgo": "Salida directa de parámetros HTTP sin sanitización. Riesgo de XSS.",
+        "recomendacion_mitigacion": "Use un motor de plantillas (Thymeleaf, JSP EL) que realice *context-aware output encoding* por defecto o codifique la salida manualmente (ej. OWASP Java Encoder).",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/79.html"
+    },
+    
+    "JAVA_PATH_TRAVERSAL": {
+        "id_regla": "1109",
+        "es_sensible": true,
+        "activo": true,
+        "patron": "new\\s+File\\(\\s*\\w+\\.getParameter\\(",
+        "descripcion": "Posible Path Traversal (Inclusión de Archivos)",
+        "categoria": "path_traversal",
+        "cwe": "CWE-22: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+        "owasp": "A01:2021 - Broken Access Control",
+        "descripcion_corta_hallazgo": "Acceso a archivos usando parámetros de usuario sin validación. Riesgo de lectura de archivos arbitrarios.",
+        "recomendacion_mitigacion": "Validar la entrada, usar listas blancas de nombres de archivos y forzar la ruta canónica para evitar '..'.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/22.html"
+    },
+    
+    "JAVA_WEAK_CSP": {
+        "id_regla": "1110",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "setHeader\\(.*\"Content-Security-Policy\".*\".*script.*\"",
+        "descripcion": "Configuración Débil de CSP (Content-Security-Policy)",
+        "categoria": "security_headers",
+        "cwe": "CWE-693: Protection Mechanism Failure",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "descripcion_corta_hallazgo": "Cabecera CSP que permite 'unsafe-inline' o 'unsafe-eval', debilitando la defensa contra XSS.",
+        "recomendacion_mitigacion": "Establecer una CSP estricta, evitando `unsafe-inline` y `unsafe-eval`. Usar hashes o nonces.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/693.html"
+    },
+    
+    "JAVA_AUTOLOGIN_ENABLED": {
+        "id_regla": "1111",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "enableAutoLogin",
+        "descripcion": "Habilitación de Autologin (Configuración Insegura)",
+        "categoria": "authentication",
+        "cwe": "CWE-306: Missing Authentication for Critical Function",
+        "owasp": "A01:2021 - Broken Access Control",
+        "descripcion_corta_hallazgo": "Funcionalidad de autologin habilitada, lo que aumenta el riesgo de secuestro de sesión.",
+        "recomendacion_mitigacion": "Deshabilitar o proteger rigurosamente las funcionalidades de autologin/recordar contraseña.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/306.html"
+    },
+
+    "JAVA_LOGGING_USAGE": {
+        "id_regla": "1112",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "Logger\\.getLogger\\(",
+        "descripcion": "Uso de Logging (Informativo)",
+        "categoria": "info_disclosure",
+        "cwe": "CWE-778: Insufficient Logging, Monitoring, and Auditing",
+        "owasp": "A09:2021 - Security Logging and Monitoring Failures",
+        "descripcion_corta_hallazgo": "Se detectó la instanciación de un Logger, indicando presencia de logs. Revisar si se registran datos sensibles.",
+        "recomendacion_mitigacion": "Asegurar que los logs no contengan PII o secretos. Implementar log sanitization.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/778.html"
+    },
+    
+    "JAVA_SERVLET_MAPPING": {
+        "id_regla": "1113",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "@WebServlet\\(\"[^\"]+\"\\)",
+        "descripcion": "Mapeo de Servlet (Informativo)",
+        "categoria": "config",
+        "cwe": "CWE-200: Information Exposure",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "descripcion_corta_hallazgo": "Annotación @WebServlet detectada, útil para entender la estructura de la aplicación web.",
+        "recomendacion_mitigacion": "Asegurar que los endpoints mapeados no expongan información sensible ni permitan el acceso a recursos no autenticados o no autorizados. Considere restringir el acceso a paths sensibles.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/200.html"
+    },
+    
+    "JAVA_DEBUG_MODE_LOG4J": {
+        "id_regla": "1114",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "setParameter\\(\"log4j2\\.debug\",\\s*\"true\"\\)",
+        "descripcion": "Modo Debug de Log4j2 Activado (Informativo)",
+        "categoria": "debug",
+        "cwe": "CWE-489: Active Debug Code",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "descripcion_corta_hallazgo": "Activación explícita del modo debug en log4j2. Puede exponer información detallada de la configuración.",
+        "recomendacion_mitigacion": "Asegúrese de que esta configuración esté deshabilitada en entornos de producción.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/489.html"
+    }
+}

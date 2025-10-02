@@ -1,0 +1,19 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones por Debilidad CWE-NA generados automáticamente por organizarlo.py.",
+        "ESTRUCTURA": "Clave de regla (nombre interno) -> Propiedades de la regla."
+    },
+    "JAVA_SERVLET_MAPPING": {
+        "id_regla": "1113",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "@WebServlet\\(\"[^\"]+\"\\)",
+        "descripcion": "Mapeo de Servlet (Informativo)",
+        "categoria": "config",
+        "cwe": "N/A",
+        "owasp": "N/A",
+        "descripcion_corta_hallazgo": "Annotación @WebServlet detectada, útil para entender la estructura de la aplicación web.",
+        "recomendacion_mitigacion": "N/A",
+        "url_hallazgo": "N/A"
+    }
+}

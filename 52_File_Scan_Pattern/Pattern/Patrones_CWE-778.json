@@ -1,0 +1,19 @@
+{
+    "_METADATA_FORMATO_REGAL": {
+        "FORMATO_JSON": "Patrones por Debilidad CWE-778 generados automáticamente por organizarlo.py.",
+        "ESTRUCTURA": "Clave de regla (nombre interno) -> Propiedades de la regla."
+    },
+    "JAVA_LOGGING_USAGE": {
+        "id_regla": "1112",
+        "es_sensible": false,
+        "activo": true,
+        "patron": "Logger\\.getLogger\\(",
+        "descripcion": "Uso de Logging (Informativo)",
+        "categoria": "info_disclosure",
+        "cwe": "CWE-778: Insufficient Logging, Monitoring, and Auditing",
+        "owasp": "A10:2021 - Server-Side Request Forgery (SSRF)",
+        "descripcion_corta_hallazgo": "Se detectó la instanciación de un Logger, indicando presencia de logs. Revisar si se registran datos sensibles.",
+        "recomendacion_mitigacion": "Asegurar que los logs no contengan PII o secretos. Implementar log sanitization.",
+        "url_hallazgo": "https://cwe.mitre.org/data/definitions/778.html"
+    }
+}
