@@ -1,0 +1,106 @@
+{
+  "_METADATA_": {
+    "descripcion": "Patrones de seguridad específicos para reportes IBM RPG, CL y PF (AS/400).",
+    "idioma": "RPG/CL/PF",
+    "version": "1.0"
+  },
+  
+  "RPG_DUMP_STATEMENTS": {
+    "patron": "(?i)(?:DUMP|dump)\\s*(?:\\([^)]*\\)|;)",
+    "id_regla": 1001,
+    "es_sensible": true,
+    "descripcion": "Comando DUMP detectado en el código (e.g., /DUMP, CALL 'DUMP'). Expone información de depuración.",
+    "cwe": "CWE-215",
+    "owasp": "A05:2021 – Security Misconfiguration",
+    "categoria": "Insecure Debug/Configuration",
+    "activo": true
+  },
+  
+  "CL_DEBUG_CONFIG": {
+    "patron": "(?i)DEBUG\\s*\\(\\s*\\*YES\\s*\\)",
+    "id_regla": 1002,
+    "es_sensible": true,
+    "descripcion": "Configuración DEBUG(*YES) detectada en comandos CL. Permite depuración activa en producción.",
+    "cwe": "CWE-489",
+    "owasp": "A05:2021 – Security Misconfiguration",
+    "categoria": "Insecure Debug/Configuration",
+    "activo": true
+  },
+  
+  "RPG_DEBUG_STATEMENTS": {
+    "patron": "(?i)(?:^|\\s)(?:DEBUG|debug)\\s*(?:=|:|\\()",
+    "id_regla": 1003,
+    "es_sensible": true,
+    "descripcion": "Instrucción de depuración explícita (e.g., 'DEBUG = ON') en código RPG.",
+    "cwe": "CWE-489",
+    "owasp": "A05:2021 – Security Misconfiguration",
+    "categoria": "Insecure Debug/Configuration",
+    "activo": true
+  },
+  
+  "CL_HARDCODED_PASSWORDS": {
+    "patron": "(?i)(?:PASSWORD|PWD|PASS|CLAVE)\\s*(?:=|:)\\s*[\"']?([^\"'\\s;,)]+)",
+    "id_regla": 1004,
+    "es_sensible": true,
+    "descripcion": "Posible credencial hardcodeada detectada cerca de palabras clave (PASSWORD, PWD, PASS) en CL/RPG.",
+    "cwe": "CWE-798",
+    "owasp": "A07:2021 – Identification and Authentication Failures",
+    "categoria": "Hardcoded Credentials",
+    "activo": true
+  },
+  
+  "RPG_SENSITIVE_COMMENTS": {
+    "patron": "(?i)(?:TODO|FIXME|HACK|XXX|BUG).*?(?:PASSWORD|USER|ADMIN|SECRET|KEY|TOKEN)",
+    "id_regla": 1005,
+    "es_sensible": true,
+    "descripcion": "Comentario con posible información sensible (TODO, FIXME) mencionando credenciales.",
+    "cwe": "CWE-532",
+    "owasp": "A09:2021 – Security Logging and Monitoring Failures",
+    "categoria": "Information Disclosure",
+    "activo": true
+  },
+  
+  "RPG_IP_ADDRESSES": {
+    "patron": "\\b(?:192\\.168\\.|10\\.|172\\.(?:1[6-9]|2[0-9]|3[01])\\.|127\\.0\\.0\\.1)\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b",
+    "id_regla": 1006,
+    "es_sensible": false,
+    "descripcion": "Dirección IP privada hardcodeada detectada. Puede exponer la arquitectura de red interna.",
+    "cwe": "CWE-200",
+    "owasp": "A01:2021 – Broken Access Control",
+    "categoria": "Information Disclosure",
+    "activo": true
+  },
+  
+  "RPG_SYSTEM_PATHS": {
+    "patron": "(?i)(?:[C-Z]:\\\\|/usr/|/etc/|/var/|/home/)[\\w\\\\/.-]+",
+    "id_regla": 1007,
+    "es_sensible": false,
+    "descripcion": "Ruta de sistema (Windows/Unix) hardcodeada. Puede revelar detalles de la arquitectura o ruta de archivos.",
+    "cwe": "CWE-200",
+    "owasp": "A05:2021 – Security Misconfiguration",
+    "categoria": "Information Disclosure",
+    "activo": true
+  },
+
+  "CL_CALL_COMMAND": {
+    "patron": "(?i)CALL\\s+PGM\\(([^)]+)\\)\\s+PARM\\(([^)]+)\\)",
+    "id_regla": 1008,
+    "es_sensible": false,
+    "descripcion": "Detección del comando CALL en CL. Puede indicar la ejecución de programas externos.",
+    "cwe": "N/A",
+    "owasp": "N/A",
+    "categoria": "Flow/Execution Control",
+    "activo": true
+  },
+
+  "CL_SENSITIVE_COMMANDS": {
+    "patron": "(?i)\\b(DSPLIB|DSPJOB|WRKOBJ|WRKSPLF)\\b",
+    "id_regla": 1009,
+    "es_sensible": false,
+    "descripcion": "Comandos CL de visualización o trabajo (Display/Work) que pueden exponer información del sistema.",
+    "cwe": "CWE-200",
+    "owasp": "A09:2021 – Security Logging and Monitoring Failures",
+    "categoria": "Information Disclosure",
+    "activo": true
+  }
+}
