@@ -26,7 +26,9 @@ DIRECTORIO_SALIDA = "resultados_analisis"
 PATTERNS_DIR = "./Pattern" 
 
 # Patrones para identificar archivos de código válidos.
-PATRONES_INCLUIR = ['analisis_cl_', 'analisis_pf_', 'analisis_rpg_']
+# [CORRECCIÓN] Se usa el sufijo del tipo de archivo (rpg, cl, pf)
+#               ya que el prefijo 'analisis_' fue eliminado en step1.
+PATRONES_INCLUIR = ['_rpg_', '_cl_', '_pf_']
 PATRONES_EXCLUIR = ['header_', 'security_findings_', 'readme', 'log_']
 
 # Definición de colores simple para salida de consola

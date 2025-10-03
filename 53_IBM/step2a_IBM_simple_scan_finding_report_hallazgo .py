@@ -22,7 +22,9 @@ from collections import Counter
 DIRECTORIO_SALIDA = "resultados_analisis"
 
 # Patrones para identificar archivos de código válidos.
-PATRONES_INCLUIR = ['analisis_cl_', 'analisis_pf_', 'analisis_rpg_']
+# [CORRECCIÓN] Se usa el sufijo del tipo de archivo (rpg, cl, pf)
+#               ya que el prefijo 'analisis_' fue eliminado en step1.
+PATRONES_INCLUIR = ['_rpg_', '_cl_', '_pf_']
 PATRONES_EXCLUIR = ['header_', 'security_findings_', 'readme', 'log_']
 
 # Patrones de seguridad para el análisis.
@@ -178,7 +180,7 @@ def generar_reporte_seguridad(hallazgos, ruta_salida):
             return None
 
     fecha_hora = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    nombre_reporte = os.path.join(ruta_salida, f"SECURITY_FINDINGS_{fecha_hora}.txt")
+    nombre_reporte = os.path.join(ruta_salida, f"SECURITY_FINDINGS_simple_mode{fecha_hora}.txt")
 
     with open(nombre_reporte, 'w', encoding='utf-8') as f:
         f.write("=" * 100 + "\n")
