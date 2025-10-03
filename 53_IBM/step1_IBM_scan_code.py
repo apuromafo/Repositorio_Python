@@ -36,6 +36,7 @@ import hashlib
 from datetime import datetime
 from collections import Counter
 import time
+from datetime import datetime
 
 # Intentar importar chardet, si no está disponible usar fallback
 try:
@@ -49,6 +50,7 @@ except ImportError:
 #                            CONFIGURACIÓN
 # ======================================================================
 PREFIJO_SALIDA = 'analisis'
+CARPETA_REPORTE = "Reporte"
 FORMATO_NOMBRE_SALIDA = '{prefijo}_{tipo_archivo}_{tipo_analisis}_{tipo_reporte}_{nombre_archivo}_{fecha}'
 
 # ======================================================================
@@ -179,6 +181,38 @@ tipos_datos_pf = {
     'H': 'Campo hexadecimal (Hexadecimal)',
     'O': 'Campo de caracteres de solo salida (Output-only character)'
 }
+# === INICIO DE BLOQUE CLASIFICADOR DE LÍNEAS NO ANALIZADAS (FINAL CORREGIDO) ===
+# Define los patrones especiales para clasificar líneas que no fueron reconocidas.
+# Se añade WRKSPLF para cubrir el caso faltante.
+patrones_especiales = {
+    "EXEC_SQL":       re.compile(r"C/EXEC SQL", re.IGNORECASE),
+    "END_EXEC":       re.compile(r"C/END-EXEC", re.IGNORECASE),
+    "CALL":           re.compile(r"\bCALL\b|\bCALL\s*'.*'", re.IGNORECASE),
+    "DUMP":           re.compile(r"\bDUMP\b|\bDUMP\(", re.IGNORECASE),
+    "CHGJOB":         re.compile(r"\bCHGJOB\b", re.IGNORECASE),
+    "DEBUG":          re.compile(r"\bDEBUG\b|\*DEBUG\*", re.IGNORECASE),
+    "DSPJOB":         re.compile(r"\bDSPJOB\b", re.IGNORECASE),
+    "WRKSPLF":        re.compile(r"\bWRKSPLF\b", re.IGNORECASE), # <--- PATRÓN AÑADIDO
+    "HALLAZGO":       re.compile(r"//\s*\*\*\s*Hallazgos.*\*\*", re.IGNORECASE),
+    "COMENTARIO_NUM": re.compile(r"//\s*\d+\.\s*[A-Z_]+", re.IGNORECASE),
+    "FIXME":          re.compile(r"//\s*FIXME:?.*", re.IGNORECASE),
+    "COMENTARIO":     re.compile(r"//.+")
+}
+
+descripciones_patrones_especiales = {
+    "EXEC_SQL":       "Instrucción de SQL embebido. **Revisar por riesgo de inyección de SQL.**",
+    "END_EXEC":       "Fin de la instrucción de SQL embebido.",
+    "CALL":           "Llamada directa a programa/comando. **Evaluar si el programa/comando es sensible.**",
+    "DUMP":           "Instrucción de volcado de memoria/datos (DUMP). Típicamente usado para depuración; debe ser removido de producción.",
+    "CHGJOB":         "Comando Change Job (CHGJOB). **Puede alterar la configuración de seguridad o debug del trabajo.**",
+    "DEBUG":          "Comando o directiva de Debug. **Riesgo si queda activo en producción.**",
+    "DSPJOB":         "Comando Display Job (DSPJOB). Muestra información potencialmente sensible del trabajo.",
+    "WRKSPLF":        "Comando Work with Spooled Files (WRKSPLF). Acceso a archivos temporales o de impresión.",
+    "HALLAZGO":       "Etiqueta de encabezado que marca una sección de hallazgos en los comentarios.",
+    "COMENTARIO_NUM": "Comentario que simula una numeración de hallazgos.",
+    "FIXME":          "Nota de desarrollo (FIXME). Indica código pendiente de corrección o revisión de seguridad.",
+    "COMENTARIO":     "Línea clasificada como comentario simple."
+}
 
 # ======================================================================
 #                        FUNCIONES AUXILIARES
@@ -277,7 +311,44 @@ def obtener_info_archivo_basica(ruta_archivo):
             'nombre': os.path.basename(ruta_archivo),
             'ruta_completa': os.path.abspath(ruta_archivo),
         }
-
+def clasificar_lineas_no_analizadas(analisis_por_bloque, no_analizadas_por_bloque):
+    """
+    Aplica clasificación secundaria (patrones especiales) a las líneas no analizadas
+    por el parser principal e integra los resultados en la estructura principal.
+    """
+    for seccion, lista_lineas in no_analizadas_por_bloque.items():
+        for numlinea, linealimpia in lista_lineas:
+            tipos_encontrados = detectar_patrones_especiales(linealimpia)
+            
+            if tipos_encontrados:
+                # FILTRO CRÍTICO: Eliminar 'COMENTARIO' si existe otra etiqueta más específica.
+                if 'COMENTARIO' in tipos_encontrados and len(tipos_encontrados) > 1:
+                    tipos_encontrados.remove('COMENTARIO')
+                    
+                # Crea la descripción detallada
+                descripciones_detalladas = []
+                for tipo in tipos_encontrados:
+                    # NOTA: descripciones_patrones_especiales debe ser un diccionario global o accesible.
+                    detalle = descripciones_patrones_especiales.get(tipo, f"Patrón '{tipo}' detectado")
+                    descripciones_detalladas.append(f"{tipo}: {detalle}")
+                descripcion = ' | '.join(descripciones_detalladas)
+            else:
+                descripcion = 'Línea no reconocida'
+            
+            if seccion not in analisis_por_bloque:
+                analisis_por_bloque[seccion] = []
+            
+            # Añadimos la línea clasificada a la estructura de resultados principal
+            analisis_por_bloque[seccion].append((
+                numlinea,
+                linealimpia,
+                descripcion,
+                None 
+            ))
+    
+    # Después de procesar, vaciar el diccionario original y ordenar
+    # (Lo moveremos a la función principal para mantener la claridad)
+    pass
 # ======================================================================
 #                        FUNCIONES DE DETECCIÓN
 # ======================================================================
@@ -357,7 +428,14 @@ def detectar_tipo_archivo(codigo_lineas):
         return 'CL'
     else:
         return 'DESCONOCIDO'
-
+# Función para detectar patrones especiales en una línea
+def detectar_patrones_especiales(linea):
+    tipos = []
+    for nombre, patron in patrones_especiales.items():
+        if patron.search(linea):
+            tipos.append(nombre)
+    return tipos
+    
 def detectar_tipo_archivo_avanzado(codigo_lineas, ruta_archivo):
     """
     Versión avanzada que combina análisis de contenido con heurísticas adicionales.
@@ -1036,23 +1114,148 @@ def escribir_reporte_rpg(f_salida, ruta_archivo, analisis_por_bloque, no_analiza
             
             f_salida.write("\n" + "-" * 50 + "\n")
 
+def _preparar_datos_archivos(archivos_encontrados, ruta_carpeta):
+    """
+    Recorre todos los archivos, calcula estadísticas (tipo, líneas, hash, tamaño) 
+    y organiza los datos por carpeta.
+    Retorna: archivos_por_carpeta, extensiones, tipos_detectados, lista_detalles
+    """
+    archivos_por_carpeta = {}
+    extensiones = {}
+    tipos_detectados = {'CL': 0, 'PF': 0, 'RPG': 0, 'DESCONOCIDO': 0}
+    lista_detalles = [] # Almacena todos los detalles calculados
+
+    for ruta_archivo in archivos_encontrados:
+        try:
+            nombre_archivo = os.path.basename(ruta_archivo)
+            extension = os.path.splitext(nombre_archivo)[1].lower() or 'sin extensión'
+            
+            # Detección de tipo, líneas y hash (asumiendo helpers externos)
+            with open(ruta_archivo, 'r', encoding='utf-8') as f:
+                codigo_lineas = f.readlines()
+                
+            # NOTA: Las funciones 'detectar_tipo_archivo_avanzado' y 'obtener_hash_archivo' 
+            # se asumen definidas en otra parte de tu script.
+            tipo_archivo = detectar_tipo_archivo_avanzado(codigo_lineas, ruta_archivo) 
+            tipos_detectados[tipo_archivo] += 1
+            num_lineas = len(codigo_lineas)
+            hash_completo = obtener_hash_archivo(ruta_archivo) 
+            size_bytes = os.path.getsize(ruta_archivo)
+
+            # Formatear tamaño
+            if size_bytes >= 1024 * 1024:
+                size_str = f"{size_bytes / (1024 * 1024):.2f} MB"
+            elif size_bytes >= 1024:
+                size_str = f"{size_bytes / 1024:.2f} KB"
+            else:
+                size_str = f"{size_bytes} bytes"
+
+            # Agrupar por carpeta y contar extensión
+            carpeta_relativa = os.path.relpath(os.path.dirname(ruta_archivo), ruta_carpeta)
+            carpeta_relativa = 'RAÍZ' if carpeta_relativa == '.' else carpeta_relativa
+            
+            archivos_por_carpeta.setdefault(carpeta_relativa, []).append(ruta_archivo)
+            extensiones[extension] = extensiones.get(extension, 0) + 1
+
+            # Almacenar detalles
+            lista_detalles.append({
+                'ruta': ruta_archivo, 'carpeta': carpeta_relativa, 'nombre': nombre_archivo,
+                'extension': extension, 'tipo': tipo_archivo, 'lineas': num_lineas,
+                'hash': hash_completo, 'size_str': size_str,
+            })
+
+        except Exception as e:
+            # Manejo de error para el archivo actual
+            lista_detalles.append({
+                'ruta': ruta_archivo, 'carpeta': 'ERROR_PROCESS', 'nombre': os.path.basename(ruta_archivo),
+                'extension': 'ERROR', 'tipo': 'ERROR', 'lineas': 'ERROR',
+                'hash': f'ERROR: {str(e)}', 'size_str': 'ERROR',
+            })
+
+    return archivos_por_carpeta, extensiones, tipos_detectados, lista_detalles
+def _escribir_seccion_resumen(f_header, total_archivos, extensiones, tipos_detectados):
+    """Escribe las tablas de resumen por extensiones y tipos."""
+
+    # Resumen de extensiones
+    f_header.write("\n## 📊 RESUMEN POR EXTENSIONES\n")
+    f_header.write("-" * 40 + "\n")
+    for ext, count in sorted(extensiones.items(), key=lambda x: x[1], reverse=True):
+        porcentaje = (count / total_archivos) * 100
+        f_header.write(f"  {ext:<15}: {count:>3} archivos ({porcentaje:5.1f}%)\n")
+    
+    # Resumen por tipo detectado
+    f_header.write("\n## 🔍 RESUMEN POR TIPO DETECTADO\n")
+    f_header.write("-" * 40 + "\n")
+    for tipo, cantidad in sorted(tipos_detectados.items(), key=lambda x: x[1], reverse=True):
+        if cantidad > 0:
+            porcentaje = (cantidad / total_archivos) * 100
+            f_header.write(f"  {tipo:<15}: {cantidad:>3} archivos ({porcentaje:5.1f}%)\n")
+def _escribir_seccion_archivos(f_header, lista_detalles):
+    """Escribe la sección detallada de archivos y sus propiedades, agrupados por carpeta."""
+    f_header.write("## 📁 ESTRUCTURA DE CARPETAS Y ARCHIVOS\n")
+    f_header.write("-" * 120 + "\n")
+    
+    # Agrupar detalles por carpeta para mantener la estructura en la escritura
+    detalles_por_carpeta = {}
+    for detalle in lista_detalles:
+        detalles_por_carpeta.setdefault(detalle['carpeta'], []).append(detalle)
+
+    for carpeta in sorted(detalles_por_carpeta.keys()):
+        archivos = detalles_por_carpeta[carpeta]
+        f_header.write(f"### 📂 {carpeta} ({len(archivos)} archivos)\n\n")
+        
+        # Ordenar archivos dentro de la carpeta
+        for detalle in sorted(archivos, key=lambda x: x['nombre']):
+            f_header.write(f"  #### 📄 {detalle['nombre']}\n")
+            f_header.write(f"    - **Ruta completa:** {detalle['ruta']}\n")
+            f_header.write(f"    - **Extensión:** {detalle['extension']}\n")
+            f_header.write(f"    - **Tipo detectado:** {detalle['tipo']}\n")
+            
+            # Formato de líneas con separador de miles si es un número
+            lineas_str = f"{detalle['lineas']:,}" if isinstance(detalle['lineas'], int) else detalle['lineas']
+            f_header.write(f"    - **Líneas:** {lineas_str}\n")
+            
+            f_header.write(f"    - **Tamaño:** {detalle['size_str']}\n")
+            f_header.write(f"    - **SHA-256 Hash:** {detalle['hash']}\n")
+            f_header.write("\n")
+            
+        f_header.write("-" * 80 + "\n")            
 # ======================================================================
 #                        FUNCIONES DE GESTIÓN DE ARCHIVOS
 # ======================================================================
+def generar_nombre_salida(nombre_base, tipo_archivo, sufijo_analisis, sufijo_modo, ruta_salida, incluir_carpeta_reporte=True):
+    """
+    Genera un nombre de archivo de salida único.
+    Si incluir_carpeta_reporte es True, lo guarda en la subcarpeta 'Reporte/'.
+    """
+    
+    # CORRECCIÓN DE ERROR CRÍTICO: Se llama correctamente a datetime.now()
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") 
 
-def generar_nombre_salida(nombre_base, tipo_archivo, tipo_analisis, tipo_reporte, ruta_salida):
-    """Genera un nombre de archivo de salida con fecha y hora, tipo de archivo y tipo de análisis."""
-    fecha_hora = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    nombre_sin_extension = os.path.splitext(nombre_base)[0] if nombre_base else ""
-    nombre_archivo = FORMATO_NOMBRE_SALIDA.format(
-        prefijo=PREFIJO_SALIDA,
-        tipo_archivo=tipo_archivo.lower(),
-        nombre_archivo=nombre_sin_extension,
-        tipo_analisis=tipo_analisis,
-        tipo_reporte=tipo_reporte,
-        fecha=fecha_hora
-    )
-    return os.path.join(ruta_salida, f"{nombre_archivo}.txt")
+    # 1. Construir el nombre del archivo (sin ruta aún)
+    nombre_final = f"{nombre_base}_{tipo_archivo}_{sufijo_analisis}_{sufijo_modo}_{timestamp}.txt"
+    
+    # 2. Determinar el directorio final
+    if incluir_carpeta_reporte:
+        # Los reportes individuales van en [ruta_salida]/Reporte/
+        ruta_directorio_final = os.path.join(ruta_salida, CARPETA_REPORTE)
+        
+        # Asegurar que el directorio 'Reporte' exista
+        if not os.path.exists(ruta_directorio_final):
+            try:
+                os.makedirs(ruta_directorio_final, exist_ok=True)
+            except OSError as e:
+                print(f"🚨 Error al crear el directorio de reportes '{ruta_directorio_final}': {e}")
+                # Si falla la creación, revertimos a la ruta base para no fallar el script.
+                ruta_directorio_final = ruta_salida 
+    else:
+        # El Reporte de Encabezado (Header) se queda en la ruta_salida
+        ruta_directorio_final = ruta_salida 
+        
+    # 3. Combinar la ruta del directorio con el nombre del archivo
+    ruta_completa_salida = os.path.join(ruta_directorio_final, nombre_final)
+
+    return ruta_completa_salida
 
 def obtener_ruta_salida(opcion_ruta):
     """Obtiene o crea la ruta de salida basada en la opción del usuario."""
@@ -1067,7 +1270,6 @@ def obtener_ruta_salida(opcion_ruta):
         return ruta_salida
     else:
         return None
-
 def procesar_archivo_individual(ruta_archivo, archivo_salida, tipo_archivo):
     """Procesa un archivo y escribe el análisis según su tipo."""
     try:
@@ -1088,25 +1290,52 @@ def procesar_archivo_individual(ruta_archivo, archivo_salida, tipo_archivo):
             analisis_por_bloque, no_analizadas_por_bloque, elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque = analisis_resultado[:6]
             registros_definidos = analisis_resultado[6] if len(analisis_resultado) > 6 else {}
             claves_definidas = analisis_resultado[7] if len(analisis_resultado) > 7 else []
+
+            # === CLASIFICACIÓN SECUNDARIA ===
+            clasificar_lineas_no_analizadas(analisis_por_bloque, no_analizadas_por_bloque)
+            # ==============================
+            
+            # Ajustes finales de reporte
+            no_analizadas_por_bloque = {} 
+            for seccion in analisis_por_bloque:
+                analisis_por_bloque[seccion].sort(key=lambda x: x[0])
             
             with open(archivo_salida, 'w', encoding='utf-8') as f_salida:
                 escribir_reporte_pf(f_salida, ruta_archivo, analisis_por_bloque, no_analizadas_por_bloque, 
-                                  elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque,
-                                  registros_definidos, claves_definidas)
-                                  
+                                    elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque,
+                                    registros_definidos, claves_definidas)
+                                    
         elif tipo_archivo == 'RPG':
             analisis_por_bloque, no_analizadas_por_bloque, elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque = analizar_archivo_rpg(codigo_lineas)
             
+            # === CLASIFICACIÓN SECUNDARIA ===
+            clasificar_lineas_no_analizadas(analisis_por_bloque, no_analizadas_por_bloque)
+            # ==============================
+            
+            # Ajustes finales de reporte
+            no_analizadas_por_bloque = {} 
+            for seccion in analisis_por_bloque:
+                analisis_por_bloque[seccion].sort(key=lambda x: x[0])
+
             with open(archivo_salida, 'w', encoding='utf-8') as f_salida:
                 escribir_reporte_rpg(f_salida, ruta_archivo, analisis_por_bloque, no_analizadas_por_bloque, 
-                                   elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque)
-                                   
+                                     elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque)
+                                        
         else:  # CL
             analisis_por_bloque, no_analizadas_por_bloque, variables, estadisticas, comentarios_encontrados, comentarios_por_bloque = analizar_archivo_cl(codigo_lineas)
             
+            # === CLASIFICACIÓN SECUNDARIA ===
+            clasificar_lineas_no_analizadas(analisis_por_bloque, no_analizadas_por_bloque)
+            # ==============================
+
+            # Ajustes finales de reporte
+            no_analizadas_por_bloque = {} 
+            for seccion in analisis_por_bloque:
+                analisis_por_bloque[seccion].sort(key=lambda x: x[0])
+
             with open(archivo_salida, 'w', encoding='utf-8') as f_salida:
                 escribir_reporte_cl(f_salida, ruta_archivo, analisis_por_bloque, no_analizadas_por_bloque, 
-                                  variables, estadisticas, comentarios_encontrados, comentarios_por_bloque)
+                                     variables, estadisticas, comentarios_encontrados, comentarios_por_bloque)
         
         print(f"✅ Análisis completado. Resultados guardados en '{archivo_salida}'.")
         
@@ -1114,105 +1343,51 @@ def procesar_archivo_individual(ruta_archivo, archivo_salida, tipo_archivo):
         print(f"🚨 Error: El archivo '{ruta_archivo}' no se encontró.")
     except Exception as e:
         print(f"🚨 Ocurrió un error inesperado al procesar '{ruta_archivo}': {e}")
-
 def generar_header_carpeta_recursivo(ruta_carpeta, ruta_salida, archivos_encontrados):
     """
-    Genera un header completo con análisis RECURSIVO de todos los archivos en la carpeta y subcarpetas.
+    [CORRECCIÓN FINAL DE RUTA] Genera un header completo con análisis RECURSIVO.
+    Ahora incluye la subcarpeta 'Reporte/' para agruparlo con los reportes individuales.
     """
     try:
-        fecha_hora = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        nombre_header = os.path.join(ruta_salida, f"HEADER_analisis_recursivo_{fecha_hora}.txt")
-        
+        # 1. GENERAR NOMBRE DEL ARCHIVO (Ruta corregida para incluir 'Reporte/')
+        nombre_header = generar_nombre_salida(
+            nombre_base="HEADER_analisis_recursivo", 
+            tipo_archivo="SUM", 
+            sufijo_analisis="RECURSIVO", 
+            sufijo_modo="GLOBAL", 
+            ruta_salida=ruta_salida, 
+            incluir_carpeta_reporte=True # <--- ¡CLAVE! CAMBIO a True
+        )
+
         print(f"📋 Generando header de análisis recursivo...")
+
+        # 2. PREPARAR LOS DATOS DE TODOS LOS ARCHIVOS (Se asume que esta lógica funciona)
+        archivos_por_carpeta, extensiones, tipos_detectados, lista_detalles = \
+            _preparar_datos_archivos(archivos_encontrados, ruta_carpeta)
         
+        total_archivos = len(archivos_encontrados)
+
+        # 3. ESCRIBIR EL ARCHIVO (Lógica de escritura no necesita cambios)
         with open(nombre_header, 'w', encoding='utf-8') as f_header:
+            
+            # --- Encabezado Estático ---
             f_header.write("=" * 120 + "\n")
-            f_header.write("                           ANÁLISIS RECURSIVO DE CARPETA - HEADER COMPLETO\n")
+            f_header.write("                           ANÁLISIS RECURSIVO DE CARPETA - HEADER COMPLETO\n")
             f_header.write("=" * 120 + "\n")
             f_header.write(f"📂 Carpeta analizada: {os.path.abspath(ruta_carpeta)}\n")
             f_header.write(f"🕒 Fecha y hora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f_header.write(f"📊 Total de archivos encontrados (recursivo): {len(archivos_encontrados)}\n")
+            f_header.write(f"📊 Total de archivos encontrados (recursivo): {total_archivos}\n")
             f_header.write("=" * 120 + "\n\n")
+
+            # --- Sección Detallada de Archivos ---
+            _escribir_seccion_archivos(f_header, lista_detalles)
             
-            # Agrupar por subcarpetas
-            archivos_por_carpeta = {}
-            extensiones = {}
-            tipos_detectados = {'CL': 0, 'PF': 0, 'RPG': 0, 'DESCONOCIDO': 0}
+            # --- Sección de Resumen (Estadísticas) ---
+            _escribir_seccion_resumen(f_header, total_archivos, extensiones, tipos_detectados)
             
-            for ruta_archivo in archivos_encontrados:
-                carpeta_relativa = os.path.relpath(os.path.dirname(ruta_archivo), ruta_carpeta)
-                if carpeta_relativa == '.':
-                    carpeta_relativa = 'RAÍZ'
-                
-                if carpeta_relativa not in archivos_por_carpeta:
-                    archivos_por_carpeta[carpeta_relativa] = []
-                
-                archivos_por_carpeta[carpeta_relativa].append(ruta_archivo)
-            
-            f_header.write("## 📁 ESTRUCTURA DE CARPETAS Y ARCHIVOS\n")
-            f_header.write("-" * 120 + "\n")
-            
-            for carpeta, archivos in sorted(archivos_por_carpeta.items()):
-                f_header.write(f"### 📂 {carpeta} ({len(archivos)} archivos)\n\n")
-                
-                for ruta_archivo in sorted(archivos):
-                    nombre_archivo = os.path.basename(ruta_archivo)
-                    extension = os.path.splitext(nombre_archivo)[1].lower() or 'sin extensión'
-                    
-                    # Contar extensiones
-                    extensiones[extension] = extensiones.get(extension, 0) + 1
-                    
-                    # Detectar tipo y analizar
-                    try:
-                        with open(ruta_archivo, 'r', encoding='utf-8') as f:
-                            codigo_lineas = f.readlines()
-                        tipo_archivo = detectar_tipo_archivo_avanzado(codigo_lineas, ruta_archivo)
-                        tipos_detectados[tipo_archivo] += 1
-                        num_lineas = len(codigo_lineas)
-                        hash_completo = obtener_hash_archivo(ruta_archivo)
-                        size_bytes = os.path.getsize(ruta_archivo)
-                        
-                        if size_bytes >= 1024 * 1024:
-                            size_str = f"{size_bytes / (1024 * 1024):.2f} MB"
-                        elif size_bytes >= 1024:
-                            size_str = f"{size_bytes / 1024:.2f} KB"
-                        else:
-                            size_str = f"{size_bytes} bytes"
-                            
-                    except Exception as e:
-                        tipo_archivo = 'ERROR'
-                        num_lineas = 'ERROR'
-                        hash_completo = f'ERROR: {str(e)}'
-                        size_str = "ERROR"
-                    
-                    f_header.write(f"  #### 📄 {nombre_archivo}\n")
-                    f_header.write(f"    - **Ruta completa:** {ruta_archivo}\n")
-                    f_header.write(f"    - **Extensión:** {extension}\n")
-                    f_header.write(f"    - **Tipo detectado:** {tipo_archivo}\n")
-                    f_header.write(f"    - **Líneas:** {num_lineas:,}\n")
-                    f_header.write(f"    - **Tamaño:** {size_str}\n")
-                    f_header.write(f"    - **SHA-256 Hash:** {hash_completo}\n")
-                    f_header.write("\n")
-                
-                f_header.write("-" * 80 + "\n")
-            
-            # Resumen de extensiones
-            f_header.write("\n## 📊 RESUMEN POR EXTENSIONES\n")
-            f_header.write("-" * 40 + "\n")
-            for ext, count in sorted(extensiones.items(), key=lambda x: x[1], reverse=True):
-                porcentaje = (count / len(archivos_encontrados)) * 100
-                f_header.write(f"  {ext:<15}: {count:>3} archivos ({porcentaje:5.1f}%)\n")
-            
-            # Resumen por tipo detectado
-            f_header.write("\n## 🔍 RESUMEN POR TIPO DETECTADO\n")
-            f_header.write("-" * 40 + "\n")
-            for tipo, cantidad in sorted(tipos_detectados.items(), key=lambda x: x[1], reverse=True):
-                if cantidad > 0:
-                    porcentaje = (cantidad / len(archivos_encontrados)) * 100
-                    f_header.write(f"  {tipo:<15}: {cantidad:>3} archivos ({porcentaje:5.1f}%)\n")
-            
+            # --- Pie de página ---
             f_header.write("\n" + "=" * 120 + "\n")
-            f_header.write("                                    FIN DEL HEADER RECURSIVO\n")
+            f_header.write("                                    FIN DEL HEADER RECURSIVO\n")
             f_header.write("=" * 120 + "\n")
         
         print(f"✅ Header recursivo generado: '{nombre_header}'")
