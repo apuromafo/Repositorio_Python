@@ -1,0 +1,104 @@
+{
+    "CL_NATIONAL_ID_RUT": {
+        "id_regla": "1062",
+        "es_sensible": true,
+        "patron": "(national_identification|rut):\\s*['\"]([0-9]{1,3}\\\\.[0-9]{3}\\\\.[0-9]{3}-[0-9kK])['\"]",
+        "descripcion": "Chilean National Identification Number (RUT/RUN) expuesto, buscando etiqueta PII.",
+        "categoria": "pii_national_id",
+        "cwe": "CWE-312",
+        "owasp": "A01:2021 - Broken Access Control",
+        "referencia": "https://es.wikipedia.org/wiki/Rol_%C3%BAnico_Tributario",
+        "activo": true
+    },
+    "VEHICLE_LICENSE_PLATE": {
+        "id_regla": "1063",
+        "es_sensible": true,
+        "patron": "license_plate:\\s*['\"]([A-Z0-9]{5,8})['\"]",
+        "descripcion": "Vehicle License Plate expuesta en datos estructurados.",
+        "categoria": "pii_vehicle",
+        "cwe": "CWE-312",
+        "owasp": "A01:2021 - Broken Access Control",
+        "referencia": "https://www.datos.gob.cl/consulta-vehiculos",
+        "activo": true
+    },
+    "VEHICLE_CHASSIS_MOTOR_NUMBER": {
+        "id_regla": "1064",
+        "es_sensible": true,
+        "patron": "(?i)(?:[\"']?(?:motor_number|chassis_number|vin)[\"']?\\s*[:=]\\s*[\"']?)([A-Z0-9]{5,30})(?:[\"']?)",
+        "descripcion": "Vehicle Chassis (VIN) or Motor Number expuesto en datos estructurados.",
+        "categoria": "pii_vehicle",
+        "cwe": "CWE-312",
+        "owasp": "A01:2021 - Broken Access Control",
+        "referencia": "https://en.wikipedia.org/wiki/Vehicle_identification_number",
+        "activo": true,
+        "negative_search": [
+            "sindatos",
+            "noinfo1",
+            "noinfo2",
+            "noinfo"
+        ]
+    },
+    "PII_EMAIL_ADDRESS_STANDARD": {
+        "id_regla": "1010",
+        "es_sensible": true,
+        "patron": "(?i)([a-z0-9\\._%\\+\\-]+@[a-z0-9\\.\\-]+\\.[a-z]{2,})",
+        "descripcion": "Dirección de Correo Electrónico estándar. Captura el valor del correo como Dato Único.",
+        "categoria": "pii_personal",
+        "cwe": "CWE-312",
+        "owasp": "A03:2021 - Injection",
+        "referencia": "https://owasp.org/www-community/vulnerabilities/Personal_Information_Disclosure",
+        "activo": true,
+        "negative_search": [
+            "support@",
+            "contacto@",
+            "info@",
+            "sales@",
+            "noreply@",
+            "documentacion@",
+            "soporte@",
+            "no-responder@"
+        ]
+    },
+    "PII_EMAIL_ADDRESS_IN_FIELD": {
+        "id_regla": "1011",
+        "es_sensible": true,
+        "patron": "(?i)(?:[\"']?(?:email|mail|user|correo|contacto)_?(?:address|id|user|account)?[\"']?\\s*[:=]\\s*[\"']?)([a-z0-9\\._%\\+\\-]+@[a-z0-9\\.\\-]+\\.[a-z]{2,})(?:[\"']?)",
+        "descripcion": "Dirección de Correo Electrónico precedida por campo clave (e.g., email:). Captura solo el valor.",
+        "categoria": "pii_personal",
+        "cwe": "CWE-312",
+        "owasp": "A03:2021 - Injection",
+        "referencia": "https://owasp.org/www-community/vulnerabilities/Personal_Information_Disclosure",
+        "activo": true,
+        "negative_search": [
+            "support@",
+            "contacto@",
+            "info@",
+            "sales@",
+            "noreply@",
+            "documentacion@",
+            "soporte@",
+            "no-responder@"
+        ]
+    },
+    "PII_EMAIL_LONG_TLD": {
+        "id_regla": "1012",
+        "es_sensible": true,
+        "patron": "(?i)([a-z0-9\\._%\\+\\-]+@[a-z0-9\\.\\-]+\\.[a-z]{4,15})",
+        "descripcion": "Dirección de Correo Electrónico con TLDs largos (4 a 15 caracteres) o de varios subniveles.",
+        "categoria": "pii_personal",
+        "cwe": "CWE-312",
+        "owasp": "A03:2021 - Injection",
+        "referencia": "https://owasp.org/www-community/vulnerabilities/Personal_Information_Disclosure",
+        "activo": true,
+        "negative_search": [
+            "support@",
+            "contacto@",
+            "info@",
+            "sales@",
+            "noreply@",
+            "documentacion@",
+            "soporte@",
+            "no-responder@"
+        ]
+    }
+}

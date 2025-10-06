@@ -45,6 +45,13 @@
         "descripcion_corta_hallazgo": "Se encontró un ID de Cuenta de AWS. Esto no es un secreto, pero es información sensible de la infraestructura.",
         "recomendacion_mitigacion": "Considerar su exposición como información sensible y evitar su divulgación innecesaria en logs o errores.",
         "url_hallazgo": "https://cwe.mitre.org/data/definitions/200.html|https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
-        "url_mitigacion": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+        "url_mitigacion": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html",
+		"negative_search": [
+            "motor_number",
+            "chassis_number",
+            "policy_number",
+            "insured_national_identification",
+            "hiring_national_identification"
+        ]
     }
 }
