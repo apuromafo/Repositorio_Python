@@ -1,161 +1,175 @@
 {
-  "_METADATA_": {
-    "descripcion": "Patrones de seguridad y extracción de inteligencia para código JavaScript (basado en el escáner legacy).",
-    "idioma": "JavaScript (JS/React Native)",
-    "version": "1.0"
-  },
-  
-  "JS_CREDENTIAL_IN_CODE": {
-    "patron": "(token|key|secret|password|pwd|auth)[\\s]*[:=][\\s]*['\"]([^'\"]{12,})['\"]",
-    "id_regla": 1001,
-    "es_sensible": true,
-    "descripcion": "Credenciales o tokens codificados directamente en el código fuente (password, secret, key, auth).",
-    "cwe": "CWE-259",
-    "owasp": "MASVS-STORAGE-2",
-    "categoria": "Hardcoded Secrets",
-    "activo": true
-  },
-  
-  "JS_API_KEY_EXPOSED": {
-    "patron": "(?:sk-|pk_|rk_|ak_)[A-Za-z0-9]{20,}",
-    "id_regla": 1002,
-    "es_sensible": true,
-    "descripcion": "Claves de API de servicios populares (Stripe, AWS, etc.) expuestas en el código fuente.",
-    "cwe": "CWE-200",
-    "owasp": "MASVS-STORAGE-2",
-    "categoria": "Hardcoded Secrets",
-    "activo": true
-  },
-  
-  "JS_BEARER_TOKEN_PATTERN": {
-    "patron": "Bearer[\\s]+([A-Za-z0-9\\-_\\.]{15,})",
-    "id_regla": 1003,
-    "es_sensible": true,
-    "descripcion": "Patrón de un Token de Autorización Bearer hardcodeado.",
-    "cwe": "CWE-200",
-    "owasp": "MASVS-STORAGE-2",
-    "categoria": "Hardcoded Secrets",
-    "activo": true
-  },
-  
-  "JS_DANGEROUS_EVAL": {
-    "patron": "eval\\s*\\(",
-    "id_regla": 2001,
-    "es_sensible": true,
-    "descripcion": "Uso de la función 'eval()', que puede ejecutar código arbitrario y es un vector común de inyección de código.",
-    "cwe": "CWE-94",
-    "owasp": "A03:2021",
-    "categoria": "Code Injection",
-    "activo": true
-  },
-  
-  "JS_XSS_INNER_HTML": {
-    "patron": "innerHTML\\s*=",
-    "id_regla": 2002,
-    "es_sensible": true,
-    "descripcion": "Asignación a 'innerHTML', un vector común para Cross-Site Scripting (XSS) si el valor no está sanitizado.",
-    "cwe": "CWE-79",
-    "owasp": "A03:2021",
-    "categoria": "XSS Vector",
-    "activo": true
-  },
-  
-  "JS_DANGEROUS_DOCUMENT_WRITE": {
-    "patron": "document\\.write\\s*\\(",
-    "id_regla": 2003,
-    "es_sensible": true,
-    "descripcion": "Uso de 'document.write()', puede ser un vector de XSS y tiene impactos negativos en el rendimiento.",
-    "cwe": "CWE-79",
-    "owasp": "A03:2021",
-    "categoria": "XSS Vector",
-    "activo": true
-  },
-  
-  "JS_DB_CONNECTION_STRING": {
-    "patron": "(?:mongodb://|postgres://|mysql://)[^\\s'\"\\?]+",
-    "id_regla": 1004,
-    "es_sensible": true,
-    "descripcion": "Patrón de cadena de conexión de base de datos (MongoDB, Postgres, MySQL) potencialmente expuesta.",
-    "cwe": "CWE-200",
-    "owasp": "MASVS-STORAGE-2",
-    "categoria": "Hardcoded Connection",
-    "activo": true
-  },
-  
-  "JS_CRYPTO_KEY_PEM": {
-    "patron": "-----BEGIN [A-Z\\s]+?-----\\s*([A-Za-z0-9+/=\\s]{16,})\\s*-----END [A-Z\\s]+?-----",
-    "id_regla": 1005,
-    "es_sensible": true,
-    "descripcion": "Clave criptográfica privada o certificado (PEM/PKCS) codificado en el código.",
-    "cwe": "CWE-321",
-    "owasp": "MASVS-CRYPTO-2",
-    "categoria": "Hardcoded Crypto",
-    "activo": true
-  },
-  
-  "JS_SSH_KEY_PATTERN": {
-    "patron": "(?:ecdsa-sha2-|ssh-rsa|ssh-dss)[A-Za-z0-9+/=\\s]{20,}",
-    "id_regla": 1006,
-    "es_sensible": true,
-    "descripcion": "Clave SSH (pública o privada) expuesta en el código.",
-    "cwe": "CWE-200",
-    "owasp": "MASVS-STORAGE-2",
-    "categoria": "Hardcoded Credentials",
-    "activo": true
-  },
-  
-  "JS_API_ENDPOINT_FULL_URL": {
-    "patron": "['\"]https?://[^'\"\\s]+/(?:api|v\\d+)/[^'\"\\s]*['\"]",
-    "id_regla": 3001,
-    "es_sensible": false,
-    "descripcion": "URL de un endpoint de API con protocolo HTTP/HTTPS.",
-    "cwe": "CWE-200",
-    "owasp": "N/A",
-    "categoria": "Information Disclosure",
-    "activo": true
-  },
-  
-  "JS_ADMIN_AUTH_ENDPOINT": {
-    "patron": "['\"](?:/(?:admin|dashboard|api|auth|login|oauth)[^'\"\\s]*)['\"]",
-    "id_regla": 3002,
-    "es_sensible": false,
-    "descripcion": "Ruta interna o endpoint que sugiere funcionalidad administrativa o de autenticación.",
-    "cwe": "CWE-200",
-    "owasp": "N/A",
-    "categoria": "Information Disclosure",
-    "activo": true
-  },
-  
-  "JS_PAYMENT_CONFIG_TOKEN": {
-    "patron": "(publicKey|widgetToken|institutionId|apiKey)\\s*[:=]\\s*['\"]([^'\"]+)['\"]",
-    "id_regla": 3003,
-    "es_sensible": false,
-    "descripcion": "Claves o tokens asociados a configuraciones de pasarelas de pago (p. ej., 'publicKey', 'widgetToken', 'institutionId').",
-    "cwe": "CWE-200",
-    "owasp": "N/A",
-    "categoria": "Configuration Info",
-    "activo": true
-  },
-  
-  "JS_NAVIGATION_ROUTE": {
-    "patron": "navigate\\s*\\(\\s*['\"]([^'\"]+)['\"]",
-    "id_regla": 3004,
-    "es_sensible": false,
-    "descripcion": "Ruta de navegación o URL dentro de una aplicación (p. ej., React Native/Router).",
-    "cwe": "N/A",
-    "owasp": "N/A",
-    "categoria": "Navigation Info",
-    "activo": true
-  },
-  
-  "JS_WEBHOOK_URL": {
-    "patron": "(webhook(Url)?|api|endpoint)[\\s:=]+['\"](https?://[^'\"]+)['\"]",
-    "id_regla": 3005,
-    "es_sensible": false,
-    "descripcion": "URL de Webhook que podría recibir información sensible.",
-    "cwe": "CWE-200",
-    "owasp": "N/A",
-    "categoria": "Information Disclosure",
-    "activo": true
-  }
+	"_METADATA_": {
+		"descripcion": "Patrones de seguridad y extracción de inteligencia para código JavaScript (basado en el escáner legacy).",
+		"idioma": "JavaScript (JS/React Native)",
+		"version": "1.1"
+	},
+	
+	"JS_CREDENTIAL_IN_CODE": {
+		"patron": "(token|key|secret|password|pwd|auth)[\\s]*[:=][\\s]*['\"]([^'\"]{12,})['\"]",
+		"id_regla": 1001,
+		"es_sensible": true,
+		"descripcion": "Credenciales o tokens codificados directamente en el código fuente (password, secret, key, auth).",
+		"cwe": "CWE-259",
+		"owasp": "MASVS-STORAGE-2",
+		"categoria": "Hardcoded Secrets",
+		"activo": true,
+		"negative_search": ["element-type-option-","element-type"] 
+	},
+	
+	"JS_API_KEY_EXPOSED": {
+		"patron": "(?:sk-|pk_|rk_|ak_)[A-Za-z0-9]{20,}",
+		"id_regla": 1002,
+		"es_sensible": true,
+		"descripcion": "Claves de API de servicios populares (Stripe, AWS, etc.) expuestas en el código fuente.",
+		"cwe": "CWE-200",
+		"owasp": "MASVS-STORAGE-2",
+		"categoria": "Hardcoded Secrets",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_BEARER_TOKEN_PATTERN": {
+		"patron": "Bearer[\\s]+([A-Za-z0-9\\-_\\.]{15,})",
+		"id_regla": 1003,
+		"es_sensible": true,
+		"descripcion": "Patrón de un Token de Autorización Bearer hardcodeado.",
+		"cwe": "CWE-200",
+		"owasp": "MASVS-STORAGE-2",
+		"categoria": "Hardcoded Secrets",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_DANGEROUS_EVAL": {
+		"patron": "eval\\s*\\(",
+		"id_regla": 2001,
+		"es_sensible": true,
+		"descripcion": "Uso de la función 'eval()', que puede ejecutar código arbitrario y es un vector común de inyección de código.",
+		"cwe": "CWE-94",
+		"owasp": "A03:2021",
+		"categoria": "Code Injection",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_XSS_INNER_HTML": {
+		"patron": "innerHTML\\s*=",
+		"id_regla": 2002,
+		"es_sensible": true,
+		"descripcion": "Asignación a 'innerHTML', un vector común para Cross-Site Scripting (XSS) si el valor no está sanitizado.",
+		"cwe": "CWE-79",
+		"owasp": "A03:2021",
+		"categoria": "XSS Vector",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_DANGEROUS_DOCUMENT_WRITE": {
+		"patron": "document\\.write\\s*\\(",
+		"id_regla": 2003,
+		"es_sensible": true,
+		"descripcion": "Uso de 'document.write()', puede ser un vector de XSS y tiene impactos negativos en el rendimiento.",
+		"cwe": "CWE-79",
+		"owasp": "A03:2021",
+		"categoria": "XSS Vector",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_DB_CONNECTION_STRING": {
+		"patron": "(?:mongodb://|postgres://|mysql://)[^\\s'\"\\?]+",
+		"id_regla": 1004,
+		"es_sensible": true,
+		"descripcion": "Patrón de cadena de conexión de base de datos (MongoDB, Postgres, MySQL) potencialmente expuesta.",
+		"cwe": "CWE-200",
+		"owasp": "MASVS-STORAGE-2",
+		"categoria": "Hardcoded Connection",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_CRYPTO_KEY_PEM": {
+		"patron": "-----BEGIN [A-Z\\s]+?-----\\s*([A-Za-z0-9+/=\\s]{16,})\\s*-----END [A-Z\\s]+?-----",
+		"id_regla": 1005,
+		"es_sensible": true,
+		"descripcion": "Clave criptográfica privada o certificado (PEM/PKCS) codificado en el código.",
+		"cwe": "CWE-321",
+		"owasp": "MASVS-CRYPTO-2",
+		"categoria": "Hardcoded Crypto",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_SSH_KEY_PATTERN": {
+		"patron": "(?:ecdsa-sha2-|ssh-rsa|ssh-dss)[A-Za-z0-9+/=\\s]{20,}",
+		"id_regla": 1006,
+		"es_sensible": true,
+		"descripcion": "Clave SSH (pública o privada) expuesta en el código.",
+		"cwe": "CWE-200",
+		"owasp": "MASVS-STORAGE-2",
+		"categoria": "Hardcoded Credentials",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_API_ENDPOINT_FULL_URL": {
+		"patron": "['\"]https?://[^'\"\\s]+/(?:api|v\\d+)/[^'\"\\s]*['\"]",
+		"id_regla": 3001,
+		"es_sensible": false,
+		"descripcion": "URL de un endpoint de API con protocolo HTTP/HTTPS.",
+		"cwe": "CWE-200",
+		"owasp": "N/A",
+		"categoria": "Information Disclosure",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_ADMIN_AUTH_ENDPOINT": {
+		"patron": "['\"](?:/(?:admin|dashboard|api|auth|login|oauth)[^'\"\\s]*)['\"]",
+		"id_regla": 3002,
+		"es_sensible": false,
+		"descripcion": "Ruta interna o endpoint que sugiere funcionalidad administrativa o de autenticación.",
+		"cwe": "CWE-200",
+		"owasp": "N/A",
+		"categoria": "Information Disclosure",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_PAYMENT_CONFIG_TOKEN": {
+		"patron": "(publicKey|widgetToken|institutionId|apiKey)\\s*[:=]\\s*['\"]([^'\"]+)['\"]",
+		"id_regla": 3003,
+		"es_sensible": false,
+		"descripcion": "Claves o tokens asociados a configuraciones de pasarelas de pago (p. ej., 'publicKey', 'widgetToken', 'institutionId').",
+		"cwe": "CWE-200",
+		"owasp": "N/A",
+		"categoria": "Configuration Info",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_NAVIGATION_ROUTE": {
+		"patron": "navigate\\s*\\(\\s*['\"]([^'\"]+)['\"]",
+		"id_regla": 3004,
+		"es_sensible": false,
+		"descripcion": "Ruta de navegación o URL dentro de una aplicación (p. ej., React Native/Router).",
+		"cwe": "N/A",
+		"owasp": "N/A",
+		"categoria": "Navigation Info",
+		"activo": true,
+		"negative_search": []
+	},
+	
+	"JS_WEBHOOK_URL": {
+		"patron": "(webhook(Url)?|api|endpoint)[\\s:=]+['\"](https?://[^'\"]+)['\"]",
+		"id_regla": 3005,
+		"es_sensible": false,
+		"descripcion": "URL de Webhook que podría recibir información sensible.",
+		"cwe": "CWE-200",
+		"owasp": "N/A",
+		"categoria": "Information Disclosure",
+		"activo": true,
+		"negative_search": []
+	}
 }

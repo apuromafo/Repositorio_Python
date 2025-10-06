@@ -481,13 +481,20 @@
     "AWS_ACCOUNT_ID": {
         "id_regla": "1035",
         "es_sensible": true,
-        "patron": "(?i)((\\\"|'|`)?(aws)?_?(account)?_?(id)?(\\\"|'|`)?\\s{0,50}(:|=>|=)\\s{0,50}(\\\"|'|`)?[0-9]{4}-?[0-9]{4}-?[0-9]{4}(\\\"|'|`)?)",
+        "patron": "(?i)(?:aws|amazon|account)[^:\\n]{0,20}(?::|=)[^\\n]{0,20}(?<![\\d\\S])([0-9]{12})(?![\\d\\S])",
         "descripcion": "AWS Account ID (identifier)",
         "categoria": "identifier",
         "cwe": "CWE-200",
         "owasp": "A02:2021 - Cryptographic Failures",
         "referencia": "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/|https://cwe.mitre.org/data/definitions/200.html",
-        "activo": true
+        "activo": true,
+        "negative_search": [
+            "motor_number",
+            "chassis_number",
+            "policy_number",
+            "insured_national_identification",
+            "hiring_national_identification"
+        ]
     },
     "AWS_SECRET_ACCESS_KEY": {
         "id_regla": "1036",
@@ -770,7 +777,7 @@
     "USERNAME_AND_PASSWORD_IN_URI": {
         "id_regla": "1061",
         "es_sensible": true,
-        "patron": "([\\w+]{1,24})(://)([-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,24}([^\\s]+))",
+        "patron": "['\"](?:[a-zA-Z]{2,8}:\\/\\/)[^\\s:@]+?:[^\\s@]+?@[a-zA-Z0-9.-]{3,}\\.[a-zA-Z]{2,}",
         "descripcion": "Username and password in URI (credential)",
         "categoria": "credential",
         "cwe": "CWE-798",

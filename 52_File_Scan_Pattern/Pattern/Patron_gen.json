@@ -211,7 +211,9 @@
     "cwe": "N/A",
     "owasp": "N/A",
     "categoria": "Information",
-    "activo": true
+    "activo": true,
+	"negative_search": [
+            "http://www.w3.org","http://www.w3.org/2000/","http://www.w3.org/2000/svg"]
   },
   
   "INFO_HTTPS_URL": {
@@ -222,7 +224,14 @@
     "cwe": "N/A",
     "owasp": "N/A",
     "categoria": "Information",
-    "activo": true
+    "activo": true,
+	"negative_search": [
+            "wa.me/",
+            "whatsapp",
+            "googletagmanager.com",
+            "googleapis.com",
+            "gstatic.com"
+        ]
   },
   
   "INFO_SLACK_WEBHOOK": {
