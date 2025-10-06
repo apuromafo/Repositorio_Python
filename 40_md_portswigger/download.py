@@ -403,60 +403,85 @@ def create_directory_for_url(url_path, base_output_dir):
 if __name__ == "__main__":
     print(f"Iniciando descarga desde {ACADEMY_INDEX_URL} a formato Markdown (contenido limpio, activos filtrados con rutas simplificadas y bloques no deseados eliminados).")
 
-    raw_academy_html = get_html_content_from_url(ACADEMY_INDEX_URL)
-    if not raw_academy_html:
-        print("No se pudo obtener el índice principal de la academia. Saliendo.")
-        exit()
-
-    academy_soup = get_soup(raw_academy_html)
-    
-    academy_md_path = os.path.join(OUTPUT_DIR, "academy_index.md")
-    academy_main_content_html = extract_main_content(raw_academy_html, ACADEMY_INDEX_URL, academy_md_path)
-    save_markdown_content(h.handle(academy_main_content_html), academy_md_path)
-    time.sleep(1)
-
-    main_topic_urls = extract_topic_links(academy_soup)
-    print(f"\nSe encontraron {len(main_topic_urls)} temas principales:")
-    for url in main_topic_urls:
-        print(f"- {url}")
-
+    # Conjunto para llevar un registro de las URLs que ya se intentaron descargar.
+    # Es mejor definirlo aquí si se quiere usar en el bloque try/except para el mensaje final.
     all_downloaded_urls = set()
-
-    for topic_url in main_topic_urls:
-        if topic_url in all_downloaded_urls:
-            continue
-            
-        parsed_topic_url = urlparse(topic_url)
-        topic_dir = create_directory_for_url(parsed_topic_url.path, OUTPUT_DIR)
-        topic_filename_md = os.path.join(topic_dir, f"{create_sanitized_filename(topic_url)}")
+    
+    try:
+        # --- Lógica principal envuelta en try para manejar la interrupción ---
         
-        print(f"\n--- Procesando tema: {topic_url} ---")
-        raw_topic_html_content = get_html_content_from_url(topic_url)
-        all_downloaded_urls.add(topic_url)
+        # 1. Descarga del índice principal
+        raw_academy_html = get_html_content_from_url(ACADEMY_INDEX_URL)
+        if not raw_academy_html:
+            print("No se pudo obtener el índice principal de la academia. Saliendo.")
+            # Aunque requests.exceptions.RequestException ya lo maneja, este es un punto de salida.
+            exit(1) 
+
+        academy_soup = get_soup(raw_academy_html)
+        
+        academy_md_path = os.path.join(OUTPUT_DIR, "academy_index.md")
+        academy_main_content_html = extract_main_content(raw_academy_html, ACADEMY_INDEX_URL, academy_md_path)
+        save_markdown_content(h.handle(academy_main_content_html), academy_md_path)
         time.sleep(1)
 
-        if raw_topic_html_content:
-            topic_main_content_html = extract_main_content(raw_topic_html_content, topic_url, topic_filename_md)
-            save_markdown_content(h.handle(topic_main_content_html), topic_filename_md)
+        main_topic_urls = extract_topic_links(academy_soup)
+        print(f"\nSe encontraron {len(main_topic_urls)} temas principales:")
+        for url in main_topic_urls:
+            print(f"- {url}")
+
+        # 2. Descarga de Temas y Lecciones
+        for topic_url in main_topic_urls:
+            if topic_url in all_downloaded_urls:
+                continue
             
-            topic_soup = get_soup(raw_topic_html_content)
-            lesson_urls = extract_lesson_links(topic_soup, topic_url)
-            print(f"  Se encontraron {len(lesson_urls)} lecciones/labs para {parsed_topic_url.path.split('/')[-1]}:")
+            parsed_topic_url = urlparse(topic_url)
+            topic_dir = create_directory_for_url(parsed_topic_url.path, OUTPUT_DIR)
+            topic_filename_md = os.path.join(topic_dir, f"{create_sanitized_filename(topic_url)}")
+            
+            print(f"\n--- Procesando tema: {topic_url} ---")
+            raw_topic_html_content = get_html_content_from_url(topic_url)
+            all_downloaded_urls.add(topic_url)
+            time.sleep(1)
 
-            for lesson_url in lesson_urls:
-                if lesson_url not in all_downloaded_urls:
-                    print(f"  - Descargando lección/lab: {lesson_url}")
-                    parsed_lesson_url = urlparse(lesson_url)
-                    
-                    lesson_dir = create_directory_for_url(parsed_lesson_url.path, OUTPUT_DIR)
-                    lesson_filename_md = os.path.join(lesson_dir, f"{create_sanitized_filename(lesson_url)}")
-                    
-                    raw_lesson_html_content = get_html_content_from_url(lesson_url)
-                    if raw_lesson_html_content:
-                        lesson_main_content_html = extract_main_content(raw_lesson_html_content, lesson_url, lesson_filename_md)
-                        save_markdown_content(h.handle(lesson_main_content_html), lesson_filename_md)
-                        all_downloaded_urls.add(lesson_url)
-                    time.sleep(0.7)
+            if raw_topic_html_content:
+                topic_main_content_html = extract_main_content(raw_topic_html_content, topic_url, topic_filename_md)
+                save_markdown_content(h.handle(topic_main_content_html), topic_filename_md)
+                
+                topic_soup = get_soup(raw_topic_html_content)
+                lesson_urls = extract_lesson_links(topic_soup, topic_url)
+                print(f"  Se encontraron {len(lesson_urls)} lecciones/labs para {parsed_topic_url.path.split('/')[-1]}:")
 
-    print("\n--- Proceso de descarga a Markdown terminado ---")
-    print(f"Total de URLs únicas intentadas descargar: {len(all_downloaded_urls)}")
+                for lesson_url in lesson_urls:
+                    if lesson_url not in all_downloaded_urls:
+                        print(f"  - Descargando lección/lab: {lesson_url}")
+                        parsed_lesson_url = urlparse(lesson_url)
+                        
+                        lesson_dir = create_directory_for_url(parsed_lesson_url.path, OUTPUT_DIR)
+                        lesson_filename_md = os.path.join(lesson_dir, f"{create_sanitized_filename(lesson_url)}")
+                        
+                        raw_lesson_html_content = get_html_content_from_url(lesson_url)
+                        if raw_lesson_html_content:
+                            lesson_main_content_html = extract_main_content(raw_lesson_html_content, lesson_url, lesson_filename_md)
+                            save_markdown_content(h.handle(lesson_main_content_html), lesson_filename_md)
+                            all_downloaded_urls.add(lesson_url)
+                        time.sleep(0.7)
+
+        # --- Fin de la lógica principal ---
+        print("\n🎉 --- Proceso de descarga a Markdown terminado con éxito --- 🎉")
+        print(f"Total de URLs únicas descargadas: {len(all_downloaded_urls)}")
+        
+    except KeyboardInterrupt:
+        # Manejo específico para Ctrl+C
+        print("\n\n🛑 --- INTERRUPCIÓN DETECTADA (Ctrl+C) --- 🛑")
+        print("El proceso de descarga ha sido interrumpido por el usuario.")
+        print(f"El trabajo realizado hasta ahora se ha guardado en: {OUTPUT_DIR}")
+        print(f"Se descargaron {len(all_downloaded_urls)} contenidos antes de la interrupción.")
+        print("¡Gracias por usar el script! Puedes reanudar más tarde.")
+        
+    except Exception as e:
+        # Manejo de cualquier otra excepción inesperada
+        print(f"\n\n❌ --- ERROR INESPERADO CRÍTICO --- ❌")
+        print(f"Se ha producido un error crítico que ha detenido el proceso: {e}")
+        print(f"Por favor, revisa el error para solucionar el problema.")
+        print(f"Contenido guardado hasta ahora en: {OUTPUT_DIR}")
+        print(f"Total de URLs únicas descargadas: {len(all_downloaded_urls)}")
