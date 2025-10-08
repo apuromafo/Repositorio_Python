@@ -729,18 +729,10 @@ def main():
     # Paso 7: Diagnóstico de Estado del Binario Remoto
     remote_version, file_exists = check_remote_server_file_status(device_id)
 
-    # Paso 8: Flujo Condicional (Inicio Rápido o Despliegue/Actualización)
-    if is_running:
-        print("\n🎉 **VALIDACIÓN EXITOSA.** El frida-server ya responde. Dispositivo listo.")
-        if remote_version != "Desconocida" and remote_version != frida_version_client:
-             print(f"⚠️ **ADVERTENCIA DE VERSIÓN:** El Cliente ({frida_version_client}) y el Server ({remote_version}) son diferentes.")
-        log("Validación exitosa. Servidor remoto ya responde.")
-        return 
-
-    print("\n❌ **SERVIDOR NO ENCONTRADO/NO COMPATIBLE**")
+ 
     
-    if file_exists and remote_version == frida_version_client:
-        
+    #if file_exists and remote_version == frida_version_client:
+    if file_exists :# and remote_version == frida_version_client:    
         print(f"   -> Binario detectado con la versión **CORRECTA ({remote_version})**. Solo necesita ser iniciado.")
         
         prompt_start = input(f"[?] ¿Deseas **INICIAR** el frida-server existente (v{frida_version_client}) en {device_id}? (s/n): ").strip().lower()
