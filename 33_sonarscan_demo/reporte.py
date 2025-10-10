@@ -12,7 +12,7 @@ Este script realiza lo siguiente:
 """
 
 __description__ = 'Herramienta de apoyo a ejecutar reporte de frida'
-__author__ = 'Michel Faúndez'
+__author__ = 'Apuromafo'
 __version__ = '0.0.4'
 __date__ = '2025-06-04'
 
@@ -130,7 +130,7 @@ def crear_config_ini(ruta_config):
     config_parser['SonarQube'] = {
         'sonar.token': 'squ_xx_xxxxxxxxxxxxxxx',
         'url': 'https://sonarqube-aws.sitio.vip/ ',
-        'NombreReporte': 'Seguridad Ofensiva',
+        'NombreReporte': 'NOMBRE REPORTE',
         'ruta_jar': 'sonar-cnes-report-5.0.2.jar',
         'ruta_plantilla': 'code-analysis-template.docx'
     }
