@@ -309,12 +309,20 @@ def get_device_info(device_id):
         log(f"Error inesperado al obtener información del dispositivo: {e}")
         return None
 
+def log(mensaje):
+    """Función de log dummy para que el script sea ejecutable."""
+    print(mensaje)
+
 def filtrar_aplicaciones(aplicaciones):
     """
-    Filtra las aplicaciones irrelevantes para enfocarse en las de usuario.
+    Filtra las aplicaciones irrelevantes para enfocarse en las de usuario,
+    incluyendo exclusiones masivas por prefijo y una lista blanca detallada.
     """
     log("Filtrando aplicaciones irrelevantes...")
+    
+    # Lista de nombres de paquetes que se deben excluir.
     lista_blanca = {
+        # --- Listado Original de Exclusiones de Google/Android/Genymotion/Chromium etc. ---
         "android.car.cluster.maserati", "com.android.apps.tag", "com.android.auto.embedded.cts.verifier", "com.android.car.carlauncher",
         "com.android.car.home", "com.android.car.retaildemo", "com.android.car.settingslib.robotests", "com.android.car.setupwizardlib.robotests",
         "com.android.cardock", "com.android.connectivity.metrics", "com.android.facelock", "com.android.google.gce.gceservice",
@@ -342,14 +350,38 @@ def filtrar_aplicaciones(aplicaciones):
         "org.chromium.arc.apkcacheprovider", "org.chromium.arc.applauncher", "org.chromium.arc.backup_settings",
         "org.chromium.arc.cast_receiver", "org.chromium.arc.crash_collector", "org.chromium.arc.file_system",
         "org.chromium.arc.gms", "org.chromium.arc.home", "org.chromium.arc.intent_helper", "org.telegram.messenger.web",
-        "org.chromium.arc.tts"
+        "org.chromium.arc.tts",
+        
+        # --- Exclusiones de Samsung/Sistema (paquetes sin prefijo) ---
+        "com.osp.app.signin", "com.skms.android.agent", "com.wsomacp", "com.monotype.android.font.foundation", 
+        "com.monotype.android.font.samsungone", "android.autoinstalls.config.samsung", "com.dti.samsung",
+        "com.sec.epdgtestapp", "com.sec.sve", "com.samsung.SMT", "com.samsung.cmh", "com.samsung.rcs", "com.samsung.ssu",
+        "com.wssyncmldm", "android.auto_generated_rro_vendor__", "com.knox.vpn.proxyhandler",
+        
+        # --- Exclusiones de Aplicaciones de Terceros 
+        "org.telegram.messenger",
+        "com.microsoft.skydrive",
+        "com.facebook.services",
+        "com.topjohnwu.magisk",
+        "com.facebook.katana",
+        "com.opera.max.oem",
+        "com.facebook.system",
+        "com.einnovation.temu",
+        "com.hiya.star",
+        "com.facebook.appmanager",
+
     }
     
     aplicaciones_filtradas = [
         app for app in aplicaciones
         if not (
+            # REGLAS DE EXCLUSIÓN MASIVA POR PREFIJO
             app.startswith("com.google.") or
             app.startswith("com.android.") or
+            app.startswith("com.samsung.") or  # <--- Filtra todas las de Samsung
+            app.startswith("com.sec.") or      # <--- Filtra todas las de Samsung Electronics Corp.
+            
+            # OTRAS REGLAS DE PREFIJO QUE YA TENÍAS
             app.startswith("com.breel.") or
             app.startswith("com.genymotion.") or
             app.startswith("com.example.android.") or
@@ -357,9 +389,11 @@ def filtrar_aplicaciones(aplicaciones):
             app.startswith("android.ext.") or
             app.startswith("org.chromium.") or
             app.startswith("com.opengapps.") or
+            
+            # REGLAS POR NOMBRE EXACTO O PARCIAL
             app == "android" or
             "android.auto_generated_rro_product__" in app or
-            app in lista_blanca
+            app in lista_blanca # Aplica todas las exclusiones de arriba
         )
     ]
     log(f"Aplicaciones filtradas: {len(aplicaciones_filtradas)}")

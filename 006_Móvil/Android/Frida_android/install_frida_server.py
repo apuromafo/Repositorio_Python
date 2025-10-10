@@ -457,6 +457,7 @@ def get_device_info(device_id):
         
     return info
 
+#update 09.10.2025 se añade casos de arm 
 def get_device_architecture(device_id):
     """Obtiene la arquitectura del dispositivo seleccionado (Mapeo a Frida)."""
     log(f"Obteniendo arquitectura para el dispositivo {device_id}...")
@@ -465,10 +466,13 @@ def get_device_architecture(device_id):
         arch = result.stdout.strip()
         
         frida_arch_map = {
-            'arm64-v8a': 'arm64',
-            'armeabi-v7a': 'arm',
-            'x86_64': 'x86_64',
-            'x86': 'x86'
+        # ARM
+        "arm64-v8a": "arm64",    # Mapeo de 64-bit V8
+        "armeabi-v7a": "arm",    # Mapeo de 32-bit V7
+        "armeabi": "arm",        # Mapeo de 32-bit (viejos/secundarios)
+        # x86 
+        "x86_64": "x86_64",      # Mapeo de 64-bit Intel
+        "x86": "x86",            # Mapeo de 32-bit Intel
         }
         
         normalized_arch = frida_arch_map.get(arch, arch)
@@ -706,9 +710,9 @@ def main():
     print("-----------------------------------")
     
     # Paso 5: Obtención de la arquitectura del dispositivo
-    architecture = device_info.get("Architecture")
-    if architecture and architecture == "N/A":
-        architecture = get_device_architecture(device_id)
+    architecture = get_device_architecture(device_id)
+    if not architecture or architecture == "N/A":
+        architecture = device_info.get("Architecture")
     if not architecture:
         return
 
