@@ -59,3 +59,7 @@
 52_File_Scan_Pattern/poc.txt
 /50_Conversor Burp XML a OpenAPI/output
 /57_PDF Info/DEMO
+008_Cabeceras_Seguridad/header.json
+/008_Cabeceras_Seguridad/POC
+009_Rut_Chileno/poc1.txt
+009_Rut_Chileno/rut12.txt
