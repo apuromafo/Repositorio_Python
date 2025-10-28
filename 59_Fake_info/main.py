@@ -8,7 +8,8 @@ from typing import List, Dict, Any, Tuple
 from gen_person_data import generate_fake_person_data
 from gen_enterprise_data import generate_fake_enterprise_data
 from gen_auto import generate_fake_vehicle_data
-from gen_exporter import export_to_json, export_to_csv 
+from gen_exporter import export_to_json, export_to_csv, export_to_txt
+from gen_manejo_errores import run_with_error_handling
 
 # =================================================================
 # 🛡️ DISCLAIMER Y CONTROL DE VERSIÓN 🛡️
@@ -97,57 +98,54 @@ def display_vehicle_data(data: Dict[str, Any]):
 # --- Lógica de Exportación Mejorada ---
 
 def get_export_formats() -> List[str]:
-    """Solicita al usuario los formatos de exportación deseados (JSON/CSV)."""
+    """Solicita al usuario los formatos de exportación deseados (TXT/JSON/CSV)."""
     while True:
         print("\n--- Formatos de Exportación Disponibles ---")
-        print("1. TXT (Recomendamos formatos estructurados)")
+        print("1. TXT (Texto Plano por Línea)")
         print("2. JSON (Ideal para APIs y Bases de Datos NoSQL)")
         print("3. CSV (Ideal para Bases de Datos Relacionales y Hojas de Cálculo)")
         
-        choice = input("Seleccione formatos (e.g., 2,3 ó 2-3 ó solo 3): ").strip()
+        choice = input("Seleccione formatos (e.g., 1,2,3 ó 2-3): ").strip()
         
         if not choice:
             print("Exportación omitida.")
             return []
 
-        # Mapear las opciones de entrada a los formatos válidos
         formats_to_export = []
         
+        # 🚨 INCLUIR TXT
         if '1' in choice:
-             print("ℹ️ Opción 1 (TXT) no es un formato estructurado útil. Solo exportaremos 2 (JSON) y/o 3 (CSV).")
-
-        if '2' in choice or '2-3' in choice:
+            formats_to_export.append("txt") 
+            
+        if '2' in choice:
             formats_to_export.append("json")
-        
-        if '3' in choice or '2-3' in choice:
+            
+        if '3' in choice:
             formats_to_export.append("csv")
             
-        if '1-3' in choice or '3-1' in choice:
-            if "json" not in formats_to_export:
-                 formats_to_export.append("json")
-            if "csv" not in formats_to_export:
-                 formats_to_export.append("csv")
-        
-        # Eliminar duplicados y retornar
         unique_formats = sorted(list(set(formats_to_export)))
         
         if not unique_formats:
-             print("❌ Opción inválida o solo se seleccionó TXT. Por favor, intente de nuevo o presione Enter para omitir.")
+            print("❌ Opción inválida. Por favor, intente de nuevo o presione Enter para omitir.")
         else:
-             print(f"⚙️ Exportando en formato(s): {', '.join(unique_formats).upper()}")
-             return unique_formats
+            print(f"⚙️ Exportando en formato(s): {', '.join(unique_formats).upper()}")
+            return unique_formats
 
 def handle_export(data_list: List[Dict[str, Any]], prefix: str, formats: List[str]):
     """Ejecuta la exportación para una lista de datos dada."""
     if not data_list:
         return
 
+    # 🚨 NUEVA LÓGICA PARA TXT
+    if "txt" in formats: 
+        # Llamar a la función recién añadida
+        print(export_to_txt(data_list, prefix, DEFAULT_OUTPUT_FOLDER)) 
+        
     if "json" in formats:
         print(export_to_json(data_list, prefix, DEFAULT_OUTPUT_FOLDER))
     
     if "csv" in formats:
         print(export_to_csv(data_list, prefix, DEFAULT_OUTPUT_FOLDER))
-
 # --- Función Principal ---
 
 def run_generator():
@@ -220,4 +218,4 @@ def run_generator():
 
 
 if __name__ == "__main__":
-    run_generator()
+    run_with_error_handling(run_generator)

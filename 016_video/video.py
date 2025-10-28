@@ -2,8 +2,8 @@
 
 description = 'Herramienta de uso de ffmpeg para bajar o convertir a mp4, o unir video/audio.'
 author = 'Apuromafo'
-version = '0.0.1'
-date = '28.11.2024'
+version = '0.0.2-mod' # Versión actualizada para reflejar el cambio
+date = '29.11.2024' # Fecha actualizada
 
 import logging
 import os
@@ -14,7 +14,6 @@ import shutil
 import re # Necesario para el análisis de metadatos del archivo unido
 
 # --- Configuración por Defecto para la Opción 3 ---
-# Estas constantes se usan como valores sugeridos en el menú.
 DEFAULT_DIR = "Video"
 DEFAULT_VIDEO_INPUT = os.path.join(DEFAULT_DIR, "video.ts")
 DEFAULT_AUDIO_INPUT = os.path.join(DEFAULT_DIR, "audio.ts")
@@ -31,7 +30,7 @@ def configurar_log(detallado):
     formato_mensaje = '%(asctime)s :: %(levelname)5s ::  %(name)10s :: %(message)s'
     formato_fecha = '%Y-%m-%d %H:%M:%S'
     
-    # Restablecer handlers existentes si se llama varias veces (importante para el bucle del menú)
+    # Restablecer handlers existentes
     if logger.handlers:
         logger.handlers.clear()
         
@@ -52,8 +51,7 @@ def validar_ffmpeg():
     """Valida si ffmpeg está instalado en el sistema."""
     if shutil.which("ffmpeg") is None:
         print("❌ Error: ffmpeg no está instalado en su sistema.")
-        print("Por favor, instale ffmpeg e inténtelo nuevamente.")
-        print("Puede descargarlo desde https://ffmpeg.org/download.html")
+        logger.critical("ffmpeg no encontrado en el PATH.")
         sys.exit(1)
     else:
         logger.info("ffmpeg está instalado correctamente.")
@@ -108,11 +106,9 @@ def analizar_con_ffmpeg(ruta_archivo):
         if match_bitrate_global:
             br_kbps = match_bitrate_global.group(1)
             
-            # Estimación del Bitrate de Video (el más grande, se muestra en Mbps)
             br_video_mbps = int(br_kbps) / 1000
             caracteristicas['bitrate_video'] = f"{br_video_mbps:.2f} Mbps (Estimado)"
             
-            # Bitrate de Audio (se asume el valor predeterminado de AAC)
             caracteristicas['bitrate_audio'] = "Aprox. 128-192 Kbps (AAC predeterminado)"
             
     except Exception as e:
@@ -120,8 +116,8 @@ def analizar_con_ffmpeg(ruta_archivo):
 
     return caracteristicas
 
-def mostrar_caracteristicas(ruta_archivo, datos):
-    """Muestra la duración, resolución y bitrates en consola."""
+def mostrar_caracteristicas(ruta_archivo, datos, modo_union_simple=False):
+    """Muestra la duración, resolución y bitrates en consola con un indicador del origen del audio."""
     print("\n--- Características del Archivo de Salida ---")
     if datos and datos['duracion'] is not None:
         duracion_segundos = datos['duracion']
@@ -133,16 +129,22 @@ def mostrar_caracteristicas(ruta_archivo, datos):
         print(f"🕒 Duración total: {duracion_formateada} ({duracion_segundos:.2f} segundos)")
         print(f"🖼️  Resolución de Video: {datos['resolucion']}")
         print(f"📊 Bitrate de Video: {datos['bitrate_video']}")
-        print(f"🔊 Bitrate de Audio: {datos['bitrate_audio']}")
+        
+        if modo_union_simple:
+            print(f"🔊 Bitrate de Audio: {datos['bitrate_audio']} (El audio fue copiado de 'video.ts').")
+        else:
+            print(f"🔊 Bitrate de Audio: {datos['bitrate_audio']} (El audio fue extraído de 'audio.ts' y recodificado).")
+
         print("\n*Nota: Los bitrates son **estimados** a partir del log general de ffmpeg.")
     else:
         print(f"❌ No se pudieron obtener las características del archivo: {ruta_archivo}")
 
-# --- Funciones de las Opciones del Menú (Abreviadas por espacio) ---
+# --- Funciones de las Opciones del Menú (Abreviadas) ---
+
+# ... (opcion_convertir_directorio y funciones relacionadas se mantienen sin cambios) ...
 
 def opcion_convertir_directorio(directorio_entrada, directorio_salida, detallado):
     """[Funcionalidad de la Opción 1 - Procesar todos los archivos en directorio]"""
-    # ... (El código de la Opción 1 es extenso, se mantiene como estaba) ...
     formatos_soportados = (".ts", ".flv", ".mkv", ".avi", ".mov", ".wmv", ".mp4")
     
     if not os.path.isdir(directorio_entrada):
@@ -167,7 +169,7 @@ def opcion_convertir_directorio(directorio_entrada, directorio_salida, detallado
             convertir_video_simple(archivo_entrada, archivo_salida)
 
             datos_analisis = analizar_con_ffmpeg(archivo_salida)
-            mostrar_caracteristicas(archivo_salida, datos_analisis)
+            mostrar_caracteristicas(archivo_salida, datos_analisis, modo_union_simple=True) # Usamos True porque es una conversión simple
 
 def convertir_video_simple(archivo_entrada, archivo_salida):
     """Convierte un archivo de video a MP4."""
@@ -196,9 +198,10 @@ def convertir_video_simple(archivo_entrada, archivo_salida):
         logger.error(f"❌ Error inesperado: {e}")
 
 
+# ... (opcion_descargar_m3u8 y funciones relacionadas se mantienen sin cambios) ...
+
 def opcion_descargar_m3u8(url_m3u8, directorio_salida, detallado):
     """[Funcionalidad de la Opción 2 - Descargar M3U8]"""
-    # ... (El código de la Opción 2 es extenso, se mantiene como estaba) ...
     os.makedirs(directorio_salida, exist_ok=True)
     archivo_salida = os.path.join(directorio_salida, "video_descargado.mp4")
     
@@ -223,72 +226,83 @@ def opcion_descargar_m3u8(url_m3u8, directorio_salida, detallado):
         print(f"✅ Video descargado exitosamente: {archivo_salida}")
         
         datos_analisis = analizar_con_ffmpeg(archivo_salida)
-        mostrar_caracteristicas(archivo_salida, datos_analisis)
+        mostrar_caracteristicas(archivo_salida, datos_analisis, modo_union_simple=True)
 
     except subprocess.CalledProcessError as e:
         error_msg = e.stderr.decode('utf-8', errors='ignore')
         logger.error(f"❌ Error al descargar desde M3U8:\n{error_msg}")
         print(f"❌ Error al descargar el video. Revisa el archivo de log para más detalles.")
 
-def validar_archivos_union(video, audio):
-    """Valida la existencia de los dos archivos de entrada para la unión."""
-    if not os.path.isfile(video):
-        return f"❌ Error: El archivo de video '{video}' no se encuentra."
-    if not os.path.isfile(audio):
-        return f"❌ Error: El archivo de audio '{audio}' no se encuentra."
-    return None
 
-def opcion_unir_audio_video():
-    """Opción 3: Combina un archivo de video y uno de audio en un solo MP4."""
-    print("\n--- Unir Streams de Video y Audio (.ts a .mp4) ---")
+def validar_o_preguntar_archivos_union(ruta_video, ruta_audio):
+    """
+    Valida la existencia del video y pregunta al usuario si desea continuar si falta el audio.
     
-    # --- Consulta con Valores por Defecto ---
-    ruta_video = input(f"Ingrese la ruta del video (Default: {DEFAULT_VIDEO_INPUT}): ").strip() or DEFAULT_VIDEO_INPUT
-    ruta_audio = input(f"Ingrese la ruta del audio (Default: {DEFAULT_AUDIO_INPUT}): ").strip() or DEFAULT_AUDIO_INPUT
-    ruta_salida_base = input(f"Ingrese el archivo de salida (Default: {DEFAULT_OUTPUT}): ").strip() or DEFAULT_OUTPUT
+    :param ruta_video: Ruta del archivo de video.
+    :param ruta_audio: Ruta del archivo de audio.
+    :return: Una tupla (ruta_video, ruta_audio, usar_solo_video_como_input) o (None, None, None) si el proceso se detiene.
+    """
+    # 1. Validar Video
+    if not os.path.isfile(ruta_video):
+        print(f"❌ Error: El archivo de video '{ruta_video}' no se encuentra.")
+        logger.error(f"Video no encontrado: {ruta_video}")
+        return None, None, None
     
-    # 1. Validación de entradas
-    error_validacion = validar_archivos_union(ruta_video, ruta_audio)
-    if error_validacion:
-        print(error_validacion)
-        logger.error(error_validacion)
-        return
+    # 2. Validar Audio y Preguntar
+    usar_solo_video_como_input = False
+    
+    if not os.path.isfile(ruta_audio):
+        print(f"⚠️ Advertencia: El archivo de audio '{ruta_audio}' no se encuentra.")
+        logger.warning(f"Audio no encontrado: {ruta_audio}")
         
-    # 2. Manejo de nombre de salida
-    if not ruta_salida_base.lower().endswith(".mp4"):
-        ruta_salida_base += ".mp4"
+        while True:
+            respuesta = input("¿Desea procesar el video usando SOLAMENTE el audio/video que contiene 'video.ts' (s/n)?: ").strip().lower()
+            if respuesta == 's':
+                usar_solo_video_como_input = True
+                print("✅ Se continuará procesando usando 'video.ts' como fuente única.")
+                ruta_audio = None # Anulamos la ruta de audio
+                break
+            elif respuesta == 'n':
+                print("🛑 Proceso detenido por solicitud del usuario.")
+                return None, None, None
+            else:
+                print("Respuesta no válida. Por favor, ingrese 's' para sí o 'n' para no.")
+    else:
+        print("✅ Archivos de entrada validados correctamente. Se procederá a unirlos.")
         
-    # Crear el directorio por defecto si no existe y si se usa la ruta por defecto
-    if ruta_salida_base.startswith(DEFAULT_DIR) and not os.path.isdir(DEFAULT_DIR):
-        os.makedirs(DEFAULT_DIR, exist_ok=True)
-    
-    ruta_salida = ruta_salida_base
-    
-    # Si ya existe, añadir un sufijo para no sobreescribir
-    nombre_base, extension = os.path.splitext(ruta_salida)
-    contador = 1
-    # Bucle para encontrar un nombre de archivo único
-    while os.path.exists(ruta_salida):
-        # La ruta de salida se reconstruye para incluir el sufijo
-        ruta_salida = f"{nombre_base.split('_unido')[0]}_unido_{contador}{extension}" 
-        contador += 1
-    
-    # 3. Ejecutar ffmpeg
-    comando_ffmpeg = [
-        "ffmpeg",
-        "-y",
-        "-i", ruta_video,
-        "-i", ruta_audio,
-        "-c:v", "copy",
-        "-c:a", "aac",
-        "-map", "0:v:0",
-        "-map", "1:a:0",
-        "-shortest",
-        ruta_salida
-    ]
+    return ruta_video, ruta_audio, usar_solo_video_como_input
 
-    logger.info(f"Iniciando unión: {ruta_video} + {ruta_audio} -> {ruta_salida}")
-    print("\n🛠️ Ejecutando comando ffmpeg...")
+
+def ejecutar_union_ffmpeg(ruta_video, ruta_audio, ruta_salida, usar_solo_video_como_input):
+    """
+    Construye y ejecuta el comando ffmpeg, adaptándose a si se usa un solo input o dos.
+    Retorna True si la ejecución fue exitosa.
+    """
+    comando_ffmpeg = ["ffmpeg", "-y"]
+
+    if usar_solo_video_como_input:
+        # MODO: SOLO 'video.ts' (copia video y audio interno)
+        comando_ffmpeg.extend(["-i", ruta_video])
+        comando_ffmpeg.extend(["-c", "copy"]) # Copia todos los streams
+        comando_ffmpeg.extend(["-map", "0"])  # Mapea todos los streams del input 0
+        
+        logger.info(f"Modo: Procesando {ruta_video} como fuente única (-c copy, -map 0).")
+        print("\n🛠️ Modo: Procesando 'video.ts' como ÚNICA fuente (se intenta usar su audio interno)...")
+    else:
+        # MODO: MEZCLA DE DOS ARCHIVOS (comportamiento original)
+        comando_ffmpeg.extend(["-i", ruta_video])
+        comando_ffmpeg.extend(["-i", ruta_audio])
+        
+        comando_ffmpeg.extend(["-c:v", "copy", "-c:a", "aac"])
+        comando_ffmpeg.extend(["-map", "0:v:0", "-map", "1:a:0"])
+        comando_ffmpeg.append("-shortest")
+        
+        logger.info(f"Modo: Mezclando {ruta_video} y {ruta_audio} (-c:v copy, -c:a aac, -map 0:v:0, -map 1:a:0, -shortest).")
+        print("\n🛠️ Modo: Procesando y MEZCLANDO 'video.ts' y 'audio.ts'...")
+        
+    # Salida
+    comando_ffmpeg.append(ruta_salida)
+
     print(f"Comando: {' '.join(comando_ffmpeg)}")
 
     try:
@@ -300,25 +314,66 @@ def opcion_unir_audio_video():
         )
         print(f"\n🎉 ¡Éxito! El archivo se ha generado correctamente en: '{ruta_salida}'")
         logger.info(f"✅ Unión exitosa: {ruta_salida}")
-        
-        # 4. Análisis y características del archivo de salida
-        datos_analisis = analizar_con_ffmpeg(ruta_salida)
-        mostrar_caracteristicas(ruta_salida, datos_analisis)
+        return True
 
     except subprocess.CalledProcessError as e:
         error_msg = e.stderr
         logger.error(f"❌ Error al unir archivos:\n{error_msg}")
         print(f"❌ Ocurrió un error durante la ejecución de ffmpeg. Revisa el log.")
+        return False
     except Exception as e:
         logger.error(f"❌ Error inesperado en la unión: {e}")
         print("❌ Error inesperado. Revisa el log.")
+        return False
+
+
+def opcion_unir_audio_video():
+    """Opción 3: Combina un archivo de video y uno de audio en un solo MP4, con manejo de ausencia de audio."""
+    print("\n--- Unir Streams de Video y Audio (.ts a .mp4) ---")
+    
+    # --- Consulta con Valores por Defecto ---
+    ruta_video = input(f"Ingrese la ruta del video (Default: {DEFAULT_VIDEO_INPUT}): ").strip() or DEFAULT_VIDEO_INPUT
+    ruta_audio = input(f"Ingrese la ruta del audio (Default: {DEFAULT_AUDIO_INPUT}): ").strip() or DEFAULT_AUDIO_INPUT
+    ruta_salida_base = input(f"Ingrese el archivo de salida (Default: {DEFAULT_OUTPUT}): ").strip() or DEFAULT_OUTPUT
+    
+    # 1. Validación de entradas y manejo de la ausencia de audio
+    ruta_video, ruta_audio, usar_solo_video_como_input = validar_o_preguntar_archivos_union(ruta_video, ruta_audio)
+    
+    if ruta_video is None: # Si validar_o_preguntar_archivos_union retorna None, el usuario detuvo el proceso o faltó el video.
+        return
+        
+    # 2. Manejo de nombre de salida
+    if not ruta_salida_base.lower().endswith(".mp4"):
+        ruta_salida_base += ".mp4"
+        
+    if ruta_salida_base.startswith(DEFAULT_DIR) and not os.path.isdir(DEFAULT_DIR):
+        os.makedirs(DEFAULT_DIR, exist_ok=True)
+    
+    ruta_salida = ruta_salida_base
+    
+    nombre_base, extension = os.path.splitext(ruta_salida)
+    contador = 1
+    # Si el archivo ya existe, añadir un sufijo
+    while os.path.exists(ruta_salida):
+        # Asegurarse de que el sufijo de unión se añada correctamente si no existe ya
+        base_sin_sufijo = nombre_base.split('_unido')[0]
+        ruta_salida = f"{base_sin_sufijo}_unido_{contador}{extension}" 
+        contador += 1
+    
+    # 3. Ejecutar ffmpeg
+    if ejecutar_union_ffmpeg(ruta_video, ruta_audio, ruta_salida, usar_solo_video_como_input):
+        # 4. Análisis y características del archivo de salida
+        datos_analisis = analizar_con_ffmpeg(ruta_salida)
+        # Pasamos el modo_union_simple a la función de mostrar_caracteristicas
+        mostrar_caracteristicas(ruta_salida, datos_analisis, modo_union_simple=usar_solo_video_como_input)
 
 # --- Menú Principal ---
+# ... (menu_principal y main se mantienen sin cambios) ...
 
 def menu_principal():
     """Menú principal interactivo en español."""
     print("\n=============================================")
-    print("      🎥 HERRAMIENTA MULTI-USO DE FFmpeg      ")
+    print("      🎥 HERRAMIENTA MULTI-USO DE FFmpeg      ")
     print("=============================================")
     print("1. Convertir videos desde un directorio a MP4")
     print("2. Descargar video desde una URL M3U8")

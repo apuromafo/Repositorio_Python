@@ -1,8 +1,8 @@
-# gen_exporter.py
+# gen_exporter.py (v4.1.1 - Soporte TXT Añadido)
 
 import json
 import csv
-import os # <-- NUEVO
+import os
 from typing import List, Dict, Any
 from datetime import date
 
@@ -13,25 +13,13 @@ from datetime import date
 def export_to_json(data_list: List[Dict[str, Any]], filename_prefix: str = "data_export", output_folder: str = "") -> str:
     """
     Exporta una lista de diccionarios a un archivo JSON.
-
-    Args:
-        data_list: La lista de diccionarios a exportar.
-        filename_prefix: Prefijo del nombre del archivo.
-        output_folder: Carpeta donde se guardará el archivo (e.g., 'output').
-
-    Returns:
-        Mensaje de éxito o error.
     """
-    # Crear un nombre de archivo único con fecha
     today_str = date.today().strftime("%Y%m%d")
     filename = f"{filename_prefix}_{today_str}.json"
-    
-    # Construir la ruta completa
     full_path = os.path.join(output_folder, filename)
 
     try:
         with open(full_path, 'w', encoding='utf-8') as f:
-            # Usar indentación para que el JSON sea legible
             json.dump(data_list, f, ensure_ascii=False, indent=4)
         return f"✅ Archivo JSON creado con éxito en: {full_path}"
     except Exception as e:
@@ -39,40 +27,41 @@ def export_to_json(data_list: List[Dict[str, Any]], filename_prefix: str = "data
 
 def flatten_dict(d: Dict[str, Any], parent_key: str = '', sep: str = '_') -> Dict[str, Any]:
     """
-    Función auxiliar para aplanar diccionarios anidados (necesario para CSV).
-    Convierte {'detalle': {'comuna': 'Santiado'}} en {'detalle_comuna': 'Santiago'}.
+    Función auxiliar para aplanar diccionarios anidados.
+    Mejorada para manejar listas de diccionarios de forma segura.
     """
     items = []
     for k, v in d.items():
         new_key = parent_key + sep + k if parent_key else k
+        
         if isinstance(v, dict):
             items.extend(flatten_dict(v, new_key, sep=sep).items())
+            
         elif isinstance(v, list):
-             # Simplemente unirse si es una lista de valores simples
-             items.append((new_key, "; ".join(map(str, v)) if all(not isinstance(i, dict) for i in v) else str(v)))
+            if all(not isinstance(i, dict) for i in v):
+                # Lista de valores simples: unir con ';'
+                items.append((new_key, "; ".join(map(str, v))))
+            else:
+                # Lista de diccionarios o compleja: guardar como cadena JSON
+                try:
+                    items.append((new_key, json.dumps(v, ensure_ascii=False)))
+                except TypeError:
+                    items.append((new_key, str(v)))
+                    
         else:
             items.append((new_key, v))
+            
     return dict(items)
 
 def export_to_csv(data_list: List[Dict[str, Any]], filename_prefix: str = "data_export", output_folder: str = "") -> str:
     """
     Exporta una lista de diccionarios a un archivo CSV.
-
-    Args:
-        data_list: La lista de diccionarios a exportar.
-        filename_prefix: Prefijo del nombre del archivo.
-        output_folder: Carpeta donde se guardará el archivo (e.g., 'output').
-
-    Returns:
-        Mensaje de éxito o error.
     """
     if not data_list:
         return "⚠️ La lista de datos está vacía. No se creó el archivo CSV."
 
-    # Aplanar todos los diccionarios primero
     flat_data = [flatten_dict(record) for record in data_list]
 
-    # Obtener todos los nombres de las columnas (headers)
     fieldnames = set()
     for row in flat_data:
         fieldnames.update(row.keys())
@@ -81,8 +70,6 @@ def export_to_csv(data_list: List[Dict[str, Any]], filename_prefix: str = "data_
 
     today_str = date.today().strftime("%Y%m%d")
     filename = f"{filename_prefix}_{today_str}.csv"
-    
-    # Construir la ruta completa
     full_path = os.path.join(output_folder, filename)
     
     try:
@@ -95,3 +82,27 @@ def export_to_csv(data_list: List[Dict[str, Any]], filename_prefix: str = "data_
         return f"✅ Archivo CSV creado con éxito en: {full_path}"
     except Exception as e:
         return f"❌ Error al escribir el archivo CSV en {full_path}: {e}"
+
+def export_to_txt(data_list: List[Dict[str, Any]], filename_prefix: str = "data_export", output_folder: str = "") -> str:
+    """
+    Exporta una lista de diccionarios a un archivo TXT de texto plano.
+    Cada registro se convierte a una línea de texto simple (JSON en una línea).
+    """
+    if not data_list:
+        return "⚠️ La lista de datos está vacía. No se creó el archivo TXT."
+
+    today_str = date.today().strftime("%Y%m%d")
+    filename = f"{filename_prefix}_{today_str}.txt"
+    full_path = os.path.join(output_folder, filename)
+
+    try:
+        with open(full_path, 'w', encoding='utf-8') as f:
+            for record in data_list:
+                # Convertir cada registro a JSON en una sola línea y escribirlo.
+                # Esto es la forma más limpia de exportar un registro complejo a TXT.
+                line = json.dumps(record, ensure_ascii=False)
+                f.write(line + '\n')
+                
+        return f"✅ Archivo TXT creado con éxito en: {full_path} (JSON por línea)"
+    except Exception as e:
+        return f"❌ Error al escribir el archivo TXT en {full_path}: {e}"
