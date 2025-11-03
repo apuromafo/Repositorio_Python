@@ -1,39 +1,53 @@
 #-------------------------------------------------------------------------------------------------
-#    Cabeceras de seguridad - Analizador de encabezados HTTP.
+#     Cabeceras de seguridad - Analizador de encabezados HTTP.
 #
 # Descripción:
-#     Este script se conecta a una URL o lee un archivo JSON para analizar los encabezados de
-#     respuesta HTTP en busca de configuraciones relacionadas con la seguridad.
-#     Ofrece sugerencias para mejorar la seguridad, identificar encabezados faltantes
-#     y señalar información que podría exponer la infraestructura.
+#       Este script se conecta a una URL o lee un archivo JSON para analizar los encabezados de
+#       respuesta HTTP en busca de configuraciones relacionadas con la seguridad.
+#       Ofrece sugerencias para mejorar la seguridad, identificar encabezados faltantes
+#       y señalar **configuraciones de seguridad débiles o peligrosas (ej. 'unsafe-' en CSP)**.
 #
 # Forma de uso:
-#     - Analizar una URL en vivo:
-#         python Cabeceras_Seguridad.py <URL> [opciones]
-#         Ejemplo: python Cabeceras_Seguridad.py https://ejemplo.com -i
+#       - Analizar una URL en vivo:
+#           python Cabeceras_Seguridad.py <URL> [opciones]
+#           Ejemplo: python Cabeceras_Seguridad.py https://ejemplo.com -i
 #
-#     - Analizar un archivo JSON (generado con 'convert_headers.py'):
-#         python Cabeceras_Seguridad.py -j <archivo.json> [opciones]
-#         Ejemplo: python Cabeceras_Seguridad.py -j demo.json -i
+#       - Analizar un archivo JSON (generado con 'convert_headers.py'):
+#           python Cabeceras_Seguridad.py -j <archivo.json> [opciones]
+#           Ejemplo: python Cabeceras_Seguridad.py -j demo.json -i
 #
-#     - Opciones comunes:
-#         -i, --info       Mostrar todos los encabezados presentes.
-#         -v, --verb       Especificar el verbo HTTP (ej: POST).
-#         -H, --header     Añadir encabezados personalizados.
+#       - Opciones comunes:
+#           -i, --info      Mostrar todos los encabezados presentes.
+#           -v, --verb      Especificar el verbo HTTP (ej: POST).
+#           -H, --header    Añadir encabezados personalizados.
 # -------------------------------------------------------------------------------------------------
 # ==============================================================================
 # --- HISTORIAL DE VERSIONES ---
 # ==============================================================================
+# v0.1.2 (2025-11-03) - [CORRECCIÓN CSP]
+#       ✅ Corregido: La función check_for_unsafe_csp ahora tiene en cuenta la directiva 
+#                  'strict-dynamic'. Si está presente, ignora las alertas para 
+#                  'unsafe-inline' y 'http:'/`https:` en 'script-src', alineándose con 
+#                  las prácticas modernas de seguridad de CSP.
+# ------------------------------------------------------------------------------
+# v0.1.1 (2025-11-03) - [ACTUALIZACIÓN DE SEGURIDAD]
+#       ✅ Añadido: Detección y alerta de directivas inseguras en Content-Security-Policy 
+#                  (ej., 'unsafe-inline', 'unsafe-eval').
+#       ✅ Añadido: Análisis y advertencia sobre configuraciones débiles en HSTS (max-age bajo)
+#                  y Referrer-Policy (unsafe-url).
+#       ✅ Mejorado: Lógica para la cabecera X-XSS-Protection. Ahora se omite como "faltante"
+#                  si la cabecera Content-Security-Policy está presente (práctica moderna).
+#       ✅ Actualizado: User-Agent y Bloque de Historial.
+# ------------------------------------------------------------------------------
 # v0.1.0 (2025-09-04) - [LANZAMIENTO]
-#     ✅ Añadido: Bloque de 'Forma de uso' para una referencia rápida.
-#     ✅ Mejorado: Lógica de análisis de JSON para la 'Descripción' del estado HTTP.
-#     ✅ Corregido: Errores menores en el código y la presentación.
+#       ✅ Añadido: Bloque de 'Forma de uso' para una referencia rápida.
+#       ✅ Mejorado: Lógica de análisis de JSON para la 'Descripción' del estado HTTP.
+#       ✅ Corregido: Errores menores en el código y la presentación.
 # ------------------------------------------------------------------------------
 # v0.0.7 (2025-07-15) - [INICIO]
-#     ✅ Prototipo funcional inicial.
-#     ✅ Análisis de cabeceras de seguridad comunes.
-#     ✅ Soporte para solicitudes web y archivos JSON.
-#     ❌ Pendiente: Historial de versiones detallado y comentarios.
+#       ✅ Prototipo funcional inicial.
+#       ✅ Análisis de cabeceras de seguridad comunes.
+#       ✅ Soporte para solicitudes web y archivos JSON.
 # ==============================================================================
 #!/usr/bin/env python
 """
@@ -63,7 +77,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Constantes
 TIMEOUT = 10  # segundos
-DEFAULT_USER_AGENT = 'CabecerasSegurasScript/0.0.7'
+VERSION = 'v0.1.2'
+DEFAULT_USER_AGENT = 'CabecerasSegurasScript/0.1.2' # Versión actualizada
 
 # Colores para banner
 colores = {
@@ -98,16 +113,17 @@ def generar_degradado_colores(color_inicio, color_fin, pasos):
     return degradado
 
 def print_banner():
-    banner = """
- ::::::::    :::      :::::::::  :::::::::: ::::::::  :::::::::: :::::::::     :::      ::::::::  
-:+:   :+:   :+: :+:   :+:   :+: :+:        :+:   :+: :+:         :+:   :+:    :+: :+:   :+:   :+: 
-+:+        +:+   +:+  +:+   +:+ +:+        +:+       +:+         +:+   +:+   +:+   +:+  +:+       
-+#+        +#++:++#++:+#++:++#+  +#++:++#  +#+       +#++:++#     +#++:++#:  +#++:++#++:+#++:++#++
-+#+        +#+     +#+ +#+   +#+ +#+        +#+       +#+         +#+   +#+  +#+     +#+       +#+
-#+#   #+# #+#     #+# #+#   #+# #+#        #+#   #+# #+#         #+#   #+#  #+#     #+# #+#   #+#
- ########  ###     ### #########  ########## ########  ########## ###   ###  ###     ###  ########  
-                                                                                              v0.1  
-    """
+    global VERSION 
+    banner = f"""
+ ::::::::    :::      :::::::::  :::::::::: ::::::::  :::::::::: :::::::::     :::      ::::::::  
+:+:   :+:    :+: :+:    :+:   :+: :+:          :+:   :+: :+:          :+:   :+:     :+: :+:    :+: 
++:+          +:+   +:+  +:+   +:+ +:+          +:+           +:+          +:+   +:+    +:+   
++#+          +#++:++#++:+#++:++#+  +#++:++#  +#+           +#++:++#      +#++:++#:  +#++:++#++:+#++:++#++
++#+          +#+   +#+ +#+   +#+ +#+          +#+           +#+          +#+   +#+  +#+   +#+     +#+
+#+#   #+# #+#   #+# #+#   #+# #+#          #+#   #+# #+#          #+#   #+#  #+#   #+# #+#   #+#
+ ########  ###   ### #########  ########## ########  ########## ###   ###  ###   ###  ########  
+                                                                                             {VERSION}
+    """   
     color_inicio = colores[random.choice(list(colores.keys()))]
     color_fin = colores[random.choice(list(colores.keys()))]
     degradado = generar_degradado_colores(color_inicio, color_fin, len(banner.splitlines()))
@@ -226,10 +242,9 @@ def suggest_headers_to_remove(headers):
         if header in headers
     }
     if present_suggestions:
-        print(f"\n[!] Cabeceras que podrían eliminarse:")
+        print(f"\n[!] Cabeceras que podrían eliminarse (Exposición de Tecnología):")
         for header, value in present_suggestions.items():
             print(f"[!] Cabecera: {Fore.RED}{header}{Style.RESET_ALL} = {value}")
-
 def print_security_headers(headers):
     security_headers = [
         "Content-Security-Policy", "X-XSS-Protection", "X-Frame-Options",
@@ -238,17 +253,42 @@ def print_security_headers(headers):
     ]
     present_headers = [h for h in security_headers if h in headers or h.lower() in headers]
     missing_headers = [h for h in security_headers if h not in headers and h.lower() not in headers]
+    
+    # --- Lógica de X-XSS-Protection mejorada (v0.1.2) ---
+    x_xss_protection = headers.get('X-XSS-Protection', headers.get('x-xss-protection'))
+    csp_present = any("Content-Security-Policy" == h or "content-security-policy" == h for h in present_headers)
+
+    if "X-XSS-Protection" in missing_headers:
+        if csp_present:
+            # CAMBIO APLICADO AQUÍ: Imprimir como NOTA si CSP está presente.
+            print(f"[*] {Fore.GREEN}Nota sobre X-XSS-Protection:{Style.RESET_ALL} Falta, pero está obsoleta si {Fore.GREEN}Content-Security-Policy{Style.RESET_ALL} es fuerte.")
+            
+            # Remover de missing_headers si CSP está presente para un total más preciso en la práctica moderna
+            missing_headers.remove("X-XSS-Protection")
+        else:
+            # Mensaje original: falta y no hay CSP
+            print(f"[!] Falta la cabecera de seguridad: {Fore.YELLOW}X-XSS-Protection{Style.RESET_ALL}")
+            print(f"    {Fore.YELLOW}Advertencia:{Style.RESET_ALL} Se recomienda usar CSP en su lugar, ya que X-XSS-Protection no es suficiente.")
+    else:
+        # Si está presente, verificar si su valor es inseguro
+        if x_xss_protection and '1' in x_xss_protection and 'mode=block' not in x_xss_protection:
+            print(f"[!] {Fore.YELLOW}Advertencia en X-XSS-Protection:{Style.RESET_ALL} Valor obsoleto. Se recomienda usar '1; mode=block' o '0' si se confía en CSP.")
+    # --- Fin de lógica de X-XSS-Protection ---
 
     print(f"\nCabeceras de seguridad presentes:")
     if present_headers:
         for header in present_headers:
-            print(f"[*] Cabecera {Fore.GREEN}{header}{Style.RESET_ALL} está presente!")
+            # Evitar doble impresión si X-XSS-Protection se manejó arriba y no está en la lista de presentes.
+            # La condición se simplifica a la original, ya que si está en present_headers, no está en missing_headers.
+            if header not in ["X-XSS-Protection"] or (header in ["X-XSS-Protection"] and x_xss_protection):
+                print(f"[*] Cabecera {Fore.GREEN}{header}{Style.RESET_ALL} está presente!")
     else:
         print("No se encontraron cabeceras de seguridad presentes.")
 
     print(f"\n[!] Cabeceras de seguridad faltantes:")
     if missing_headers:
         for header in missing_headers:
+            # Solo si no se omitió arriba (solo para CSP)
             print(f"[!] Falta la cabecera de seguridad: {Fore.YELLOW}{header}{Style.RESET_ALL}")
     else:
         print("Todas las cabeceras de seguridad están presentes.")
@@ -266,6 +306,44 @@ def print_special_headers(headers):
         print(f"\nCabeceras especiales presentes:")
         for header in present_headers:
             print(f"[*] Cabecera {Fore.GREEN}{header}{Style.RESET_ALL} está presente!")
+            
+            
+def check_for_unsafe_csp(csp_value):
+    """Verifica si la CSP contiene directivas inseguras, ajustando para 'strict-dynamic'."""
+    csp_value_lower = csp_value.lower()
+    
+    # Flags para deshabilitar alertas si 'strict-dynamic' está presente
+    is_strict_dynamic = "'strict-dynamic'" in csp_value_lower
+    
+    # Directivas inseguras y su explicación
+    unsafe_directives = {
+        "'unsafe-eval'": "Permite funciones como eval(), abre la puerta a XSS.",
+        "data:": "Permite datos codificados en base64 o similares como fuente. Evitar en 'script-src'.",
+        "http:": "Permite contenido mixto (mixed content) si se usa HTTPS.",
+        "'unsafe-inline'": "Permite scripts y estilos inline, abre la puerta a XSS. Usar nonce o hash."
+    }
+    
+    warnings = []
+    
+    for unsafe_term, reason in unsafe_directives.items():
+        if unsafe_term in csp_value_lower:
+            # Lógica de exclusión para 'strict-dynamic'
+            if is_strict_dynamic:
+                if unsafe_term == "'unsafe-inline'":
+                    # 'unsafe-inline' se ignora si 'strict-dynamic' está presente (compatibilidad)
+                    continue 
+                if unsafe_term == "http:":
+                    # 'http:' se degrada o ignora si 'strict-dynamic' está presente (compatibilidad)
+                    continue
+                    
+            # Si no hay exclusión, se añade la advertencia
+            warnings.append(f"Directiva {Fore.RED}{unsafe_term}{Style.RESET_ALL} encontrada: {reason}")
+            
+    # Mensaje especial para 'strict-dynamic'
+    if is_strict_dynamic:
+        warnings.append(f"[*] {Fore.GREEN}Nota: {Style.RESET_ALL}Se detectó '{Fore.GREEN}strict-dynamic{Style.RESET_ALL}'. Esto degrada o anula 'unsafe-inline' y los esquemas http:/https: para asegurar la compatibilidad con navegadores antiguos, haciendo que la CSP sea {Fore.GREEN}mucho más robusta{Style.RESET_ALL} frente a XSS.")
+            
+    return warnings
 
 def suggest_recommended_headers(headers):
     recommended_headers = {
@@ -277,21 +355,66 @@ def suggest_recommended_headers(headers):
         "Cross-Origin-Resource-Policy": "same-origin",
         "Permissions-Policy": "accelerometer=(), autoplay=(), camera=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(self), usb=(), web-share=(), xr-spatial-tracking=(), clipboard-read=(), clipboard-write=(), gamepad=(), hid=(), idle-detection=(), interest-cohort=(), serial=(), unload=()",
         "Referrer-Policy": "no-referrer",
-        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
         "X-Content-Type-Options": "nosniff",
         "X-Frame-Options": "deny",
         "X-Permitted-Cross-Domain-Policies": "none"
     }
     missing_headers = []
     
+    # -----------------------------------------------------
+    # --- INICIO: ANÁLISIS DE CONFIGURACIONES INSEGURAS ---
+    # -----------------------------------------------------
+    print(f"\n{Fore.CYAN} Información Adicional: Configuraciones Inseguras [Alertas]{Style.RESET_ALL}")
+
+    # A1. Análisis de Content-Security-Policy (CSP)
+    csp_header = headers.get('Content-Security-Policy', headers.get('content-security-policy'))
+    if csp_header:
+        csp_warnings = check_for_unsafe_csp(csp_header)
+        if csp_warnings:
+            print(f"{Fore.RED}[!!!] Alerta de seguridad en Content-Security-Policy:{Style.RESET_ALL}")
+            for warning in csp_warnings:
+                print(f"[!] {warning}")
+        else:
+             print(f"[*] Content-Security-Policy: {Fore.GREEN}No se detectaron directivas 'unsafe-' obvias.{Style.RESET_ALL}")
+    else:
+        print("[!] Content-Security-Policy: No presente.")
+
+    # A2. Análisis de Strict-Transport-Security (HSTS) - max-age
+    hsts_header = headers.get('Strict-Transport-Security', headers.get('strict-transport-security'))
+    if hsts_header and 'max-age' in hsts_header:
+        try:
+            max_age_val = int(hsts_header.split('max-age=')[1].split(';')[0].strip())
+            if max_age_val < 15768000: # 6 meses
+                print(f"[!] {Fore.YELLOW}Advertencia en HSTS:{Style.RESET_ALL} 'max-age' bajo ({max_age_val}s). Se recomienda mínimo 15768000 segundos (6 meses).")
+            if 'includeSubDomains' not in hsts_header:
+                print(f"[!] {Fore.YELLOW}Advertencia en HSTS:{Style.RESET_ALL} Falta la directiva 'includeSubDomains'.")
+        except:
+            print(f"[!] {Fore.YELLOW}Advertencia en HSTS:{Style.RESET_ALL} Formato de 'max-age' inválido.")
+
+
+    # A3. Análisis de Referrer-Policy - Inseguro ('unsafe-url')
+    referrer_header = headers.get('Referrer-Policy', headers.get('referrer-policy'))
+    if referrer_header and 'unsafe-url' in referrer_header:
+        print(f"[!] {Fore.RED}Alerta en Referrer-Policy:{Style.RESET_ALL} Directiva '{Fore.RED}unsafe-url{Style.RESET_ALL}' expone la URL de origen en cualquier petición.")
+    
+    # -----------------------------------------------------
+    # --- FIN: ANÁLISIS DE CONFIGURACIONES INSEGURAS ---
+    # -----------------------------------------------------
+
+    print(f"\n{Fore.CYAN} Información Adicional: Sugerencias [Buenas prácticas - Faltantes]{Style.RESET_ALL}")
+
+    # --- Lógica de sugerencias para FALTANTES (original) ---
     for header, value in recommended_headers.items():
-        if header not in headers:
+        if header not in headers and header.lower() not in headers:
             missing_headers.append({"name": header, "value": value})
 
     if missing_headers:
         print(f"\n[!] Cabeceras recomendadas que podrían configurarse:")
         for header in missing_headers:
             print(f"[!] Cabecera: {Fore.YELLOW}{header['name']}: {header['value']}{Style.RESET_ALL}")
+    else:
+        print("[*] No se detectaron cabeceras recomendadas faltantes.")
 
 def print_tiempo():
     try:
@@ -299,16 +422,20 @@ def print_tiempo():
     except AttributeError:
         available_locales = list(locale.windows_locale.values())
     
-    if 'es_ES.UTF-8' not in available_locales:
+    if 'es_ES.UTF-8' not in available_locales and 'es_ES' not in available_locales:
         locale.setlocale(locale.LC_TIME, '')
     else:
-        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+        try:
+            locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+        except locale.Error:
+            locale.setlocale(locale.LC_TIME, 'es_ES')
     
     now = datetime.now(timezone.utc)
-    gmt_offset = timedelta(hours=-4)
+    # Ejemplo de Offset (ajusta si lo necesitas)
+    gmt_offset = timedelta(hours=0) 
     gmt_time = now + gmt_offset
     formatted_date = now.strftime("%A, %d de %B de %Y %H:%M:%S UTC")
-    print(f"\nFecha y hora: {formatted_date} ({gmt_time.strftime('%H:%M GMT-4')})")
+    print(f"\nFecha y hora: {formatted_date}")
 
 def save_to_json(data, filename='output.json'):
     with open(filename, 'w') as json_file:
@@ -370,11 +497,12 @@ def main():
             
             # Formatear la información para print_status, ya que no hay un objeto response
             headers = output_data.get('headers', {})
+            status_code = output_data.get('status_code', '')
             response_data = {
                 'url': output_data.get('url', ''),
-                'status_code': output_data.get('status_code', ''),
+                'status_code': status_code,
                 'location': headers.get('Location', ''),
-                'status_description': requests.status_codes._codes.get(output_data.get('status_code', ''), [''])[0],
+                'status_description': requests.status_codes._codes.get(status_code, [''])[0] if status_code else '',
                 'http_version': 'N/A'
             }
             
@@ -454,9 +582,11 @@ def main():
         
         print_special_headers(output_data['headers'])
         print_security_headers(output_data['headers'])
-        print("\n Información Adicional: Sugerencias [Buenas prácticas]\n ")
-        suggest_headers_to_remove(output_data['headers'])
-        suggest_recommended_headers(output_data['headers'])
+        
+        # Estas funciones se mueven al final de suggest_recommended_headers para una salida más limpia
+        # print("\n Información Adicional: Sugerencias [Buenas prácticas]\n ") 
+        suggest_recommended_headers(output_data['headers']) 
+        suggest_headers_to_remove(output_data['headers']) # Mantenida aquí para que aparezca después de la seguridad
         print_tiempo()
 
 if __name__ == "__main__":
