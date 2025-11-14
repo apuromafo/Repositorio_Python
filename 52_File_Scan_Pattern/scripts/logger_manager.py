@@ -143,7 +143,14 @@ def guardar_estadisticas_finales() -> None:
             f.write("="*70 + "\n")
     except Exception as e:
         registrar_log(f"ERROR guardando estadísticas: {e}", True, "ERROR")
-
+def obtener_estadisticas_globales() -> Dict[str, Any]:
+    """
+    Retorna el diccionario de estadísticas globales para su uso en otras funciones.
+    """
+    global ESTADO_LOGGER
+    return ESTADO_LOGGER.get('estadisticas', {})
+    
+    
 def cerrar_logger() -> None:
     global ESTADO_LOGGER
     if not ESTADO_LOGGER.get('cerrado', True):

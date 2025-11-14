@@ -1,0 +1,105 @@
+{
+  "_METADATA_": {
+    "descripcion": "Colección de patrones robustos y heurísticos para detectar credenciales y datos sensibles en archivos de exportación de DataStage Exchange (DSX).",
+    "idioma": "Config File (DSX)",
+    "version": "2.1 - Optimizado para escaneo línea por línea",
+    "_nota_": "⚠️ ÚNICAMENTE DSX_PASSWORD_LINE_EXPOSED funciona con el escaneo actual (línea por línea). Los demás requieren modificación del motor de escaneo para soporte multilínea."
+  },
+  
+  "_SENSIBLES_LINEA_POR_LINEA_": {
+    "_descripcion": "Estos patrones funcionan con el escaneo actual (línea por línea)",
+    "_recomendacion": "Priorizar estos patrones para detección inmediata"
+  },
+  
+  "DSX_PASSWORD_LINE_EXPOSED": {
+    "id_regla": "DSX-8001",
+    "es_sensible": true,
+    "patron": "Value\\s+\"(?!#)(?![A-Z_]+#)(?![a-z]+@[a-z])(?![C-Z]:\\\\)[^\"]{4,64}\"",
+    "descripcion": "Password o credencial expuesta en archivo DSX (valor no enmascarado #...#). Heurística de alta precisión para escaneo línea por línea.",
+    "categoria": "hardcoded_credentials_dsx",
+    "cwe": "CWE-259",
+    "owasp": "A02:2021 - Cryptographic Failures",
+    "mitigacion": "Enmascarar credenciales con #VARIABLE# en archivos DSX. Nunca hardcodear passwords.",
+    "negative_search": [
+      "dummy", "test", "sample", "changeme", "password123",
+      "#ASE_USER#", "#USERNAME#", "#USER#", "#HOST#", "#PORT#",
+      "#DATABASE#", "#SERVER#", "#PATH#", "#SCHEMA#", "#URL#",
+      "support@", "contact@", "admin@", "noreply@", "info@","dbo."," <> "
+    ],
+    "activo": true,
+    "_test_cases_": {
+      "_positivos": ["Value \"MyP@ssw0rd!2024\"", "Value \"aquilaclave\""],
+      "_negativos": ["Value \"#PASSWORD#\"", "Value \"test@email.com\"", "Value \"C:\\path\""]
+    }
+  },
+  
+  "_SENSIBLES_MULTILINEA_REQUIERE_MODIFICACION_": {
+    "_descripcion": "⚠️ Estos patrones NO funcionan con el escaneo actual (línea por línea)",
+    "_recomendacion": "Requiere modificar escaneo.py para leer bloques completos antes de aplicar regex",
+    "_ejemplo_modificacion": "def escanear_bloque_dsx(contenido_completo): ... usar re.DOTALL"
+  },
+  
+  "DSX_PASS_ROBUSTO_DSRECORD": {
+    "id_regla": "DSX-9001",
+    "es_sensible": true,
+    "patron": "BEGIN[\\s\\S]*?(?:DSRECORD|DSSUBRECORD)[\\s\\S]*?Name[\\s\\S]*?\"PASSWORD\"[\\s\\S]*?Value[\\s\\S]*?\"([^\"]+)\"[\\s\\S]*?END[\\s\\S]*?(?:DSRECORD|DSSUBRECORD)",
+    "descripcion": "[REQUIERE SOPORTE MULTILÍNEA] Contraseña en bloque DSRECORD/DSSUBRECORD con Name PASSWORD.",
+    "categoria": "hardcoded_credentials_dsx",
+    "cwe": "CWE-259",
+    "owasp": "A01:2021 - Broken Access Control",
+    "activo": false,
+    "_estado_": "Deshabilitado - No compatible con escaneo actual"
+  },
+  
+  "DSX_PASS_ROBUSTO_CON_PASS": {
+    "id_regla": "DSX-9002",
+    "es_sensible": true,
+    "patron": "BEGIN[\\s\\S]*?(?:DSRECORD|DSSUBRECORD)[\\s\\S]*?Name[\\s\\S]*?\"ConnectionPassword\"[\\s\\S]*?Value[\\s\\S]*?\"([^\"]+)\"[\\s\\S]*?END[\\s\\S]*?(?:DSRECORD|DSSUBRECORD)",
+    "descripcion": "[REQUIERE SOPORTE MULTILÍNEA] ConnectionPassword en bloque DSRECORD/DSSUBRECORD.",
+    "categoria": "hardcoded_credentials_dsx",
+    "cwe": "CWE-259",
+    "owasp": "A01:2021 - Broken Access Control",
+    "activo": false,
+    "_estado_": "Deshabilitado - No compatible con escaneo actual"
+  },
+  
+  "DSX_SENSITIVE_JOB_VAR_DEFINITION_ROBUSTO": {
+    "id_regla": "DSX-9003",
+    "es_sensible": true,
+    "patron": "Name[\\s\\S]*?\"ParamName\"[\\s\\S]*?Value[\\s\\S]*?\"(?:P|p)ass(?:word|wd|key|swd|SECRET|cred|Auth|Token)\"[\\s\\S]*?BEGIN[\\s\\S]*?DSRECORD[\\s\\S]*?Name[\\s\\S]*?\"ParamValue\"[\\s\\S]*?Value[\\s\\S]*?\"([^\"]+)\"[\\s\\S]*?END[\\s\\S]*?DSRECORD",
+    "descripcion": "[REQUIERE SOPORTE MULTILÍNEA] Variable de trabajo con nombre de contraseña y valor expuesto.",
+    "categoria": "Variables de Configuración",
+    "cwe": "CWE-259",
+    "owasp": "A01:2021 - Broken Access Control",
+    "activo": false,
+    "_estado_": "Deshabilitado - No compatible con escaneo actual"
+  },
+  
+  "_INFORMATIVOS_MULTILINEA_REQUIERE_MODIFICACION_": {
+    "_descripcion": "Patrones informativos que también requieren soporte multilínea"
+  },
+  
+  "DSX_USER_ROBUSTO": {
+    "id_regla": "DSX-8002",
+    "es_sensible": false,
+    "patron": "BEGIN[\\s\\S]*?DSSUBRECORD[\\s\\S]*?Name[\\s\\S]*?\"USERNAME\"[\\s\\S]*?Value[\\s\\S]*?\"([^\"]+)\"[\\s\\S]*?END[\\s\\S]*?DSSUBRECORD",
+    "descripcion": "[REQUIERE SOPORTE MULTILÍNEA] Nombre de usuario en DSSUBRECORD.",
+    "categoria": "Credenciales",
+    "cwe": "CWE-200",
+    "owasp": "A01:2021 - Broken Access Control",
+    "activo": false,
+    "_estado_": "Deshabilitado - No compatible con escaneo actual"
+  },
+  
+  "DSX_DB_CONN_INFO_ROBUSTO": {
+    "id_regla": "DSX-8003",
+    "es_sensible": false,
+    "patron": "BEGIN[\\s\\S]*?(?:DSRECORD|DSSUBRECORD)[\\s\\S]*?Name[\\s\\S]*?\"(?:Server|DatabaseName|DataSource|Host|DBName|ServiceName)\"[\\s\\S]*?Value[\\s\\S]*?\"([^\"]+)\"[\\s\\S]*?END[\\s\\S]*?(?:DSRECORD|DSSUBRECORD)",
+    "descripcion": "[REQUIERE SOPORTE MULTILÍNEA] Información de conexión a base de datos en bloques DSX.",
+    "categoria": "Conexiones de DB",
+    "cwe": "CWE-200",
+    "owasp": "A01:2021 - Broken Access Control",
+    "activo": false,
+    "_estado_": "Deshabilitado - No compatible con escaneo actual"
+  }
+}

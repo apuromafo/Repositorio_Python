@@ -1,5 +1,11 @@
 #-------------------------------------------------------------------------------------------------
-#     Cabeceras de seguridad - Analizador de encabezados HTTP.
+#
+#otras formas de validar o ver cabeceras SecurityHeaders.com
+#curl -I https://yourdomain.com
+#DevTools > Network > Response Headers
+#
+# Ahora con esta herramienta: 
+#Cabeceras de seguridad - Analizador de encabezados HTTP.
 #
 # Descripción:
 #       Este script se conecta a una URL o lee un archivo JSON para analizar los encabezados de

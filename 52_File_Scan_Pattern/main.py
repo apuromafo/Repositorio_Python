@@ -1,5 +1,8 @@
 """
-main.py - Versión 1.2.6
+main.py - 
+Versión 1.2.7
+Se añade patrón para archivo dsx, y se mejora visualización de snippet
+Versión 1.2.6
 Bucle principal interactivo con impresión avanzada de metadatos incluyendo hash SHA256 completo.
 Scripts están en /scripts/
 """
@@ -14,7 +17,7 @@ from scripts.patrones import cargar_todos_los_patrones, ESTADO_PATRONES
 from scripts.escaneo import escanear_archivo, escanear_carpeta, imprimir_resumen_tabla
 from scripts.utilidades import cargar_sugerencias
 
-__version__ = "1.2.6"
+__version__ = "1.2.7"
 
 def manejador_senal(sig, frame):
     print(texto_coloreado("\n⚠️ Interrupción detectada (Ctrl+C). Saliendo limpiamente...", Colores['ADVERTENCIA']))
