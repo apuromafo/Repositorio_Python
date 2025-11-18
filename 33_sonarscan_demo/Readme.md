@@ -1,112 +1,129 @@
-# SonarQube Report Generator
 
-Herramienta de línea de comandos para generar reportes de seguridad desde SonarQube usando plantillas personalizadas.
+# 🛡️ Orquestador de Análisis SonarQube (v1.0.0)
 
----
+Este conjunto de scripts tiene como objetivo **simplificar y automatizar** el proceso de preparación del entorno, descarga de dependencias y generación de reportes de análisis de código utilizando **SonarQube** y la herramienta **SonarScanner**.
 
-## 🧩 Descripción
+El corazón del proyecto es el script **`00_Main.py`**, que proporciona un **menú interactivo** para ejecutar cada etapa de forma controlada o lanzar la secuencia completa.
 
-Este script permite a los equipos de ciberseguridad:
-- Generar informes técnicos automáticamente desde SonarQube.
-- Comparar y actualizar valores desde `sonar-scanner.properties` si hay diferencias.
-- Comprimir resultados en ZIP (opcional).
-- Ser multiplataforma (Windows, Linux, macOS).
+## ⚙️ Requisitos
 
----
+Asegúrese de tener instalados y configurados los siguientes requisitos:
 
-## ✅ Requisitos
+  * **Python 3.x:** (Recomendado 3.8 o superior).
+  * **Java JRE/JDK:** Necesario para ejecutar el SonarScanner y el generador de reportes (CNES JAR).
+  * **Módulos de Python:**
+    ```bash
+    pip install requests
+    ```
 
-1. **Java instalado**  
-   Asegúrate de tener Java disponible:  
-   ```bash
-   java -version
-   ```
+-----
 
-2. **Sonar Scanner configurado**  
-   Debe existir el archivo:
-   ```
-   sonar-scanner.properties
-   ```
-   Con estas claves:
-   ```ini
-   sonar.host.url=https://tu-instancia.sonarqube.com/
-   sonar.token=squ_xx_xxxxxxxxxxxxxxx
-   ```
+## 🚀 Guía de Inicio Rápido
 
-3. **Archivos necesarios**
-   - `sonar-cnes-report-X.Y.Z.jar`
-   - Plantilla Word: `code-analysis-template.docx`  
-     *(Recomendado dentro de una carpeta llamada `plantillas/`)*
+Ejecute el script principal para acceder al menú interactivo:
 
----
-
-## ⚙️ Configuración
-
-Crea un archivo `config.ini` con esta estructura:
-
-```ini
-[SonarQube]
-sonar.token = squ_xx_xxxxxxxxxxxxxxx
-url = https://tu-instancia.sonarqube.com/
-NombreReporte = Nombre Reporte
-ruta_jar = sonar-cnes-report-5.0.2.jar
-ruta_plantilla = code-analysis-template.docx
-```
-
-Si no existe, el script lo crea automáticamente con valores por defecto.
-
----
-
-## 🚀 Uso del Script
-
-### 1. Mostrar ayuda
 ```bash
-python reporte.py -h
+python 00_Main.py
 ```
 
-### 2. Generar reporte normal
+### Opciones del Menú
+
+| Opción | Script | Descripción |
+| :---: | :--- | :--- |
+| **1** | `01_config.ini.py` | Sincroniza la URL y el Token de `config.ini` con `sonar-project.properties`. |
+| **2** | `02_validate_env.py` | Valida si la ruta de SonarScanner está en la variable de entorno **PATH**. |
+| **3** | `03_download_scanner.py` | Descarga, descomprime y sugiere agregar el último **SonarScanner** al PATH. |
+| **4** | `04_validate_sonarscan.py` | Verifica la conectividad al servidor SonarQube (API) y el ejecutable del Scanner (`-v`). |
+| **5** | `05_download_cnes_report.py` | Descarga y/o valida la versión más reciente del JAR de reporte **CNES**. |
+| **6** | `06_genera_nombre.py` | **Genera comandos de análisis** (Key, Name, comandos `sonar-scanner`, `mvn`, etc.) de forma interactiva. |
+| **7** | `07_reporte.py` | **Genera el reporte** final de SonarQube, aceptando argumentos. |
+| **8** | **Secuencia Completa** | Ejecuta los Pasos **1, 2, 3, 4, 5 y 7** automáticamente. |
+| **0** | **Salir** | Finaliza el Orquestador. |
+
+-----
+
+## 📝 Uso de la Secuencia Completa (Paso 8)
+
+El Paso 8 ejecuta los pasos de preparación y culmina en la generación del reporte (Paso 7). Para que el **Paso 7** funcione correctamente dentro de la secuencia, requiere argumentos.
+
+Usted puede pasar los argumentos para el reporte **al iniciar el `00_Main.py`**:
+
+### Opción 1: Reporte con Proyecto y Salida
+
+Esta es la forma estándar para un reporte normal:
+
 ```bash
-python reporte.py -p mi-proyecto -o ./salida
+python 00_Main.py -p <CLAVE_PROYECTO> -o <RUTA_DE_SALIDA>
+# Ejemplo:
+python 00_Main.py -p 'BUG-4501' -o 'reportes/analisis_nov'
 ```
 
-### 3. Generar reporte comprimido
+### Opción 2: Reporte Comprimido (ZIP)
+
+Esta opción comprime el reporte en un archivo ZIP con el nombre especificado, simplificando el proceso:
+
 ```bash
-python reporte.py -r BUG-XXXX
+python 00_Main.py -r <NOMBRE_DEL_REPORTE_ZIP>
+# Ejemplo:
+python 00_Main.py -r 'Reporte_BUG-4501'
 ```
 
----
+> **NOTA:** Si ejecuta el **Paso 7** individualmente o el **Paso 8 (Secuencia Completa)** sin haber proporcionado argumentos, el Orquestador le **preguntará interactivamente** para ingresar los valores necesarios (`-p`, `-o` o `-r`).
 
-## 📁 Estructura recomendada
+-----
 
-```
-Sonar_Report/
-│
-├── reporte.py              # Este script
-├── config.ini               # Se genera automáticamente
-├── sonar-cnes-report-5.0.2.jar
-└── plantillas/
-    └── code-analysis-template.docx
-```
+## 🛠️ Descripción de los Scripts
 
----
+### 1\. `01_config.ini.py` (Sincronización)
 
-## 🛠️ Variables de entorno (opcionales)
+Asegura que los valores de `url` y `sonar.token` definidos en `config.ini` se apliquen estrictamente al archivo de configuración de escaneo (`sonar-project.properties`).
 
-| Variable         | Descripción |
-|------------------|-------------|
-| `SONAR_PROYECTO` | Nombre del proyecto en SonarQube |
-| `SONAR_SALIDA`   | Carpeta base donde guardar los resultados |
-| `SONAR_REPORTE`  | Genera un ZIP con el resultado |
-| `SONAR_BASE_DIR` | Ruta base donde están los recursos |
-| `SONAR_CONFIG`   | Archivo de configuración personalizado |
+### 2\. `02_validate_env.py` (Validación de PATH)
 
----
+Revisa si la variable de entorno **PATH** incluye una ruta al ejecutable de SonarScanner, lo cual es crucial para que el escáner sea invocable desde cualquier parte.
 
-## 📌 Notas importantes
+### 3\. `03_download_scanner.py` (Descarga de Scanner)
 
-- El script puede funcionar sin `config.ini`, creándolo automáticamente.
-- Pregunta si quieres actualizarlo si detecta cambios en `sonar-scanner.properties`.
-- Es multiplataforma: funciona en Windows, Linux y macOS.
-- Usa mensajes claros en español para facilitar su uso en equipo.
+Descarga la versión más reciente de SonarScanner directamente desde GitHub, la descomprime y sugiere comandos para añadir su ruta al **PATH** del sistema operativo, si es necesario.
 
- 
+### 4\. `04_validate_sonarscan.py` (Verificación API y CLI)
+
+  * **API:** Intenta conectar al servidor SonarQube usando la URL y el Token para verificar la conectividad.
+  * **CLI:** Ejecuta `sonar-scanner -v` para confirmar que el ejecutable esté disponible y funcionando.
+
+### 5\. `05_download_cnes_report.py` (Descarga de Reporte JAR)
+
+Verifica la versión más reciente del generador de reportes CNES (`sonar-cnes-report-X.Y.Z.jar`) en GitHub. Si hay una versión más nueva, pregunta si desea descargarla y limpiar las versiones antiguas.
+
+### 6\. `06_genera_nombre.py` (Generar Clave de Proyecto)
+
+Este es un script **altamente interactivo** que guía al usuario para:
+
+1.  Definir la **Clave de Proyecto** (`sonar.projectKey`) bajo la nomenclatura interna (ej. `BUG-XXXX`).
+2.  Definir el **Nombre de Proyecto** (`sonar.projectName`).
+3.  Generar y mostrar los comandos de escaneo completos (para Windows y Linux/Mac) para diferentes tecnologías (`mvn`, `gradle`, `sonar-scanner`).
+
+### 7\. `07_reporte.py` (Generación de Reporte)
+
+Utiliza el JAR de reporte CNES descargado en el Paso 5 para contactar al servidor SonarQube y generar un reporte en PDF/HTML/CSV/etc.
+
+  * Requiere la **Clave del Proyecto** (`-p`) y la **Ruta de Salida** (`-o`), o bien, la opción de **Reporte Comprimido** (`-r`).
+
+-----
+
+## 💡 Flujo de Trabajo Recomendado
+
+1.  **Configuración:** Ejecute el **Paso 1** para validar y sincronizar la configuración.
+2.  **Preparación:** Ejecute la **Secuencia Completa (Paso 8)** sin argumentos para verificar si el entorno está listo (PATH, Scanner, JAR).
+    ```bash
+    python 00_Main.py 8
+    ```
+3.  **Generación de Comandos:** Ejecute el **Paso 6** para obtener la clave del proyecto y los comandos de escaneo.
+    ```bash
+    python 00_Main.py 6
+    ```
+4.  **Ejecución del Escaneo:** Ejecute el comando generado por el Paso 6 *fuera* del Orquestador (por ejemplo, en el directorio raíz de su proyecto).
+5.  **Generación del Reporte:** Ejecute el **Paso 7** con los argumentos del proyecto que acaba de escanear.
+    ```bash
+    python 00_Main.py 7 -r 'Reporte_BUG-XXXX'
+    ```

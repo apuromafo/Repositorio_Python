@@ -12,9 +12,9 @@ Este script realiza lo siguiente:
 """
 
 __description__ = 'Herramienta de apoyo a ejecutar reporte de frida'
-__author__ = 'Apuromafo'
-__version__ = '0.0.4'
-__date__ = '2025-06-04'
+__author__ = 'Michel Faúndez'
+__version__ = '0.0.5'
+__date__ = '2025-04-06'
 
 import os
 import sys
@@ -24,10 +24,12 @@ import shutil
 from datetime import datetime
 import subprocess
 from pathlib import Path
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # === Variables globales ===
 
-RUTA_PROPERTIES = r'C:\sonar-scanner-X.1.0.4889-windows-x64\conf\sonar-scanner.properties'
+RUTA_PROPERTIES = r'C:\Users\pente\Documents\PENTEST\Herramientas\sonar-scanner-cli-7.2.0.5079-windows-x64\sonar-scanner-7.2.0.5079-windows-x64\conf\sonar-scanner.properties'
 
 config = None
 BASE_DIR = ""  # Se inicializa dentro de main()
@@ -130,7 +132,7 @@ def crear_config_ini(ruta_config):
     config_parser['SonarQube'] = {
         'sonar.token': 'squ_xx_xxxxxxxxxxxxxxx',
         'url': 'https://sonarqube-aws.sitio.vip/ ',
-        'NombreReporte': 'NOMBRE REPORTE',
+        'NombreReporte': 'Seguridad Ofensiva',
         'ruta_jar': 'sonar-cnes-report-5.0.2.jar',
         'ruta_plantilla': 'code-analysis-template.docx'
     }
