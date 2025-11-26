@@ -1,0 +1,92 @@
+# -*- coding: utf-8 -*-
+# Script de guía rápida conceptual sobre cómo utilizar la salida de escáneres
+# (Nessus, Burp, OpenVAS, ZAP) como fuente de datos para la generación de informes.
+
+# Códigos ANSI para colores (sin dependencias adicionales)
+BLUE = "\033[94m"    # Azul
+GREEN = "\033[92m"   # Verde
+RED = "\033[91m"     # Rojo
+YELLOW = "\033[93m"  # Amarillo
+END = "\033[0m"      # Restablecer color
+BOLD = "\033[1m"     # Negrita
+
+# --- TÍTULO Y DESCRIPCIÓN ---
+print(f"{BOLD}{BLUE}\n*************************************************************{END}")
+print(f"{BOLD}{BLUE}📝 GUÍA DE EXPORTACIÓN DE DATOS PARA INFORMES DE PENTESTING 📝{END}")
+print(f"{BOLD}{BLUE}*************************************************************{END}")
+print(f"{YELLOW}Fase 1: Generación de archivos de datos brutos desde las herramientas.{END}")
+
+# --- INTRODUCCIÓN SOBRE LA IMPORTANCIA DE LA EXPORTACIÓN DE ESCÁNERES ---
+print(f"{BOLD}{YELLOW}\n[INTRODUCCIÓN VITAL]{END}")
+print(f"{YELLOW}El rol de las herramientas de escaneo como {BOLD}Nessus, Burp Suite Professional, OpenVAS y OWASP ZAP{END} es crucial.")
+print(f"{YELLOW}Aunque su objetivo primario es identificar vulnerabilidades, su función de {BOLD}exportar el resultado técnico completo{END} en formatos estructurados (como XML o CSV) es vital.")
+print(f"{YELLOW}Estos archivos actúan como el {BOLD}{RED}esqueleto de la sección de hallazgos del informe final{END}, proveyendo la base de datos técnica para la posterior redacción y el resumen ejecutivo.")
+
+# ----------------------------------------------------------------------------------
+# --- FASE 1: GENERACIÓN DE DATOS DE REPORTE (EXPORTACIÓN DESDE ESCÁNERES) ---
+# ----------------------------------------------------------------------------------
+print(f"{BOLD}{BLUE}\n--- FASE 1: EXTRACCIÓN DE HALLAZGOS TÉCNICOS ---{END}")
+
+# --- PASO 1: NESSUS/OPENVAS (Escáneres de Red/Sistema) ---
+print(f"{BOLD}{GREEN}\n--- PASO 1: Exportar de Nessus / OpenVAS ---{END}")
+print(f"{BOLD}Acción:{END} Obtener un listado estructurado de todas las vulnerabilidades encontradas.")
+print(f"{YELLOW}En la interfaz gráfica de cada herramienta:{END}")
+print(f"  {BOLD}Nessus:{END} Selecciona la política de escaneo y exporta a formato {RED}Tenable Nessus XML (.nessus){END} o {RED}CSV{END}.")
+print(f"  {BOLD}OpenVAS:{END} Genera el reporte y selecciona la salida en formato {RED}XML{END} o {RED}CSV{END}.")
+print(f"{BOLD}Resultado:{END} Archivo(s) con ID, descripción, severidad (CVSS), recomendación y evidencia técnica de cada hallazgo.")
+
+# --- PASO 2: BURP SUITE PROFESSIONAL (Escáner Web) ---
+print(f"{BOLD}{GREEN}\n--- PASO 2: Exportar de Burp Suite Pro ---{END}")
+print(f"{BOLD}Acción:{END} Documentar los problemas específicos de la aplicación web auditada (ej. Vulnerabilidades de servidor o configuración).")
+print(f"{YELLOW}Dentro de la Consola de Burp (Dashboard o Target Site Map):{END}")
+print(f"  {BOLD}Comando/Opción:{END} Utiliza la opción para generar un informe ({RED}Generate HTML report{END} o {RED}Generate XML Report{END}).")
+print(f"{BOLD}Resultado:{END} Archivo(s) {RED}XML/HTML{END} detallando vulnerabilidades web (XSS, SQLi, etc.) con sus parámetros afectados y evidencia.")
+
+# --- PASO 3: OWASP ZAP (Zed Attack Proxy) ---
+print(f"{BOLD}{GREEN}\n--- PASO 3: Exportar de OWASP ZAP ---{END}")
+print(f"{BOLD}Acción:{END} Generar un informe de vulnerabilidades web para aplicaciones que han sido auditadas con ZAP.")
+print(f"{YELLOW}En la interfaz gráfica de ZAP (o vía API):{END}")
+print(f"  {BOLD}Opción:{END} Utiliza la funcionalidad 'Report' y selecciona formatos como {RED}HTML, XML, JSON o Markdown{END}.")
+print(f"{BOLD}Resultado:{END} Documento que detalla los hallazgos de seguridad (activos y pasivos) en la aplicación web, incluyendo la prueba de concepto.")
+
+# --- PASO 4: METASPLOIT/NMAP/Manuales (Evidencia de Explotación) ---
+print(f"{BOLD}{GREEN}\n--- PASO 4: Documentar Evidencia (Manual/Exploitation) ---{END}")
+print(f"{BOLD}Acción:{END} Registrar la evidencia de compromiso que no se extrae automáticamente.")
+print(f"{YELLOW}Proceso:{END} Guardar y etiquetar capturas de pantalla, logs de comandos y *hashes* de contraseñas. Estos se incorporarán al informe final como anexos de evidencia.")
+print(f"{BOLD}Resultado:{END} Archivos de evidencia ({RED}.png, .txt, .log{END}) listos para adjuntar.")
+
+# ----------------------------------------------------------------------------------
+# --- FASE 2: PROCESAMIENTO Y CONSOLIDACIÓN DE HALLAZGOS ---
+# ----------------------------------------------------------------------------------
+print(f"{BOLD}{BLUE}\n--- FASE 2: IMPORTACIÓN Y LIMPIEZA DE DATOS ---{END}")
+
+# --- PASO 5: HERRAMIENTA DE CONSOLIDACIÓN (Ej. Dradis o PWNDoc) ---
+print(f"{BOLD}{GREEN}\n--- PASO 5: Importar a la Plataforma de Reporte ---{END}")
+print(f"{BOLD}Acción:{END} Utilizar una herramienta de reporting para parsear los archivos técnicos brutos.")
+print(f"{YELLOW}Ejemplo de Comando Conceptual (si usas un script Python/Pandoc):{END}")
+print(f"  {RED}python parse_nessus.py -input report.nessus -output findings.json{END}")
+print(f"{YELLOW}Función de la herramienta:{END} Lee el XML/CSV de los escáneres y extrae solo la información relevante (ID, Riesgo, Recomendación).")
+
+# --- PASO 6: NORMALIZACIÓN Y ASIGNACIÓN DE SEVERIDAD ---
+print(f"{BOLD}{GREEN}\n--- PASO 6: Normalización de Hallazgos ---{END}")
+print(f"{BOLD}Acción:{END} Unificar criterios y añadir contexto manual a cada hallazgo.")
+print(f"{YELLOW}En la Interfaz de la Plataforma (Dradis/PWNDoc):{END}")
+print(f"  {BOLD}Revisión:{END} Se eliminan falsos positivos y se ajusta la severidad de las vulnerabilidades ({RED}de media a alta, por ejemplo{END}) según el contexto del cliente.")
+print(f"{BOLD}Resultado:{END} Una base de datos limpia y verificada de todos los hallazgos (el corazón del informe).")
+
+# ----------------------------------------------------------------------------------
+# --- FASE 3: GENERACIÓN FINAL DEL INFORME ---
+# ----------------------------------------------------------------------------------
+print(f"{BOLD}{BLUE}\n--- FASE 3: GENERACIÓN Y FORMATO FINAL ---{END}")
+
+# --- PASO 7: GENERACIÓN CON PLANTILLA ---
+print(f"{BOLD}{GREEN}\n--- PASO 7: Aplicar Plantilla de Informe ---{END}")
+print(f"{BOLD}Acción:{END} Generar el informe utilizando la base de datos limpia y una plantilla de formato profesional.")
+print(f"{YELLOW}Comando/Proceso:{END} La herramienta de reporting (o script) inserta los datos en los marcadores de posición de una plantilla ({RED}.docx, .pdf, .tex{END}).")
+print(f"{BOLD}Resultado:{END} Un documento pre-formateado con todas las secciones de hallazgos, descripciones y recomendaciones técnicas ya redactadas.")
+
+# --- CIERRE ---
+print(f"{BOLD}{BLUE}\n*************************************************************{END}")
+print(f"{BOLD}{BLUE}✅ PROCESO COMPLETADO{END}")
+print(f"{YELLOW}La salida técnica de los escáneres ha sido convertida en un borrador de informe listo para la edición final y el resumen ejecutivo.{END}")
+print(f"{BOLD}{BLUE}*************************************************************{END}\n{END}")
