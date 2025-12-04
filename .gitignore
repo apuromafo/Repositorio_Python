@@ -4,3 +4,4 @@
 33_sonarscan_demo/config.ini.demo
 33_sonarscan_demo/config.ini
 33_sonarscan_demo/_config.ini
+/52_File_Scan_Pattern/scripts/__pycache__
