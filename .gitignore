@@ -5,3 +5,5 @@
 33_sonarscan_demo/config.ini
 33_sonarscan_demo/_config.ini
 /52_File_Scan_Pattern/scripts/__pycache__
+*.txt
+/42_Google_api_check/Reporte
