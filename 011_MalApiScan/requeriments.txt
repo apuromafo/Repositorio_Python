@@ -1,1 +1,3 @@
 lief
+customtkinter
+matplotlib
