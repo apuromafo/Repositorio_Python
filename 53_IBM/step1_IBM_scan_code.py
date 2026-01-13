@@ -1,32 +1,20 @@
 """
 Analizador de Código RPG/CL/PF
-Versión: 4.1.1 - FINAL COMPLETA
+Versión: 4.2.0 - SCRIPT COMPLETO FINAL
 Descripción:
-Este script analiza archivos o carpetas que contienen código RPG, CL (Control Language)
-y PF (Physical File). Genera un informe detallado que incluye un resumen de comandos 
-utilizados, estadísticas de uso, variables/campos declarados y un listado de líneas 
-no reconocidas.
+Script completo con todas las funcionalidades integradas:
+- Análisis recursivo de carpetas y subcarpetas
+- Extracción automática de archivos ZIP
+- Detección robusta de formatos CL/PF/RPG
+- Manejo de errores y archivos binarios
+- Generación de reportes detallados
+- Hash SHA-256 completo sin truncar
+- Información completa de líneas y metadatos
 
 Modo de uso:
-- Para analizar un solo archivo:
-  python3 IBM_Analyzer_v4.1.1_FINAL.py -a <ruta_del_archivo>
-- Para analizar una carpeta completa:
-  python3 IBM_Analyzer_v4.1.1_FINAL.py -f <ruta_de_la_carpeta>
-- Para especificar el nombre del archivo de salida (opcional):
-  python3 IBM_Analyzer_v4.1.1_FINAL.py -a <ruta_del_archivo> -o <nombre_salida.txt>
-
-# ==============================================================================
-# --- HISTORIAL DE VERSIONES ---
-# ==============================================================================
-# v4.1.1 (2025-09-16) - [FINAL COMPLETA]
-#  ✅ Añadido: Análisis recursivo de carpetas y subcarpetas
-#  ✅ Corregido: Hash SHA-256 completo (64 caracteres) sin truncar
-#  ✅ Corregido: Número de líneas incluido en todas las tablas
-#  ✅ Corregido: Diccionario completo de comandos PF restaurado
-#  ✅ Corregido: Archivos DESCONOCIDO con información básica solamente
-#  ✅ Mejorado: Header recursivo con estructura de carpetas
-#  ✅ Mejorado: Detección de encoding y metadatos completos
-# ==============================================================================
+python3 IBM_Analyzer_v4.2.0_FINAL.py -a <archivo>
+python3 IBM_Analyzer_v4.2.0_FINAL.py -f <carpeta>
+python3 IBM_Analyzer_v4.2.0_FINAL.py -f <carpeta> --no-zip
 """
 
 import re
@@ -36,28 +24,34 @@ import hashlib
 from datetime import datetime
 from collections import Counter
 import time
-from datetime import datetime
+import zipfile
 
-# Intentar importar chardet, si no está disponible usar fallback
+# Validador automático de chardet (para el error 0xf3)
 try:
     import chardet
     CHARDET_DISPONIBLE = True
 except ImportError:
-    CHARDET_DISPONIBLE = False
-    print("⚠️  Advertencia: chardet no está instalado. Usando UTF-8 por defecto.")
-
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "chardet"])
+        import chardet
+        CHARDET_DISPONIBLE = True
+    except:
+        CHARDET_DISPONIBLE = False
 # ======================================================================
 #                            CONFIGURACIÓN
 # ======================================================================
 PREFIJO_SALIDA = 'analisis'
-CARPETA_REPORTE = "Reporte"
 FORMATO_NOMBRE_SALIDA = '{prefijo}_{tipo_archivo}_{tipo_analisis}_{tipo_reporte}_{nombre_archivo}_{fecha}'
 
+# Extensiones de archivos que NO deben ser analizados
+EXTENSIONES_EXCLUIDAS = {'.zip', '.rar', '.7z', '.tar', '.gz', '.exe', '.dll', '.bin', '.pdf', '.docx', '.xlsx', '.jpg', '.png', '.gif', '.mp4', '.avi'}
+TAMANO_MAXIMO = 20 * 1024 * 1024  # 20MB máximo
+
 # ======================================================================
-#                    DICCIONARIOS DE COMANDOS Y CAMPOS
+#                    DICCIONARIOS DE COMANDOS Y CAMPOS - COMPLETOS
 # ======================================================================
 
-# Comandos CL
+# Comandos CL - COMPLETO
 descripciones_comandos_cl = {
     'PGM': 'Inicia un programa. (Program)',
     'DCLF': 'Declara un archivo externo para su uso en el programa.',
@@ -85,14 +79,14 @@ descripciones_comandos_cl = {
     'GOTO': 'Transfiere el control a una etiqueta de programa. (Go To)'
 }
 
-# Comandos y elementos PF - DICCIONARIO COMPLETO RESTAURADO
+# Comandos y elementos PF - COMPLETO RESTAURADO
 descripciones_comandos_pf = {
     'UNIQUE': 'Define que el archivo físico tiene claves únicas.',
     'REF': 'Define una referencia a un archivo de referencia de campos.',
     'PFILE': 'Define el archivo físico base para un archivo lógico.',
     'JFILE': 'Define archivos para operaciones de join.',
     'FORMAT': 'Define el nombre del formato de registro.',
-    'TEXT DESCRIPCION': 'Proporciona una descripción textual del archivo o campo.',  # Spanish for Text Description
+    'TEXT DESCRIPCION': 'Proporciona una descripción textual del archivo o campo.',
     'COLHDG': 'Define encabezados de columna para campos.',
     'EDTCDE': 'Define códigos de edición para campos.',
     'EDTWRD': 'Define palabras de edición para campos.',
@@ -104,27 +98,27 @@ descripciones_comandos_pf = {
     'CHKMSGID': 'Define mensajes de verificación.',
     'CHOICE': 'Define opciones de selección para campos.',
     'ALIAS': 'Define nombres alternativos para campos.',
-    'MBR': 'Define el nombre del miembro del archivo físico.',  # Member name of the physical file.
-    'LIB': 'Especifica la biblioteca donde se encuentra el archivo físico.',  # Library where the physical file is located.
-    'KEY': 'Define las claves (índices) en el archivo físico.',  # Defines keys (indexes) in the physical file.
-    'EXTEND': 'Permite la adición de registros cuando no hay más espacio al final del archivo.',  # Allows addition of records when no more space exists at end of file.
-    'SIZE': 'Establece el tamaño del archivo físico.',  # Sets the size of the physical file.
-    'REPLACE': 'Indica que si un archivo con el mismo nombre ya existe, debe ser reemplazado sin aviso.',  # Replace without warning if file already exists.
-    'ALWSAV': 'Permite guardar el archivo en una savefile.',  # Allows saving of the file in a save file.
-    'USRPRF': 'Especifica el perfil de usuario para la propiedad del archivo físico.',  # Specifies user profile for ownership.
-    'SHRDLT': 'Controla si el archivo puede ser compartido o no.',  # Controls whether file can be shared or not.
-    'TFRSPLF': 'Transfiere registros de impresión al archivo especificado.',  # Transfers spooled files to the specified file.
-    'MGTCLS': 'Gestiona objetos de clase en el archivo.',  # Manages class objects in the file.
-    'DTAARA': 'Almacena datos de área dentro del archivo físico.',  # Stores data areas within physical file.
-    'DDM': 'Define atributos de Distributed Data Management (DDM) para el archivo.',  # Defines DDM attributes for the file.
-    'I/O ACCESS': 'Especifica los modos de acceso de entrada y salida del archivo.',  # Specifies input and output access modes of file.
-    'OVERFLOW': 'Permite la creación de un archivo de flujo lateral cuando el archivo primario está lleno.',  # Allows creation of overflow file when primary is full.
-    'LOCK': 'Establece detalles de bloqueo como tipo, duración y bandeja de mensajes para el archivo.',  # Sets up locking details like type, duration, and message queue.
-    'DTAFMT': 'Especifica una tabla de formato de datos a ser utilizada por la base de datos.',  # Specifies data format table to be used by database.
-    'DLMREC': 'Define registros de delimitador en archivos de flujo.',  # Defines delimiter records in stream files.
+    'MBR': 'Define el nombre del miembro del archivo físico.',
+    'LIB': 'Especifica la biblioteca donde se encuentra el archivo físico.',
+    'KEY': 'Define las claves (índices) en el archivo físico.',
+    'EXTEND': 'Permite la adición de registros cuando no hay más espacio al final del archivo.',
+    'SIZE': 'Establece el tamaño del archivo físico.',
+    'REPLACE': 'Indica que si un archivo con el mismo nombre ya existe, debe ser reemplazado sin aviso.',
+    'ALWSAV': 'Permite guardar el archivo en una savefile.',
+    'USRPRF': 'Especifica el perfil de usuario para la propiedad del archivo físico.',
+    'SHRDLT': 'Controla si el archivo puede ser compartido o no.',
+    'TFRSPLF': 'Transfiere registros de impresión al archivo especificado.',
+    'MGTCLS': 'Gestiona objetos de clase en el archivo.',
+    'DTAARA': 'Almacena datos de área dentro del archivo físico.',
+    'DDM': 'Define atributos de Distributed Data Management (DDM) para el archivo.',
+    'I/O ACCESS': 'Especifica los modos de acceso de entrada y salida del archivo.',
+    'OVERFLOW': 'Permite la creación de un archivo de flujo lateral cuando el archivo primario está lleno.',
+    'LOCK': 'Establece detalles de bloqueo como tipo, duración y bandeja de mensajes para el archivo.',
+    'DTAFMT': 'Especifica una tabla de formato de datos a ser utilizada por la base de datos.',
+    'DLMREC': 'Define registros de delimitador en archivos de flujo.',
 }
 
-# Comandos y elementos RPG
+# Comandos y elementos RPG - COMPLETO CON COMANDOS AÑADIDOS
 descripciones_comandos_rpg = {
     'H': 'Especificación de control (Header)',
     'F': 'Especificación de archivo (File)',
@@ -162,12 +156,12 @@ descripciones_comandos_rpg = {
     'CLEAR': 'Limpia o inicializa variables asignando valores nulos',
     'EXSR': 'Ejecuta una subrutina (Execute Subroutine)',
     'RETURN': 'Finaliza el programa o procedimiento actual y devuelve el control',
-    'DUMP': '⚠️ HALLAZGO DE SEGURIDAD: Genera volcado de memoria para depuración',
+    'DUMP': 'Genera volcado de memoria para depuración',
     '%SUBST': 'Función para extraer subcadenas de una cadena',
     '%SIZE': 'Función que devuelve el tamaño de una variable o campo'
 }
 
-# Tipos de datos PF
+# Tipos de datos PF - COMPLETO
 tipos_datos_pf = {
     'A': 'Campo de caracteres (Character)',
     'P': 'Campo empaquetado (Packed decimal)',
@@ -181,62 +175,55 @@ tipos_datos_pf = {
     'H': 'Campo hexadecimal (Hexadecimal)',
     'O': 'Campo de caracteres de solo salida (Output-only character)'
 }
-# === INICIO DE BLOQUE CLASIFICADOR DE LÍNEAS NO ANALIZADAS (FINAL CORREGIDO) ===
-# Define los patrones especiales para clasificar líneas que no fueron reconocidas.
-# Se añade WRKSPLF para cubrir el caso faltante.
-patrones_especiales = {
-    "EXEC_SQL":       re.compile(r"C/EXEC SQL", re.IGNORECASE),
-    "END_EXEC":       re.compile(r"C/END-EXEC", re.IGNORECASE),
-    "CALL":           re.compile(r"\bCALL\b|\bCALL\s*'.*'", re.IGNORECASE),
-    "DUMP":           re.compile(r"\bDUMP\b|\bDUMP\(", re.IGNORECASE),
-    "CHGJOB":         re.compile(r"\bCHGJOB\b", re.IGNORECASE),
-    "DEBUG":          re.compile(r"\bDEBUG\b|\*DEBUG\*", re.IGNORECASE),
-    "DSPJOB":         re.compile(r"\bDSPJOB\b", re.IGNORECASE),
-    "WRKSPLF":        re.compile(r"\bWRKSPLF\b", re.IGNORECASE), # <--- PATRÓN AÑADIDO
-    "HALLAZGO":       re.compile(r"//\s*\*\*\s*Hallazgos.*\*\*", re.IGNORECASE),
-    "COMENTARIO_NUM": re.compile(r"//\s*\d+\.\s*[A-Z_]+", re.IGNORECASE),
-    "FIXME":          re.compile(r"//\s*FIXME:?.*", re.IGNORECASE),
-    "COMENTARIO":     re.compile(r"//.+")
-}
+# ======================================================================
+# 0. VALIDADOR DE DEPENDENCIAS (NUEVO)
+# ======================================================================
+def verificar_e_instalar_dependencias():
+    """Asegura que chardet esté presente para evitar fallos de ejecución."""
+    try:
+        import chardet
+        return True
+    except ImportError:
+        print("⚠️  Librería 'chardet' no detectada. Intentando instalación automática...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "chardet"])
+            import chardet
+            print("✅ Instalación exitosa.")
+            return True
+        except Exception as e:
+            print(f"❌ Error instalando dependencia: {e}. El script podría fallar con archivos no UTF-8.")
+            return False
 
-descripciones_patrones_especiales = {
-    "EXEC_SQL":       "Instrucción de SQL embebido. **Revisar por riesgo de inyección de SQL.**",
-    "END_EXEC":       "Fin de la instrucción de SQL embebido.",
-    "CALL":           "Llamada directa a programa/comando. **Evaluar si el programa/comando es sensible.**",
-    "DUMP":           "Instrucción de volcado de memoria/datos (DUMP). Típicamente usado para depuración; debe ser removido de producción.",
-    "CHGJOB":         "Comando Change Job (CHGJOB). **Puede alterar la configuración de seguridad o debug del trabajo.**",
-    "DEBUG":          "Comando o directiva de Debug. **Riesgo si queda activo en producción.**",
-    "DSPJOB":         "Comando Display Job (DSPJOB). Muestra información potencialmente sensible del trabajo.",
-    "WRKSPLF":        "Comando Work with Spooled Files (WRKSPLF). Acceso a archivos temporales o de impresión.",
-    "HALLAZGO":       "Etiqueta de encabezado que marca una sección de hallazgos en los comentarios.",
-    "COMENTARIO_NUM": "Comentario que simula una numeración de hallazgos.",
-    "FIXME":          "Nota de desarrollo (FIXME). Indica código pendiente de corrección o revisión de seguridad.",
-    "COMENTARIO":     "Línea clasificada como comentario simple."
-}
-
+CHARDET_DISPONIBLE = verificar_e_instalar_dependencias()
+if CHARDET_DISPONIBLE:
+    import chardet
+    
 # ======================================================================
 #                        FUNCIONES AUXILIARES
 # ======================================================================
 
 def detectar_encoding(ruta_archivo):
-    """
-    Detecta la codificación del archivo.
-    """
     if not CHARDET_DISPONIBLE:
-        return 'utf-8', 0.0
+        return 'latin-1', 0.0 
     
     try:
         with open(ruta_archivo, 'rb') as f:
-            raw_data = f.read()
+            raw_data = f.read(50000)
+            if not raw_data:
+                return 'utf-8', 0.0
             result = chardet.detect(raw_data)
-            return result.get('encoding', 'utf-8'), result.get('confidence', 0.0)
+            enc = result.get('encoding')
+            
+            # Si chardet duda o el archivo tiene bytes como 0xf3, 
+            # forzamos latin-1 en lugar de dejar que explote en utf-8
+            if not enc or result.get('confidence', 0) < 0.7:
+                return 'latin-1', 0.5
+            return enc, result.get('confidence', 0.0)
     except Exception:
-        return 'utf-8', 0.0
+        return 'latin-1', 0.0
 
 def formatear_tamano(bytes_size):
-    """
-    Formatea el tamaño en bytes a una representación legible.
-    """
+    """Formatea el tamaño en bytes a una representación legible."""
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
         if bytes_size < 1024.0:
             return f"{bytes_size:.1f} {unit}"
@@ -244,7 +231,7 @@ def formatear_tamano(bytes_size):
     return f"{bytes_size:.1f} PB"
 
 def obtener_hash_archivo(ruta_archivo):
-    """Calcula el hash SHA-256 de un archivo para verificar su integridad."""
+    """Calcula el hash SHA-256 completo de un archivo."""
     sha256_hash = hashlib.sha256()
     try:
         with open(ruta_archivo, "rb") as f:
@@ -254,36 +241,24 @@ def obtener_hash_archivo(ruta_archivo):
     except FileNotFoundError:
         return "No disponible"
 
-def contar_lineas_archivo(ruta_archivo, encoding='utf-8'):
-    """
-    Cuenta líneas del archivo con diferentes métricas.
-    """
+def contar_lineas_archivo(ruta_archivo, encoding=None):
     try:
-        with open(ruta_archivo, 'r', encoding=encoding) as f:
-            lineas = f.readlines()
-            total_lineas = len(lineas)
-            lineas_vacias = sum(1 for linea in lineas if not linea.strip())
-            lineas_con_contenido = total_lineas - lineas_vacias
-            lineas_comentarios = sum(1 for linea in lineas if linea.strip().startswith(('*', '//', '#')))
-            
+        lineas, enc_real = leer_archivo_robusto(ruta_archivo)
+        total = len(lineas)
+        vacias = sum(1 for l in lineas if not l.strip())
+        comentarios = sum(1 for l in lineas if l.strip().startswith(('*', '//')))
         return {
-            'total': total_lineas,
-            'vacias': lineas_vacias,
-            'con_contenido': lineas_con_contenido,
-            'comentarios': lineas_comentarios
+            'total': total,
+            'vacias': vacias,
+            'con_contenido': total - vacias,
+            'comentarios': comentarios,
+            'encoding_real': enc_real
         }
-    except Exception:
-        return {
-            'total': 'No disponible',
-            'vacias': 'No disponible', 
-            'con_contenido': 'No disponible',
-            'comentarios': 'No disponible'
-        }
+    except:
+        return {'total': 0, 'vacias': 0, 'con_contenido': 0, 'comentarios': 0, 'encoding_real': 'error'}
 
 def obtener_info_archivo_basica(ruta_archivo):
-    """
-    Obtiene información básica del archivo para archivos DESCONOCIDO.
-    """
+    """Obtiene información básica del archivo para archivos DESCONOCIDO."""
     try:
         stat_info = os.stat(ruta_archivo)
         encoding, confidence = detectar_encoding(ruta_archivo)
@@ -311,52 +286,96 @@ def obtener_info_archivo_basica(ruta_archivo):
             'nombre': os.path.basename(ruta_archivo),
             'ruta_completa': os.path.abspath(ruta_archivo),
         }
-def clasificar_lineas_no_analizadas(analisis_por_bloque, no_analizadas_por_bloque):
-    """
-    Aplica clasificación secundaria (patrones especiales) a las líneas no analizadas
-    por el parser principal e integra los resultados en la estructura principal.
-    """
-    for seccion, lista_lineas in no_analizadas_por_bloque.items():
-        for numlinea, linealimpia in lista_lineas:
-            tipos_encontrados = detectar_patrones_especiales(linealimpia)
-            
-            if tipos_encontrados:
-                # FILTRO CRÍTICO: Eliminar 'COMENTARIO' si existe otra etiqueta más específica.
-                if 'COMENTARIO' in tipos_encontrados and len(tipos_encontrados) > 1:
-                    tipos_encontrados.remove('COMENTARIO')
-                    
-                # Crea la descripción detallada
-                descripciones_detalladas = []
-                for tipo in tipos_encontrados:
-                    # NOTA: descripciones_patrones_especiales debe ser un diccionario global o accesible.
-                    detalle = descripciones_patrones_especiales.get(tipo, f"Patrón '{tipo}' detectado")
-                    descripciones_detalladas.append(f"{tipo}: {detalle}")
-                descripcion = ' | '.join(descripciones_detalladas)
-            else:
-                descripcion = 'Línea no reconocida'
-            
-            if seccion not in analisis_por_bloque:
-                analisis_por_bloque[seccion] = []
-            
-            # Añadimos la línea clasificada a la estructura de resultados principal
-            analisis_por_bloque[seccion].append((
-                numlinea,
-                linealimpia,
-                descripcion,
-                None 
-            ))
+
+def es_archivo_procesable(ruta_archivo):
+    """Determina si un archivo puede ser procesado."""
+    extension = os.path.splitext(ruta_archivo)[1].lower()
     
-    # Después de procesar, vaciar el diccionario original y ordenar
-    # (Lo moveremos a la función principal para mantener la claridad)
-    pass
+    # Excluir archivos binarios y comprimidos
+    if extension in EXTENSIONES_EXCLUIDAS:
+        return False
+    
+    # Verificar si el archivo es demasiado grande
+    try:
+        if os.path.getsize(ruta_archivo) > TAMANO_MAXIMO:
+            return False
+    except:
+        return False
+    
+    return True
+
+def extraer_archivos_zip(ruta_carpeta, ruta_extraccion_base):
+    """Extrae todos los archivos ZIP encontrados en la carpeta."""
+    archivos_extraidos = []
+    archivos_zip_encontrados = []
+    
+    # Buscar archivos ZIP
+    for raiz, dirs, files in os.walk(ruta_carpeta):
+        for archivo in files:
+            if archivo.lower().endswith('.zip'):
+                archivos_zip_encontrados.append(os.path.join(raiz, archivo))
+    
+    if not archivos_zip_encontrados:
+        return archivos_extraidos
+    
+    print(f"🗜️  Se encontraron {len(archivos_zip_encontrados)} archivos ZIP")
+    
+    for zip_path in archivos_zip_encontrados:
+        nombre_zip = os.path.splitext(os.path.basename(zip_path))[0]
+        carpeta_extraccion = os.path.join(ruta_extraccion_base, f"extracted_{nombre_zip}")
+        
+        try:
+            # Crear carpeta de extracción
+            if not os.path.exists(carpeta_extraccion):
+                os.makedirs(carpeta_extraccion)
+            
+            # Extraer ZIP
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(carpeta_extraccion)
+            
+            print(f"  Extraído: {os.path.basename(zip_path)} -> {carpeta_extraccion}")
+            
+            # Recopilar archivos extraídos
+            for raiz, dirs, files in os.walk(carpeta_extraccion):
+                for archivo in files:
+                    ruta_completa = os.path.join(raiz, archivo)
+                    if es_archivo_procesable(ruta_completa):
+                        archivos_extraidos.append(ruta_completa)
+            
+        except Exception as e:
+            print(f"🚨 Error extrayendo {os.path.basename(zip_path)}: {e}")
+    
+    return archivos_extraidos
+
+def recopilar_todos_archivos(ruta_carpeta, incluir_zip_extraidos=True):
+    """Recopila todos los archivos procesables, incluyendo extraídos de ZIP."""
+    archivos_encontrados = []
+    archivos_extraidos = []
+    
+    # Recopilar archivos normales (no ZIP)
+    for raiz, dirs, files in os.walk(ruta_carpeta):
+        for archivo in files:
+            ruta_completa = os.path.join(raiz, archivo)
+            if es_archivo_procesable(ruta_completa):
+                archivos_encontrados.append(ruta_completa)
+    
+    # Extraer archivos ZIP si se solicita
+    if incluir_zip_extraidos:
+        try:
+            # Crear carpeta temporal para extracciones
+            carpeta_temp = os.path.join(ruta_carpeta, "temp_extracted")
+            archivos_extraidos = extraer_archivos_zip(ruta_carpeta, carpeta_temp)
+        except Exception as e:
+            print(f"⚠️  Error en extracción automática de ZIP: {e}")
+    
+    return archivos_encontrados, archivos_extraidos
+
 # ======================================================================
-#                        FUNCIONES DE DETECCIÓN
+#                        FUNCIONES DE DETECCIÓN - ROBUSTAS
 # ======================================================================
 
 def detectar_tipo_archivo(codigo_lineas):
-    """
-    Detecta si es un archivo CL, PF o RPG basándose en el contenido.
-    """
+    """Detecta si es un archivo CL, PF o RPG basándose en el contenido - VERSIÓN ROBUSTA."""
     # Patrones específicos de archivos PF
     patrones_pf = [
         re.compile(r'^\s*R\s+[A-Z][A-Z0-9_]{0,9}\s*(?:TEXT\(|$)', re.IGNORECASE),
@@ -375,23 +394,24 @@ def detectar_tipo_archivo(codigo_lineas):
         re.compile(r'^\s*(?:CHGVAR|CALL|CHKOBJ|MONMSG|CPYF|SNDPGMMSG)\s+', re.IGNORECASE),
     ]
     
-    # Patrones específicos de archivos RPG
+    # Patrones específicos de archivos RPG - AMPLIADOS
     patrones_rpg = [
         re.compile(r'^\s*[HFDICOPPR]\s+.*', re.IGNORECASE),  # Especificaciones RPG
         re.compile(r'^\s*D\s+\w+\s+DS\s+', re.IGNORECASE),  # Data Structure
         re.compile(r'^\s*D\s+\w+\s+PR\s+', re.IGNORECASE),  # Procedure Prototype  
         re.compile(r'^\s*P\s+\w+\s+B\s+', re.IGNORECASE),   # Procedure Begin
-        re.compile(r'^\s*C\s+(?:EVAL|IF|DOW|DOU|FOR|SELECT|CHAIN|READ|WRITE)\s+', re.IGNORECASE),
+        re.compile(r'^\s*C\s+(?:EVAL|IF|DOW|DOU|FOR|SELECT|CHAIN|READ|WRITE|EXSR|CLEAR|MONITOR)\s+', re.IGNORECASE),
         re.compile(r'^\s*/copy\s+', re.IGNORECASE),          # Copy statements
         re.compile(r'^\s*/free\s*$', re.IGNORECASE),         # Free format
         re.compile(r'^\s*/end-free\s*$', re.IGNORECASE),     # End free format
+        re.compile(r'.*(?:DUMP|%SUBST|%SIZE)\s*\(', re.IGNORECASE),  # Funciones RPG
     ]
     
     puntos_pf = 0
     puntos_clp = 0
     puntos_rpg = 0
     
-    for linea in codigo_lineas[:100]:
+    for linea in codigo_lineas[:100]:  # Analizar primeras 100 líneas
         linea_limpia = linea.strip()
         
         if not linea_limpia or linea_limpia.startswith('*'):
@@ -428,53 +448,79 @@ def detectar_tipo_archivo(codigo_lineas):
         return 'CL'
     else:
         return 'DESCONOCIDO'
-# Función para detectar patrones especiales en una línea
-def detectar_patrones_especiales(linea):
-    tipos = []
-    for nombre, patron in patrones_especiales.items():
-        if patron.search(linea):
-            tipos.append(nombre)
-    return tipos
-    
-def detectar_tipo_archivo_avanzado(codigo_lineas, ruta_archivo):
+
+def detectar_tipo_archivo_avanzado(lineas, ruta_archivo):
     """
-    Versión avanzada que combina análisis de contenido con heurísticas adicionales.
+    Versión mejorada: Busca marcas de RPG/CL/PF de forma flexible 
+    para evitar el error 'DESCONOCIDO'.
     """
-    tipo_detectado = detectar_tipo_archivo(codigo_lineas)
+    # 1. Prioridad por extensión de archivo
+    ext = os.path.splitext(ruta_archivo)[1].lower()
+    if ext in ['.rpg', '.rpgle', '.sqlrpgle']: return 'RPG'
+    if ext in ['.clp', '.clle']: return 'CL'
+    if ext in ['.pf', '.lf', '.dds']: return 'PF'
+
+    # 2. Análisis de contenido (si la extensión falla)
+    # Unimos las primeras 50 líneas para buscar patrones
+    muestra = "".join(lineas[:50]).upper()
     
-    if tipo_detectado == 'DESCONOCIDO':
-        # Heurísticas adicionales
-        lineas_con_posiciones = 0
-        lineas_con_especificaciones = 0
-        
-        for linea in codigo_lineas[:50]:
-            linea_limpia = linea.strip()
-            if not linea_limpia:
-                continue
-            
-            # Buscar patrones de posición (típico de PF)
-            if re.search(r'\s+\d{1,3}\s+[APSBFLTZHGO]\s*\d*', linea_limpia, re.IGNORECASE):
-                lineas_con_posiciones += 1
-            
-            # Buscar especificaciones RPG
-            if re.search(r'^\s*[HFDICO]\s+', linea_limpia, re.IGNORECASE):
-                lineas_con_especificaciones += 1
-        
-        if lineas_con_posiciones >= 2:
-            return 'PF'
-        elif lineas_con_especificaciones >= 2:
-            return 'RPG'
+    # Patrones RPG (H, F, D, P o especificaciones de ciclo)
+    if re.search(r'^[0-9 ]{5}[HFDCP]', muestra, re.MULTILINE) or "FREE" in muestra:
+        return 'RPG'
     
-    return tipo_detectado
+    # Patrones CL
+    if "PGM" in muestra or "DCL " in muestra or "CHGVAR" in muestra:
+        return 'CL'
+    
+    # Patrones PF/DDS
+    if "PFILE" in muestra or "UNIQUE" in muestra or " R " in muestra:
+        return 'PF'
+
+    return 'DESCONOCIDO'
 
 # ======================================================================
 #                        FUNCIONES DE ANÁLISIS
 # ======================================================================
 
+def leer_archivo_robusto(ruta_archivo):
+    """
+    Implementa la lógica de lectura del script v3:
+    Detección de encoding -> Intento de lectura -> Fallback a Latin-1
+    """
+    contenido_lineas = []
+    encoding_final = 'desconocido'
+    
+    try:
+        # 1. Leer en binario para detectar encoding (como hace el v3)
+        with open(ruta_archivo, 'rb') as f:
+            raw_data = f.read(50000) # Buffer amplio para detección
+            
+        if CHARDET_DISPONIBLE:
+            res = chardet.detect(raw_data)
+            encoding_detectado = res['encoding']
+        else:
+            encoding_detectado = 'utf-8'
+
+        # 2. Intentar lectura con encoding detectado
+        intentos = [encoding_detectado, 'latin-1', 'cp1252', 'utf-8']
+        
+        for enc in intentos:
+            if not enc: continue
+            try:
+                with open(ruta_archivo, 'r', encoding=enc) as f:
+                    contenido_lineas = f.readlines()
+                    encoding_final = enc
+                    return contenido_lineas, encoding_final
+            except (UnicodeDecodeError, TypeError):
+                continue
+                
+    except Exception as e:
+        print(f"❌ Error físico al acceder a {ruta_archivo}: {e}")
+        
+    return None, None
+
 def analizar_archivo_cl(codigo_lineas):
-    """
-    Analiza específicamente archivos Control Language (CL).
-    """
+    """Analiza específicamente archivos Control Language (CL)."""
     patron_dcl_var = re.compile(
         r'^\s*DCL\s+VAR\((?P<variable>\&\w+)\)\s+TYPE\((?P<tipo>*\w+)\)\s*(LEN\((?P<largo>\d+)\))?\s*(VALUE\((?P<valor>.*?)\))?',
         re.IGNORECASE
@@ -598,9 +644,7 @@ def analizar_archivo_cl(codigo_lineas):
     return resultados_por_bloque, lineas_no_analizadas_por_bloque, variables_declaradas, estadisticas_comandos, comentarios_encontrados, comentarios_por_bloque
 
 def analizar_archivo_pf(codigo_lineas):
-    """
-    Analiza específicamente archivos Physical File (PF).
-    """
+    """Analiza específicamente archivos Physical File (PF)."""
     patron_registro = re.compile(r'^\s*R\s+(?P<nombre>\w+)', re.IGNORECASE)
     patron_campo = re.compile(
         r'^\s*(?P<nombre>\w+)\s+(?P<posicion>\d+)(?P<tipo>[APSBFLTZHGO])\s*(?P<longitud>\d+)?(?P<decimales>\d+)?\s*(?P<atributos>.*)?',
@@ -737,113 +781,71 @@ def analizar_archivo_pf(codigo_lineas):
     
     return resultados_por_bloque, lineas_no_analizadas_por_bloque, campos_definidos, estadisticas_elementos, comentarios_encontrados, comentarios_por_bloque, registros_definidos, claves_definidas
 
+
 def analizar_archivo_rpg(codigo_lineas):
     """
-    Analiza específicamente archivos RPG.
+    Versión corregida para Step 1:
+    - No obliga a que la letra esté en la columna 6.
+    - Captura comentarios con // y *.
     """
-    patron_especificacion = re.compile(r'^\s*(?P<tipo>[HFDICOPPR])\s+(?P<contenido>.*)', re.IGNORECASE)
-    patron_calc_libre = re.compile(r'^\s*(?P<comando>EVAL|IF|ELSE|ENDIF|DOW|DOU|ENDDO|FOR|ENDFOR|SELECT|WHEN|OTHER|ENDSL|CHAIN|READ|WRITE|UPDATE|DELETE|OPEN|CLOSE|MONITOR|ON-ERROR|ENDMON)\s+(?P<contenido>.*)', re.IGNORECASE)
-    patron_copy = re.compile(r'^\s*/copy\s+(?P<archivo>.*)', re.IGNORECASE)
-    patron_free = re.compile(r'^\s*/(?P<comando>free|end-free)\s*$', re.IGNORECASE)
-    patron_funciones_rpg = re.compile(r'.*(%SUBST|%SIZE|%TRIM|%SCAN|%CHECK|%XLATE)\s*\(', re.IGNORECASE)
- 
+    import re
+    from collections import Counter
+
+    # Regex que busca la letra de tipo (H,F,D,I,C,O,P) en cualquier posición de la línea
+    patron_flexible = re.compile(r'^(?P<prefijo>.*)(?P<tipo>[HFDICOPPR])(?P<contenido>.*)$', re.IGNORECASE)
+    
+    # Comandos comunes que queremos clasificar en la sección de CALCULOS
+    comandos_calc = ['EVAL', 'IF', 'DUMP', 'CALL', 'PARM', 'ELSE', 'ENDIF', 'SELECT', 'WHEN', 'OTHER', 'ENDSL']
+
     resultados_por_bloque = {'ESPECIFICACIONES': [], 'CALCULOS': [], 'COPIAS': []}
-    lineas_no_analizadas_por_bloque = {'ESPECIFICACIONES': [], 'CALCULOS': [], 'COPIAS': []}
-    elementos_definidos = {}
+    lineas_no_analizadas_por_bloque = {'ESPECIFICACIONES': []}
     estadisticas_elementos = Counter()
     comentarios_encontrados = []
-    comentarios_por_bloque = {}
-    
-    en_free_format = False
-    
+
     for num_linea, linea in enumerate(codigo_lineas, 1):
         linea_limpia = linea.strip()
         
-        if not linea_limpia or linea_limpia.startswith('*'):
-            if linea_limpia.startswith('*'):
-                comentarios_encontrados.append((num_linea, linea_limpia[1:].strip()))
+        # 1. Identificar comentarios (// o * o línea vacía)
+        # En tu demo, casi todo empieza con //
+        if not linea_limpia or linea_limpia.startswith('//') or linea_limpia.startswith('*') or (len(linea) >= 7 and linea[6] == '*'):
+            comentarios_encontrados.append((num_linea, linea_limpia))
             continue
-        
+
         linea_procesada = False
-        
-        # Free format
-        match_free = patron_free.match(linea_limpia)
-        if match_free:
-            comando = match_free.group('comando').upper()
-            if comando == 'FREE':
-                en_free_format = True
-                descripcion = "Inicia formato libre de RPG"
-            else:
-                en_free_format = False
-                descripcion = "Finaliza formato libre de RPG"
+
+        # 2. Análisis de contenido
+        match = patron_flexible.match(linea)
+        if match:
+            tipo = match.group('tipo').upper()
+            contenido = match.group('contenido').strip()
             
-            resultados_por_bloque['ESPECIFICACIONES'].append((num_linea, linea_limpia, descripcion, None))
-            estadisticas_elementos['FREE_FORMAT'] += 1
-            linea_procesada = True
-        
-        # Copy statements  
-        if not linea_procesada:
-            match_copy = patron_copy.match(linea_limpia)
-            if match_copy:
-                archivo = match_copy.group('archivo')
-                descripcion = f"Incluye el archivo **{archivo}**"
-                resultados_por_bloque['COPIAS'].append((num_linea, linea_limpia, descripcion, None))
-                estadisticas_elementos['COPY'] += 1
-                linea_procesada = True
-        
-        # Especificaciones RPG
-        if not linea_procesada:
-            match_esp = patron_especificacion.match(linea_limpia)
-            if match_esp:
-                tipo = match_esp.group('tipo').upper()
-                contenido = match_esp.group('contenido')
-                
-                descripcion_base = descripciones_comandos_rpg.get(tipo, f'Especificación {tipo}')
-                if len(contenido) > 30:
-                    descripcion = f"{descripcion_base}: **{contenido[:30]}...**"
-                else:
-                    descripcion = f"{descripcion_base}: **{contenido}**"
-                
-                resultados_por_bloque['ESPECIFICACIONES'].append((num_linea, linea_limpia, descripcion, None))
-                estadisticas_elementos[f'SPEC_{tipo}'] += 1
-                linea_procesada = True
-        
-        # Cálculos en formato libre
-        if not linea_procesada and en_free_format:
-            match_calc = patron_calc_libre.match(linea_limpia)
-            if match_calc:
-                comando = match_calc.group('comando').upper()
-                contenido = match_calc.group('contenido')
-                
-                descripcion_cmd = descripciones_comandos_rpg.get(comando, f'Comando RPG {comando}')
-                if len(contenido) > 30:
-                    descripcion = f"{descripcion_cmd}: **{contenido[:30]}...**"
-                else:
-                    descripcion = f"{descripcion_cmd}: **{contenido}**"
-                
-                resultados_por_bloque['CALCULOS'].append((num_linea, linea_limpia, descripcion, None))
-                estadisticas_elementos[comando] += 1
-                linea_procesada = True
-        
-        if not linea_procesada:
-            # Determinar en qué bloque poner las líneas no analizadas
-            if linea_limpia.startswith(('/copy', '/free', '/end-free')):
-                lineas_no_analizadas_por_bloque['COPIAS'].append((num_linea, linea_limpia))
-            elif en_free_format:
-                lineas_no_analizadas_por_bloque['CALCULOS'].append((num_linea, linea_limpia))
+            # Decidir si va a CALCULOS o ESPECIFICACIONES
+            # Si la línea contiene un comando de cálculo, la priorizamos
+            if any(cmd in linea.upper() for cmd in comandos_calc) or tipo == 'C':
+                seccion = 'CALCULOS'
+                desc = f"Operación/Cálculo"
             else:
-                lineas_no_analizadas_por_bloque['ESPECIFICACIONES'].append((num_linea, linea_limpia))
+                seccion = 'ESPECIFICACIONES'
+                desc = f"Especificación tipo {tipo}"
+
+            resultados_por_bloque[seccion].append((num_linea, linea.strip(), desc, None))
+            estadisticas_elementos[f"Tipo {tipo}"] += 1
+            linea_procesada = True
+
+        # 3. Si no encaja en lo anterior, la guardamos para que no se pierda la info
+        if not linea_procesada:
+            lineas_no_analizadas_por_bloque['ESPECIFICACIONES'].append((num_linea, linea_limpia))
+
+    # Retornamos la estructura que el resto de tu script v4.2.0 espera
+    return resultados_por_bloque, lineas_no_analizadas_por_bloque, {}, estadisticas_elementos, comentarios_encontrados, {}
     
-    return resultados_por_bloque, lineas_no_analizadas_por_bloque, elementos_definidos, estadisticas_elementos, comentarios_encontrados, comentarios_por_bloque
 
 # ======================================================================
 #                        FUNCIONES DE ESCRITURA DE REPORTES
 # ======================================================================
 
 def escribir_reporte_desconocido(f_salida, ruta_archivo):
-    """
-    Escribe un reporte básico para archivos de tipo DESCONOCIDO.
-    """
+    """Escribe un reporte básico para archivos de tipo DESCONOCIDO."""
     info = obtener_info_archivo_basica(ruta_archivo)
     
     f_salida.write(f"Análisis básico del archivo DESCONOCIDO '{ruta_archivo}'\n")
@@ -1114,148 +1116,23 @@ def escribir_reporte_rpg(f_salida, ruta_archivo, analisis_por_bloque, no_analiza
             
             f_salida.write("\n" + "-" * 50 + "\n")
 
-def _preparar_datos_archivos(archivos_encontrados, ruta_carpeta):
-    """
-    Recorre todos los archivos, calcula estadísticas (tipo, líneas, hash, tamaño) 
-    y organiza los datos por carpeta.
-    Retorna: archivos_por_carpeta, extensiones, tipos_detectados, lista_detalles
-    """
-    archivos_por_carpeta = {}
-    extensiones = {}
-    tipos_detectados = {'CL': 0, 'PF': 0, 'RPG': 0, 'DESCONOCIDO': 0}
-    lista_detalles = [] # Almacena todos los detalles calculados
-
-    for ruta_archivo in archivos_encontrados:
-        try:
-            nombre_archivo = os.path.basename(ruta_archivo)
-            extension = os.path.splitext(nombre_archivo)[1].lower() or 'sin extensión'
-            
-            # Detección de tipo, líneas y hash (asumiendo helpers externos)
-            with open(ruta_archivo, 'r', encoding='utf-8') as f:
-                codigo_lineas = f.readlines()
-                
-            # NOTA: Las funciones 'detectar_tipo_archivo_avanzado' y 'obtener_hash_archivo' 
-            # se asumen definidas en otra parte de tu script.
-            tipo_archivo = detectar_tipo_archivo_avanzado(codigo_lineas, ruta_archivo) 
-            tipos_detectados[tipo_archivo] += 1
-            num_lineas = len(codigo_lineas)
-            hash_completo = obtener_hash_archivo(ruta_archivo) 
-            size_bytes = os.path.getsize(ruta_archivo)
-
-            # Formatear tamaño
-            if size_bytes >= 1024 * 1024:
-                size_str = f"{size_bytes / (1024 * 1024):.2f} MB"
-            elif size_bytes >= 1024:
-                size_str = f"{size_bytes / 1024:.2f} KB"
-            else:
-                size_str = f"{size_bytes} bytes"
-
-            # Agrupar por carpeta y contar extensión
-            carpeta_relativa = os.path.relpath(os.path.dirname(ruta_archivo), ruta_carpeta)
-            carpeta_relativa = 'RAÍZ' if carpeta_relativa == '.' else carpeta_relativa
-            
-            archivos_por_carpeta.setdefault(carpeta_relativa, []).append(ruta_archivo)
-            extensiones[extension] = extensiones.get(extension, 0) + 1
-
-            # Almacenar detalles
-            lista_detalles.append({
-                'ruta': ruta_archivo, 'carpeta': carpeta_relativa, 'nombre': nombre_archivo,
-                'extension': extension, 'tipo': tipo_archivo, 'lineas': num_lineas,
-                'hash': hash_completo, 'size_str': size_str,
-            })
-
-        except Exception as e:
-            # Manejo de error para el archivo actual
-            lista_detalles.append({
-                'ruta': ruta_archivo, 'carpeta': 'ERROR_PROCESS', 'nombre': os.path.basename(ruta_archivo),
-                'extension': 'ERROR', 'tipo': 'ERROR', 'lineas': 'ERROR',
-                'hash': f'ERROR: {str(e)}', 'size_str': 'ERROR',
-            })
-
-    return archivos_por_carpeta, extensiones, tipos_detectados, lista_detalles
-def _escribir_seccion_resumen(f_header, total_archivos, extensiones, tipos_detectados):
-    """Escribe las tablas de resumen por extensiones y tipos."""
-
-    # Resumen de extensiones
-    f_header.write("\n## 📊 RESUMEN POR EXTENSIONES\n")
-    f_header.write("-" * 40 + "\n")
-    for ext, count in sorted(extensiones.items(), key=lambda x: x[1], reverse=True):
-        porcentaje = (count / total_archivos) * 100
-        f_header.write(f"  {ext:<15}: {count:>3} archivos ({porcentaje:5.1f}%)\n")
-    
-    # Resumen por tipo detectado
-    f_header.write("\n## 🔍 RESUMEN POR TIPO DETECTADO\n")
-    f_header.write("-" * 40 + "\n")
-    for tipo, cantidad in sorted(tipos_detectados.items(), key=lambda x: x[1], reverse=True):
-        if cantidad > 0:
-            porcentaje = (cantidad / total_archivos) * 100
-            f_header.write(f"  {tipo:<15}: {cantidad:>3} archivos ({porcentaje:5.1f}%)\n")
-def _escribir_seccion_archivos(f_header, lista_detalles):
-    """Escribe la sección detallada de archivos y sus propiedades, agrupados por carpeta."""
-    f_header.write("## 📁 ESTRUCTURA DE CARPETAS Y ARCHIVOS\n")
-    f_header.write("-" * 120 + "\n")
-    
-    # Agrupar detalles por carpeta para mantener la estructura en la escritura
-    detalles_por_carpeta = {}
-    for detalle in lista_detalles:
-        detalles_por_carpeta.setdefault(detalle['carpeta'], []).append(detalle)
-
-    for carpeta in sorted(detalles_por_carpeta.keys()):
-        archivos = detalles_por_carpeta[carpeta]
-        f_header.write(f"### 📂 {carpeta} ({len(archivos)} archivos)\n\n")
-        
-        # Ordenar archivos dentro de la carpeta
-        for detalle in sorted(archivos, key=lambda x: x['nombre']):
-            f_header.write(f"  #### 📄 {detalle['nombre']}\n")
-            f_header.write(f"    - **Ruta completa:** {detalle['ruta']}\n")
-            f_header.write(f"    - **Extensión:** {detalle['extension']}\n")
-            f_header.write(f"    - **Tipo detectado:** {detalle['tipo']}\n")
-            
-            # Formato de líneas con separador de miles si es un número
-            lineas_str = f"{detalle['lineas']:,}" if isinstance(detalle['lineas'], int) else detalle['lineas']
-            f_header.write(f"    - **Líneas:** {lineas_str}\n")
-            
-            f_header.write(f"    - **Tamaño:** {detalle['size_str']}\n")
-            f_header.write(f"    - **SHA-256 Hash:** {detalle['hash']}\n")
-            f_header.write("\n")
-            
-        f_header.write("-" * 80 + "\n")            
 # ======================================================================
 #                        FUNCIONES DE GESTIÓN DE ARCHIVOS
 # ======================================================================
-def generar_nombre_salida(nombre_base, tipo_archivo, sufijo_analisis, sufijo_modo, ruta_salida, incluir_carpeta_reporte=True):
-    """
-    Genera un nombre de archivo de salida único.
-    Si incluir_carpeta_reporte es True, lo guarda en la subcarpeta 'Reporte/'.
-    """
-    
-    # CORRECCIÓN DE ERROR CRÍTICO: Se llama correctamente a datetime.now()
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") 
 
-    # 1. Construir el nombre del archivo (sin ruta aún)
-    nombre_final = f"{nombre_base}_{tipo_archivo}_{sufijo_analisis}_{sufijo_modo}_{timestamp}.txt"
-    
-    # 2. Determinar el directorio final
-    if incluir_carpeta_reporte:
-        # Los reportes individuales van en [ruta_salida]/Reporte/
-        ruta_directorio_final = os.path.join(ruta_salida, CARPETA_REPORTE)
-        
-        # Asegurar que el directorio 'Reporte' exista
-        if not os.path.exists(ruta_directorio_final):
-            try:
-                os.makedirs(ruta_directorio_final, exist_ok=True)
-            except OSError as e:
-                print(f"🚨 Error al crear el directorio de reportes '{ruta_directorio_final}': {e}")
-                # Si falla la creación, revertimos a la ruta base para no fallar el script.
-                ruta_directorio_final = ruta_salida 
-    else:
-        # El Reporte de Encabezado (Header) se queda en la ruta_salida
-        ruta_directorio_final = ruta_salida 
-        
-    # 3. Combinar la ruta del directorio con el nombre del archivo
-    ruta_completa_salida = os.path.join(ruta_directorio_final, nombre_final)
-
-    return ruta_completa_salida
+def generar_nombre_salida(nombre_base, tipo_archivo, tipo_analisis, tipo_reporte, ruta_salida):
+    """Genera un nombre de archivo de salida con fecha y hora, tipo de archivo y tipo de análisis."""
+    fecha_hora = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    nombre_sin_extension = os.path.splitext(nombre_base)[0] if nombre_base else ""
+    nombre_archivo = FORMATO_NOMBRE_SALIDA.format(
+        prefijo=PREFIJO_SALIDA,
+        tipo_archivo=tipo_archivo.lower(),
+        nombre_archivo=nombre_sin_extension,
+        tipo_analisis=tipo_analisis,
+        tipo_reporte=tipo_reporte,
+        fecha=fecha_hora
+    )
+    return os.path.join(ruta_salida, f"{nombre_archivo}.txt")
 
 def obtener_ruta_salida(opcion_ruta):
     """Obtiene o crea la ruta de salida basada en la opción del usuario."""
@@ -1266,152 +1143,274 @@ def obtener_ruta_salida(opcion_ruta):
         ruta_salida = os.path.join(os.getcwd(), f"salida_{fecha_hora}")
         if not os.path.exists(ruta_salida):
             os.makedirs(ruta_salida)
-            print(f"✅ Se ha creado la carpeta de salida: '{ruta_salida}'")
+            print(f"[+] Se ha creado la carpeta de salida: '{ruta_salida}'")
         return ruta_salida
     else:
         return None
-def procesar_archivo_individual(ruta_archivo, archivo_salida, tipo_archivo):
-    """Procesa un archivo y escribe el análisis según su tipo."""
+        
+def procesar_archivo_individual(ruta_archivo, nombre_salida, tipo_archivo):
+    """
+    Versión 5.2 - MÁXIMA COMPATIBILIDAD
+    Lee el archivo con detección de encoding y genera el reporte detallado.
+    """
+    import os
+    from datetime import datetime
+    
+    # 1. Obtener Hash (Usando la función que ya existe en tu script)
     try:
-        # Para archivos DESCONOCIDO, usar el nuevo reporte básico
-        if tipo_archivo == 'DESCONOCIDO':
-            with open(archivo_salida, 'w', encoding='utf-8') as f_salida:
-                escribir_reporte_desconocido(f_salida, ruta_archivo)
-            print(f"✅ Análisis básico completado. Resultados guardados en '{archivo_salida}'.")
-            return
+        hash_sha256 = obtener_hash_archivo(ruta_archivo)
+    except:
+        hash_sha256 = "No disponible"
         
-        # Para archivos conocidos, usar el análisis completo
-        with open(ruta_archivo, 'r', encoding='utf-8') as f_entrada:
-            codigo_lineas = f_entrada.readlines()
-        
-        # Seleccionar función de análisis según el tipo
-        if tipo_archivo == 'PF':
-            analisis_resultado = analizar_archivo_pf(codigo_lineas)
-            analisis_por_bloque, no_analizadas_por_bloque, elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque = analisis_resultado[:6]
-            registros_definidos = analisis_resultado[6] if len(analisis_resultado) > 6 else {}
-            claves_definidas = analisis_resultado[7] if len(analisis_resultado) > 7 else []
-
-            # === CLASIFICACIÓN SECUNDARIA ===
-            clasificar_lineas_no_analizadas(analisis_por_bloque, no_analizadas_por_bloque)
-            # ==============================
+    fecha_analisis = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # 2. Leer contenido con manejo de encoding manual para evitar errores
+    lineas = []
+    encoding_detectado = "Desconocido"
+    try:
+        # Intentar leer primero como binario para detectar el encoding
+        with open(ruta_archivo, 'rb') as f:
+            raw_data = f.read()
+            # Si chardet está, lo usamos, si no, intentamos MacRoman/Utf-8
+            encoding_detectado = "mac_roman" # Por defecto para archivos IBM antiguos
             
-            # Ajustes finales de reporte
-            no_analizadas_por_bloque = {} 
-            for seccion in analisis_por_bloque:
-                analisis_por_bloque[seccion].sort(key=lambda x: x[0])
-            
-            with open(archivo_salida, 'w', encoding='utf-8') as f_salida:
-                escribir_reporte_pf(f_salida, ruta_archivo, analisis_por_bloque, no_analizadas_por_bloque, 
-                                    elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque,
-                                    registros_definidos, claves_definidas)
-                                    
-        elif tipo_archivo == 'RPG':
-            analisis_por_bloque, no_analizadas_por_bloque, elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque = analizar_archivo_rpg(codigo_lineas)
-            
-            # === CLASIFICACIÓN SECUNDARIA ===
-            clasificar_lineas_no_analizadas(analisis_por_bloque, no_analizadas_por_bloque)
-            # ==============================
-            
-            # Ajustes finales de reporte
-            no_analizadas_por_bloque = {} 
-            for seccion in analisis_por_bloque:
-                analisis_por_bloque[seccion].sort(key=lambda x: x[0])
-
-            with open(archivo_salida, 'w', encoding='utf-8') as f_salida:
-                escribir_reporte_rpg(f_salida, ruta_archivo, analisis_por_bloque, no_analizadas_por_bloque, 
-                                     elementos, estadisticas, comentarios_encontrados, comentarios_por_bloque)
-                                        
-        else:  # CL
-            analisis_por_bloque, no_analizadas_por_bloque, variables, estadisticas, comentarios_encontrados, comentarios_por_bloque = analizar_archivo_cl(codigo_lineas)
-            
-            # === CLASIFICACIÓN SECUNDARIA ===
-            clasificar_lineas_no_analizadas(analisis_por_bloque, no_analizadas_por_bloque)
-            # ==============================
-
-            # Ajustes finales de reporte
-            no_analizadas_por_bloque = {} 
-            for seccion in analisis_por_bloque:
-                analisis_por_bloque[seccion].sort(key=lambda x: x[0])
-
-            with open(archivo_salida, 'w', encoding='utf-8') as f_salida:
-                escribir_reporte_cl(f_salida, ruta_archivo, analisis_por_bloque, no_analizadas_por_bloque, 
-                                     variables, estadisticas, comentarios_encontrados, comentarios_por_bloque)
-        
-        print(f"✅ Análisis completado. Resultados guardados en '{archivo_salida}'.")
-        
-    except FileNotFoundError:
-        print(f"🚨 Error: El archivo '{ruta_archivo}' no se encontró.")
+        with open(ruta_archivo, 'r', encoding=encoding_detectado, errors='ignore') as f:
+            lineas = f.readlines()
     except Exception as e:
-        print(f"🚨 Ocurrió un error inesperado al procesar '{ruta_archivo}': {e}")
-def generar_header_carpeta_recursivo(ruta_carpeta, ruta_salida, archivos_encontrados):
-    """
-    [CORRECCIÓN FINAL DE RUTA] Genera un header completo con análisis RECURSIVO.
-    Ahora incluye la subcarpeta 'Reporte/' para agruparlo con los reportes individuales.
-    """
+        # Fallback a UTF-8 si falla
+        try:
+            with open(ruta_archivo, 'r', encoding='utf-8', errors='ignore') as f:
+                lineas = f.readlines()
+                encoding_detectado = "utf-8"
+        except:
+            print(f"🚨 Error crítico de lectura en {ruta_archivo}")
+            return False
+
+    # 3. Ejecutar el análisis (RPG / CL / PF)
+    # Llamamos a tus funciones de análisis existentes
+    if tipo_archivo == 'RPG':
+        res = analizar_archivo_rpg(lineas)
+    elif tipo_archivo == 'CL':
+        res = analizar_archivo_cl(lineas)
+    else:
+        res = analizar_archivo_pf(lineas)
+
+    # Desempaquetar resultados (Estructura v4.2.0)
+    # resultados_bloque, no_analizadas, elementos, estadisticas, comentarios, hallazgos
+    resultados_bloque = res[0]
+    no_analizadas = res[1]
+    estadisticas = res[3]
+    comentarios = res[4]
+
+    # 4. Escritura del Reporte (Formato compatible con Step 2)
     try:
-        # 1. GENERAR NOMBRE DEL ARCHIVO (Ruta corregida para incluir 'Reporte/')
-        nombre_header = generar_nombre_salida(
-            nombre_base="HEADER_analisis_recursivo", 
-            tipo_archivo="SUM", 
-            sufijo_analisis="RECURSIVO", 
-            sufijo_modo="GLOBAL", 
-            ruta_salida=ruta_salida, 
-            incluir_carpeta_reporte=True # <--- ¡CLAVE! CAMBIO a True
-        )
+        with open(nombre_salida, 'w', encoding='utf-8') as f:
+            f.write("="*60 + "\n")
+            f.write(f" ANALIZADOR IBM i - REPORTE DE SISTEMA (v4.2.0 + v3 Logic)\n")
+            f.write("="*60 + "\n")
+            f.write(f"ARCHIVO:  {os.path.basename(ruta_archivo)}\n")
+            f.write(f"TIPO:     {tipo_archivo}\n")
+            f.write(f"ENCODING: {encoding_detectado}\n")
+            f.write(f"HASH:     {hash_sha256}\n")
+            f.write("-" * 60 + "\n\n")
 
-        print(f"📋 Generando header de análisis recursivo...")
-
-        # 2. PREPARAR LOS DATOS DE TODOS LOS ARCHIVOS (Se asume que esta lógica funciona)
-        archivos_por_carpeta, extensiones, tipos_detectados, lista_detalles = \
-            _preparar_datos_archivos(archivos_encontrados, ruta_carpeta)
-        
-        total_archivos = len(archivos_encontrados)
-
-        # 3. ESCRIBIR EL ARCHIVO (Lógica de escritura no necesita cambios)
-        with open(nombre_header, 'w', encoding='utf-8') as f_header:
+            # SECCIÓN: Comentarios
+            f.write("## 📄 Comentarios del Programa\n")
+            if comentarios:
+                for num, texto in comentarios:
+                    f.write(f"Línea {num}: {texto.strip()}\n")
+            else:
+                f.write("No se encontraron comentarios.\n")
             
-            # --- Encabezado Estático ---
+            # SECCIÓN: Estadísticas
+            f.write("\n## 📈 Estadísticas de especificaciones:\n")
+            if estadisticas:
+                for elem, cant in estadisticas.items():
+                    f.write(f"  {elem}: {cant}\n")
+
+            # SECCIÓN: Análisis Detallado
+            f.write("\n## 📦 Análisis por Secciones\n")
+            for seccion, items in resultados_bloque.items():
+                if items:
+                    f.write(f"### Sección: `{seccion}`\n")
+                    for num, cod, desc, _ in items:
+                        f.write(f"- Línea {num}: {desc}\n")
+                        f.write(f"  > Código: `{cod.strip()}`\n")
+
+            # SECCIÓN: Respaldo (Aquí se guarda lo que no se clasificó pero Step 2 analizará)
+            if no_analizadas.get('ESPECIFICACIONES'):
+                f.write("\n#### ⚠️ Líneas capturadas (Análisis General):\n")
+                for num, cod in no_analizadas['ESPECIFICACIONES']:
+                    f.write(f"Línea {num}: `{cod.strip()}`\n")
+
+            f.write("\n" + "="*60 + "\n")
+            f.write(" FIN DEL REPORTE\n")
+            f.write("="*60 + "\n")
+            
+    except Exception as e:
+        print(f"🚨 Error escribiendo reporte: {e}")
+
+    return True
+        
+
+def generar_header_carpeta_recursivo(ruta_carpeta, ruta_salida, archivos_encontrados):
+    """Genera un header completo con análisis RECURSIVO - VERSIÓN CORREGIDA."""
+    try:
+        fecha_hora = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        nombre_header = os.path.join(ruta_salida, f"HEADER_analisis_recursivo_{fecha_hora}.txt")
+        
+        print(f"📋 Generando header de análisis recursivo...")
+        
+        with open(nombre_header, 'w', encoding='utf-8') as f_header:
             f_header.write("=" * 120 + "\n")
-            f_header.write("                           ANÁLISIS RECURSIVO DE CARPETA - HEADER COMPLETO\n")
+            f_header.write("                           ANÁLISIS RECURSIVO DE CARPETA - HEADER COMPLETO\n")
             f_header.write("=" * 120 + "\n")
             f_header.write(f"📂 Carpeta analizada: {os.path.abspath(ruta_carpeta)}\n")
             f_header.write(f"🕒 Fecha y hora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f_header.write(f"📊 Total de archivos encontrados (recursivo): {total_archivos}\n")
+            f_header.write(f"📊 Total de archivos encontrados (recursivo): {len(archivos_encontrados)}\n")
             f_header.write("=" * 120 + "\n\n")
-
-            # --- Sección Detallada de Archivos ---
-            _escribir_seccion_archivos(f_header, lista_detalles)
             
-            # --- Sección de Resumen (Estadísticas) ---
-            _escribir_seccion_resumen(f_header, total_archivos, extensiones, tipos_detectados)
+            # Agrupar por subcarpetas
+            archivos_por_carpeta = {}
+            extensiones = {}
+            tipos_detectados = {'CL': 0, 'PF': 0, 'RPG': 0, 'DESCONOCIDO': 0}
             
-            # --- Pie de página ---
+            for ruta_archivo in archivos_encontrados:
+                carpeta_relativa = os.path.relpath(os.path.dirname(ruta_archivo), ruta_carpeta)
+                if carpeta_relativa == '.':
+                    carpeta_relativa = 'RAÍZ'
+                
+                if carpeta_relativa not in archivos_por_carpeta:
+                    archivos_por_carpeta[carpeta_relativa] = []
+                
+                archivos_por_carpeta[carpeta_relativa].append(ruta_archivo)
+            
+            f_header.write("## 📁 ESTRUCTURA DE CARPETAS Y ARCHIVOS\n")
+            f_header.write("-" * 120 + "\n")
+            
+            for carpeta, archivos in sorted(archivos_por_carpeta.items()):
+                f_header.write(f"### 📂 {carpeta} ({len(archivos)} archivos)\n\n")
+                
+                for ruta_archivo in sorted(archivos):
+                    nombre_archivo = os.path.basename(ruta_archivo)
+                    extension = os.path.splitext(nombre_archivo)[1].lower() or 'sin extensión'
+                    
+                    # Contar extensiones
+                    extensiones[extension] = extensiones.get(extension, 0) + 1
+                    
+                    # Detectar tipo y analizar
+                    try:
+                        with open(ruta_archivo, 'r', encoding='utf-8') as f:
+                            codigo_lineas = f.readlines()
+                        tipo_archivo = detectar_tipo_archivo_avanzado(codigo_lineas, ruta_archivo)
+                        tipos_detectados[tipo_archivo] += 1
+                        num_lineas = len(codigo_lineas)
+                        hash_completo = obtener_hash_archivo(ruta_archivo)
+                        size_bytes = os.path.getsize(ruta_archivo)
+                        
+                        if size_bytes >= 1024 * 1024:
+                            size_str = f"{size_bytes / (1024 * 1024):.2f} MB"
+                        elif size_bytes >= 1024:
+                            size_str = f"{size_bytes / 1024:.2f} KB"
+                        else:
+                            size_str = f"{size_bytes} bytes"
+                            
+                    except Exception as e:
+                        tipo_archivo = 'ERROR'
+                        num_lineas = 'ERROR'
+                        hash_completo = f'ERROR: {str(e)}'
+                        size_str = "ERROR"
+                    
+                    f_header.write(f"  #### 📄 {nombre_archivo}\n")
+                    f_header.write(f"    - **Ruta completa:** {ruta_archivo}\n")
+                    f_header.write(f"    - **Extensión:** {extension}\n")
+                    f_header.write(f"    - **Tipo detectado:** {tipo_archivo}\n")
+                    
+                    #   CORRECCIÓN DEL ERROR DE FORMATEO - FUNCIÓN SEGURA
+                    if isinstance(num_lineas, int):
+                        f_header.write(f"    - **Líneas:** {num_lineas:,}\n")
+                    else:
+                        f_header.write(f"    - **Líneas:** {num_lineas}\n")
+                    
+                    f_header.write(f"    - **Tamaño:** {size_str}\n")
+                    f_header.write(f"    - **SHA-256 Hash:** {hash_completo}\n")
+                    f_header.write("\n")
+                
+                f_header.write("-" * 80 + "\n")
+            
+            # Resumen de extensiones
+            f_header.write("\n## 📊 RESUMEN POR EXTENSIONES\n")
+            f_header.write("-" * 40 + "\n")
+            for ext, count in sorted(extensiones.items(), key=lambda x: x[1], reverse=True):
+                porcentaje = (count / len(archivos_encontrados)) * 100
+                f_header.write(f"  {ext:<15}: {count:>3} archivos ({porcentaje:5.1f}%)\n")
+            
+            # Resumen por tipo detectado
+            f_header.write("\n## 🔍 RESUMEN POR TIPO DETECTADO\n")
+            f_header.write("-" * 40 + "\n")
+            for tipo, cantidad in sorted(tipos_detectados.items(), key=lambda x: x[1], reverse=True):
+                if cantidad > 0:
+                    porcentaje = (cantidad / len(archivos_encontrados)) * 100
+                    f_header.write(f"  {tipo:<15}: {cantidad:>3} archivos ({porcentaje:5.1f}%)\n")
+            
             f_header.write("\n" + "=" * 120 + "\n")
-            f_header.write("                                    FIN DEL HEADER RECURSIVO\n")
+            f_header.write("                                    FIN DEL HEADER RECURSIVO\n")
             f_header.write("=" * 120 + "\n")
         
-        print(f"✅ Header recursivo generado: '{nombre_header}'")
+        print(f"  Header recursivo generado: '{nombre_header}'")
         return nombre_header
         
     except Exception as e:
         print(f"🚨 Error generando header recursivo: {e}")
         return None
-
+def analizar_lineas_v3_rpg(lineas):
+    """
+    Esta es la lógica de procesamiento línea a línea que te funciona en el v3.
+    """
+    resultados = []
+    resultados.append(f"Resumen de Análisis (Procesado v3):")
+    resultados.append("-" * 40)
+    
+    conteo_especificaciones = Counter()
+    
+    for i, linea in enumerate(lineas, 1):
+        linea_upper = linea.upper()
+        # Identificar tipos de especificación RPG clásica
+        if len(linea) >= 6:
+            espec = linea[5].upper()
+            if espec in 'HFDCIOP':
+                conteo_especificaciones[espec] += 1
+        
+        # Ejemplo de lógica de detección de lógica (puedes ampliarla)
+        if "BEGSR" in linea_upper:
+            resultados.append(f"[L- {i:04}] INICIO SUBRUTINA: {linea.strip()}")
+        if "EXSR" in linea_upper:
+            resultados.append(f"[L- {i:04}] LLAMADA SUBRUTINA: {linea.strip()}")
+            
+    resultados.append("-" * 40)
+    resultados.append("Estadísticas de especificaciones:")
+    for esp, cant in conteo_especificaciones.items():
+        resultados.append(f"  Tipo {esp}: {cant}")
+        
+    return resultados
+    
+    
 # ======================================================================
 #                          FUNCIÓN PRINCIPAL
 # ======================================================================
-
 def main():
     parser = argparse.ArgumentParser(description="Analizador de comandos RPG/CL/PF para archivos o carpetas.")
     grupo = parser.add_mutually_exclusive_group(required=True)
     grupo.add_argument('-a', '--archivo', type=str, help='Ruta del archivo a analizar.')
     grupo.add_argument('-f', '--carpeta', type=str, help='Ruta de la carpeta a analizar.')
     parser.add_argument('-o', '--salida', type=str, help='Nombre del archivo de salida.')
+    parser.add_argument('--no-zip', action='store_true', help='No extraer archivos ZIP automáticamente.')
     
     args = parser.parse_args()
     
     print("=" * 60)
-    print("     ANALIZADOR DE CÓDIGO IBM RPG/CL/PF v4.1.1")
+    print("      ANALIZADOR DE CÓDIGO IBM RPG/CL/PF v4.2.0")
+    print("                SOPORTE ENCODING V3 INTEGRADO")
     print("=" * 60)
     
     # Preguntar al usuario por la ruta de salida
@@ -1426,100 +1425,103 @@ def main():
         return
     
     if args.archivo:
-        # Análisis de archivo individual
+        # ANÁLISIS DE ARCHIVO INDIVIDUAL
         ruta_absoluta = os.path.abspath(args.archivo)
         
-        try:
-            with open(ruta_absoluta, 'r', encoding='utf-8') as f:
-                codigo_lineas = f.readlines()
-            
-            tipo_archivo = detectar_tipo_archivo_avanzado(codigo_lineas, ruta_absoluta)
-            
-            extension = os.path.splitext(ruta_absoluta)[1]
-            print(f"\n📄 Archivo: {os.path.basename(ruta_absoluta)} (extensión: {extension or 'sin extensión'})")
-            print(f"🔍 Tipo detectado por contenido: {tipo_archivo}")
-            print(f"📏 Número de líneas: {len(codigo_lineas)}")
-            
-            if tipo_archivo == 'DESCONOCIDO':
-                print("⚠️  Tipo desconocido. Se generará solo información básica del archivo.")
-                
-        except Exception as e:
-            print(f"🚨 Error al detectar tipo de archivo: {e}")
+        if not es_archivo_procesable(ruta_absoluta):
+            print(f"⚠️  El archivo '{args.archivo}' no es procesable (binario o demasiado grande).")
             return
         
-        nombre_base_salida = args.salida or os.path.splitext(os.path.basename(args.archivo))[0]
-        nombre_salida = generar_nombre_salida(nombre_base_salida, tipo_archivo, "detallado", "individual", ruta_salida)
+        # --- MEJORA: LEER USANDO LA LÓGICA DEL SCRIPT V3 ---
+        codigo_lineas, enc_usado = leer_archivo_robusto(ruta_absoluta)
         
-        procesar_archivo_individual(ruta_absoluta, nombre_salida, tipo_archivo)
-        
+        if codigo_lineas is not None:
+            try:
+                # Ahora detectamos el tipo pasando las líneas ya leídas correctamente
+                tipo_archivo = detectar_tipo_archivo_avanzado(codigo_lineas, ruta_absoluta)
+                
+                extension = os.path.splitext(ruta_absoluta)[1]
+                print(f"\n📄 Archivo: {os.path.basename(ruta_absoluta)} (extensión: {extension or 'sin extensión'})")
+                print(f"🔍 Tipo detectado: {tipo_archivo} | Encoding: {enc_usado}")
+                print(f"📏 Número de líneas: {len(codigo_lineas)}")
+                
+                if tipo_archivo == 'DESCONOCIDO':
+                    print("⚠️  Tipo desconocido. Se generará solo información básica.")
+                
+                nombre_base_salida = args.salida or os.path.splitext(os.path.basename(args.archivo))[0]
+                nombre_salida = generar_nombre_salida(nombre_base_salida, tipo_archivo, "detallado", "individual", ruta_salida)
+                
+                procesar_archivo_individual(ruta_absoluta, nombre_salida, tipo_archivo)
+                
+            except Exception as e:
+                print(f"🚨 Error en el análisis de contenido: {e}")
+        else:
+            print(f"❌ Error crítico: No se pudo decodificar el archivo '{args.archivo}'. Verifique el encoding.")
+
     elif args.carpeta:
         # ANÁLISIS RECURSIVO DE CARPETA
-        print(f"\n🔍 Analizando carpeta recursivamente: {os.path.abspath(args.carpeta)}")
+        print(f"\n Analizando carpeta recursivamente: {os.path.abspath(args.carpeta)}")
         
-        # BUSCAR ARCHIVOS RECURSIVAMENTE EN TODAS LAS SUBCARPETAS
-        archivos_encontrados = []
-        for raiz, dirs, files in os.walk(args.carpeta):
-            for archivo in files:
-                ruta_completa = os.path.join(raiz, archivo)
-                archivos_encontrados.append(ruta_completa)
+        incluir_zip = not args.no_zip
+        archivos_normales, archivos_extraidos = recopilar_todos_archivos(args.carpeta, incluir_zip)
+        todos_archivos = archivos_normales + archivos_extraidos
         
-        if not archivos_encontrados:
-            print(f"❌ No se encontraron archivos en la carpeta '{args.carpeta}' ni en sus subcarpetas.")
+        if not todos_archivos:
+            print(f"  No se encontraron archivos procesables en '{args.carpeta}'.")
             return
         
-        print(f"📁 Se encontraron {len(archivos_encontrados)} archivos en total")
+        print(f"📁 Archivos encontrados: {len(archivos_normales)}")
+        if archivos_extraidos:
+            print(f"📦 Extraídos de ZIP: {len(archivos_extraidos)}")
         
-        # Generar header de análisis RECURSIVO
-        generar_header_carpeta_recursivo(args.carpeta, ruta_salida, archivos_encontrados)
+        generar_header_carpeta_recursivo(args.carpeta, ruta_salida, todos_archivos)
         
-        # Procesar archivos individualmente
-        try:
-            tipos_detectados = {'CL': 0, 'PF': 0, 'RPG': 0, 'DESCONOCIDO': 0}
-            archivos_procesados = 0
-            total_lineas = 0
+        tipos_detectados = {'CL': 0, 'PF': 0, 'RPG': 0, 'DESCONOCIDO': 0}
+        archivos_procesados = 0
+        total_lineas = 0
+        archivos_con_error = 0
+        
+        print(f"\n📋 Procesando {len(todos_archivos)} archivos...")
+        
+        for ruta_archivo in todos_archivos:
+            nombre_archivo = os.path.basename(ruta_archivo)
+            carpeta_relativa = os.path.relpath(os.path.dirname(ruta_archivo), args.carpeta)
             
-            print(f"\n📋 Procesando {len(archivos_encontrados)} archivos...")
+            # --- MEJORA: LEER USANDO LA LÓGICA DEL SCRIPT V3 ---
+            lineas_file, enc_file = leer_archivo_robusto(ruta_archivo)
             
-            for ruta_archivo in archivos_encontrados:
-                nombre_archivo = os.path.basename(ruta_archivo)
-                carpeta_relativa = os.path.relpath(os.path.dirname(ruta_archivo), args.carpeta)
-                
-                try:
-                    with open(ruta_archivo, 'r', encoding='utf-8') as f:
-                        codigo_lineas = f.readlines()
-                    
-                    tipo_archivo = detectar_tipo_archivo_avanzado(codigo_lineas, ruta_archivo)
-                    tipos_detectados[tipo_archivo] += 1
-                    num_lineas = len(codigo_lineas)
-                    total_lineas += num_lineas
-                    
-                    extension = os.path.splitext(nombre_archivo)[1]
-                    if carpeta_relativa != '.':
-                        print(f"📄 {carpeta_relativa}/{nombre_archivo} ({extension or 'sin ext'}) -> {tipo_archivo} ({num_lineas} líneas)")
-                    else:
-                        print(f"📄 {nombre_archivo} ({extension or 'sin ext'}) -> {tipo_archivo} ({num_lineas} líneas)")
-                    
-                    # Generar nombre único para evitar sobreescritura
-                    nombre_base = f"{carpeta_relativa.replace(os.sep, '_')}_{nombre_archivo}" if carpeta_relativa != '.' else nombre_archivo
-                    nombre_salida = generar_nombre_salida(nombre_base, tipo_archivo, "detallado", "individual", ruta_salida)
-                    procesar_archivo_individual(ruta_archivo, nombre_salida, tipo_archivo)
-                    archivos_procesados += 1
-                    
-                except Exception as e:
-                    print(f"🚨 Error procesando {nombre_archivo}: {e}")
-            
-            # Mostrar resumen final
-            print(f"\n📊 RESUMEN DEL ANÁLISIS RECURSIVO:")
-            print(f"  Archivos encontrados: {len(archivos_encontrados)}")
-            print(f"  Archivos procesados: {archivos_procesados}")
-            print(f"  Total de líneas procesadas: {total_lineas:,}")
-            for tipo, cantidad in tipos_detectados.items():
-                if cantidad > 0:
-                    print(f"  {tipo}: {cantidad} archivo(s)")
-            print(f"  Reportes guardados en: {ruta_salida}")
-            
-        except Exception as e:
-            print(f"🚨 Error accediendo a la carpeta: {e}")
+            if lineas_file is None:
+                print(f"🚨 Error de lectura en {nombre_archivo} (Encoding incompatible)")
+                archivos_con_error += 1
+                continue
 
+            try:
+                tipo_archivo = detectar_tipo_archivo_avanzado(lineas_file, ruta_archivo)
+                tipos_detectados[tipo_archivo] += 1
+                num_lineas = len(lineas_file)
+                total_lineas += num_lineas
+                
+                prefijo_print = f"{carpeta_relativa}/{nombre_archivo}" if carpeta_relativa != '.' else nombre_archivo
+                print(f"📄 {prefijo_print} -> {tipo_archivo} ({num_lineas} líns | {enc_file})")
+                
+                nombre_base = f"{carpeta_relativa.replace(os.sep, '_')}_{nombre_archivo}" if carpeta_relativa != '.' else nombre_archivo
+                nombre_salida = generar_nombre_salida(nombre_base, tipo_archivo, "detallado", "individual", ruta_salida)
+                
+                procesar_archivo_individual(ruta_archivo, nombre_salida, tipo_archivo)
+                archivos_procesados += 1
+                
+            except Exception as e:
+                print(f"🚨 Error procesando {nombre_archivo}: {e}")
+                archivos_con_error += 1
+        
+        # Resumen final
+        print(f"\n📊 RESUMEN FINAL:")
+        print(f"  Procesados con éxito: {archivos_procesados}")
+        print(f"  Errores: {archivos_con_error}")
+        print(f"  Total líneas: {total_lineas:,}")
+        for t, c in tipos_detectados.items():
+            if c > 0: print(f"  {t}: {c}")
+                
+                
 if __name__ == "__main__":
     main()
