@@ -1,0 +1,28 @@
+
+🔧 COMENZAR EN DEVOPS:
+ 1. 🧠 DevOps Básico
+ https://lnkd.in/dyMh4BsY
+ 2. 🔀 Git Training
+ https://lnkd.in/d3jUJ8gi
+ 3. ☸️ Introducción a Kubernetes
+ https://lnkd.in/d93CUKyt
+ 4. 🤖 Introducción a Selenium
+ https://lnkd.in/dh2DGd_C
+ 5. 🐳 Docker para principiantes
+ https://lnkd.in/dBkP2S5q
+ 6. 🛠️ Jenkins desde cero
+ https://lnkd.in/dPvedvpk
+ 7. ⚙️ Primeros pasos con Ansible
+ https://lnkd.in/db5aDXGg
+ 8. 🧰 Herramientas DevOps
+ https://lnkd.in/deWMCrxK
+ 9. 🔁 CI/CD para principiantes
+ https://lnkd.in/djegADsW
+ 10. 📦 Curso de Apache Maven
+ https://lnkd.in/dAwmWMna
+ 11. 🧵 Primeros pasos con Puppet
+ https://lnkd.in/d8HUP9Td
+ 12. 🍽️ Chef para DevOps
+ https://lnkd.in/dwSccJBD
+
+💬 ¿Cuál te gustaría dominar primero? ¿Ya conocías alguno?

@@ -1,4 +1,0 @@
-jpype1==1.6.0
-packaging==25.0
-pillow==11.3.0
-pyreportjasper==2.1.4

@@ -1,0 +1,42 @@
+# ===============================================
+# Archivo de Prueba para scan_pattern.py (v1.0.0)
+# ===============================================
+
+# --- 1. DUMP_STATEMENTS ---
+# Comando DUMP encontrado en varios formatos
+CALL DUMP;
+DUMP(FIELD1);
+
+# --- 2. DEBUG_CONFIG ---
+# Configuración de depuración activa
+Set DEBUG(*YES);
+
+# --- 3. DEBUG_STATEMENTS ---
+# Instrucciones de depuración en código
+IF DEBUG = 'TRUE';
+DEBUG: some_function();
+
+# --- 4. HARDCODED_PASSWORDS ---
+# Posibles contraseñas hardcodeadas
+CONN USER='admin' PASSWORD="super-secret-password-123";
+const clave = "hardcodeo_clave";
+P_PWD = '1234';
+
+# --- 5. SENSITIVE_COMMENTS ---
+# Comentarios con información sensible
+// TODO: Eliminar clave_token después de la prueba.
+/* FIXME: Este usuario 'admin' es temporal. */
+# HACK: Hardcoded SECRET key here!
+
+# --- 6. IP_ADDRESSES ---
+# Direcciones IP privadas
+server_ip = '192.168.1.1';
+host = "10.0.0.50";
+loopback = "127.0.0.1";
+DMZ_IP = "172.31.255.255"; # Rango 172.16-31
+
+# --- 7. SYSTEM_PATHS ---
+# Rutas de sistema hardcodeadas
+load_config('C:\Windows\System32\config.ini');
+log_file = '/var/log/app.log';
+include('/etc/passwd');
