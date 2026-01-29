@@ -260,26 +260,11 @@ def listar_dispositivos():
         return None
 
 def verificar_frida_server_activo(dispositivo):
-    """Verifica si frida-server está en ejecución en el dispositivo."""
-    log(f"Verificando si frida-server está activo en {dispositivo}...")
     try:
-        resultado = subprocess.run(
-            ['adb', '-s', dispositivo, 'shell', 'ps | grep frida-server'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        if "frida-server" in resultado.stdout:
-            print(f"[+] frida-server está en ejecución en el dispositivo ({dispositivo}).")
-            log(f"frida-server en ejecución en {dispositivo}.")
-            return True
-        else:
-            print(f"[-] frida-server no está en ejecución en el dispositivo ({dispositivo}).")
-            log(f"frida-server no está en ejecución en {dispositivo}.")
-            return False
-    except Exception as e:
-        print(f"[-] Error al verificar si frida-server está en ejecución en el dispositivo ({dispositivo}): {e}")
-        log(f"Error al verificar frida-server: {e}")
+        # Intenta listar los procesos usando frida-ps. Si responde, el server está OK.
+        resultado = subprocess.run(['frida-ps', '-D', dispositivo], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return resultado.returncode == 0
+    except:
         return False
 
 def get_device_info(device_id):
@@ -350,7 +335,9 @@ def filtrar_aplicaciones(aplicaciones):
         "org.chromium.arc.apkcacheprovider", "org.chromium.arc.applauncher", "org.chromium.arc.backup_settings",
         "org.chromium.arc.cast_receiver", "org.chromium.arc.crash_collector", "org.chromium.arc.file_system",
         "org.chromium.arc.gms", "org.chromium.arc.home", "org.chromium.arc.intent_helper", "org.telegram.messenger.web",
-        "org.chromium.arc.tts",
+        "org.chromium.arc.tts","com.location.provider","com.teslacoilsw.launcher","com.v2ray.ang","gg.now.billing.interceptor",
+        "gg.now.ads.service","gg.now.billing.service2","eu.chainfire.supersu","com.uncube.launcher3","gg.now.ads.service","gg.now.accounts","gg.now.billing.service",
+ 
         
         # --- Exclusiones de Samsung/Sistema (paquetes sin prefijo) ---
         "com.osp.app.signin", "com.skms.android.agent", "com.wsomacp", "com.monotype.android.font.foundation", 
