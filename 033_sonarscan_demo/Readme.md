@@ -1,129 +1,72 @@
+# 🚀 Orquestador de Seguridad Ofensiva - SonarQube
 
-# 🛡️ Orquestador de Análisis SonarQube (v1.0.0)
+Herramienta profesional de automatización para el ciclo de vida de análisis estático (SAST). Este ecosistema garantiza un proceso **transparente, validado y estandarizado** bajo nomenclaturas de tickets (BUG/GVDR), eliminando errores manuales en la configuración y reporte.
 
-Este conjunto de scripts tiene como objetivo **simplificar y automatizar** el proceso de preparación del entorno, descarga de dependencias y generación de reportes de análisis de código utilizando **SonarQube** y la herramienta **SonarScanner**.
+---
 
-El corazón del proyecto es el script **`00_Main.py`**, que proporciona un **menú interactivo** para ejecutar cada etapa de forma controlada o lanzar la secuencia completa.
+## 🎮 Interfaz Principal (`00_Main.py`)
 
-## ⚙️ Requisitos
+El flujo de trabajo se gestiona desde un único punto de control. Al ejecutar el orquestador, tendrás acceso a la siguiente estructura lógica:
 
-Asegúrese de tener instalados y configurados los siguientes requisitos:
+### **Fase A: Preparación y Entorno**
 
-  * **Python 3.x:** (Recomendado 3.8 o superior).
-  * **Java JRE/JDK:** Necesario para ejecutar el SonarScanner y el generador de reportes (CNES JAR).
-  * **Módulos de Python:**
-    ```bash
-    pip install requests
-    ```
+* **[1] Configuración**: Sincroniza URL y Tokens en `config.ini` y `sonar-project.properties`.
+* **[2] Saneamiento**: Limpia rutas obsoletas en el PATH de Windows y valida el entorno.
+* **[3] Scanner CLI**: Descarga y despliega la última versión oficial de SonarScanner.
+* **[4] Test de Vuelo**: Valida la conectividad API y la ejecución del binario antes de escanear.
+* **[5] Motor de Reportes**: Descarga el JAR de CNES Report desde los releases oficiales.
 
------
+### **Fase B: Ejecución de Análisis**
+
+* **[6] Generador de Comandos**: Interfaz interactiva para crear el comando de escaneo basado en el ticket (Maven, Gradle, .NET, CLI). **Genera la identidad del proyecto.**
+
+### **Fase C: Cierre y Entrega**
+
+* **[7] Módulo de Reportes**: Generación de entregables técnicos (CNES) y oficiales (Regulatory).
+* **[8] SECUENCIA COMPLETA**: Ejecuta automáticamente los pasos del 1 al 5 y finaliza con el reporte (Paso 7).
+
+
+
+---
 
 ## 🚀 Guía de Inicio Rápido
 
-Ejecute el script principal para acceder al menú interactivo:
+### Modo Orquestado (Recomendado)
+
+Para mantener la fluidez y validación de todos los pasos:
 
 ```bash
 python 00_Main.py
+
 ```
 
-### Opciones del Menú
+### Modo Directo (Expertos)
 
-| Opción | Script | Descripción |
-| :---: | :--- | :--- |
-| **1** | `01_config.ini.py` | Sincroniza la URL y el Token de `config.ini` con `sonar-project.properties`. |
-| **2** | `02_validate_env.py` | Valida si la ruta de SonarScanner está en la variable de entorno **PATH**. |
-| **3** | `03_download_scanner.py` | Descarga, descomprime y sugiere agregar el último **SonarScanner** al PATH. |
-| **4** | `04_validate_sonarscan.py` | Verifica la conectividad al servidor SonarQube (API) y el ejecutable del Scanner (`-v`). |
-| **5** | `05_download_cnes_report.py` | Descarga y/o valida la versión más reciente del JAR de reporte **CNES**. |
-| **6** | `06_genera_nombre.py` | **Genera comandos de análisis** (Key, Name, comandos `sonar-scanner`, `mvn`, etc.) de forma interactiva. |
-| **7** | `07_reporte.py` | **Genera el reporte** final de SonarQube, aceptando argumentos. |
-| **8** | **Secuencia Completa** | Ejecuta los Pasos **1, 2, 3, 4, 5 y 7** automáticamente. |
-| **0** | **Salir** | Finaliza el Orquestador. |
-
------
-
-## 📝 Uso de la Secuencia Completa (Paso 8)
-
-El Paso 8 ejecuta los pasos de preparación y culmina en la generación del reporte (Paso 7). Para que el **Paso 7** funcione correctamente dentro de la secuencia, requiere argumentos.
-
-Usted puede pasar los argumentos para el reporte **al iniciar el `00_Main.py`**:
-
-### Opción 1: Reporte con Proyecto y Salida
-
-Esta es la forma estándar para un reporte normal:
-
+Si ya tienes el entorno configurado y solo necesitas alguna funcion, solo usa python con el numero respectivo y ve el uso normal, ejemplo 
 ```bash
-python 00_Main.py -p <CLAVE_PROYECTO> -o <RUTA_DE_SALIDA>
-# Ejemplo:
-python 00_Main.py -p 'BUG-4501' -o 'reportes/analisis_nov'
+python 07_reporte.py -p BUG-1787 -o salida 
+
 ```
 
-### Opción 2: Reporte Comprimido (ZIP)
+---
 
-Esta opción comprime el reporte en un archivo ZIP con el nombre especificado, simplificando el proceso:
+## 📂 Caja de Herramientas (Archivos Clave)
 
-```bash
-python 00_Main.py -r <NOMBRE_DEL_REPORTE_ZIP>
-# Ejemplo:
-python 00_Main.py -r 'Reporte_BUG-4501'
-```
+| Archivo | Rol en el Sistema |
+| --- | --- |
+| `config.ini` | **Fuente de Verdad**: Almacena URL, Token, Plantillas y Autor. |
+| `temp_project_name.txt` | **Puente**: Pasa el nombre del proyecto entre el generador y el reporte. |
+| `sonar-project.properties` | **Sync**: Configuración técnica para el motor de escaneo. |
+| `Reportes_Generados/` | **Salida**: Almacén automatizado de resultados y archivos ZIP. |
 
-> **NOTA:** Si ejecuta el **Paso 7** individualmente o el **Paso 8 (Secuencia Completa)** sin haber proporcionado argumentos, el Orquestador le **preguntará interactivamente** para ingresar los valores necesarios (`-p`, `-o` o `-r`).
+---
 
------
+## 📝 Requisitos del Sistema
 
-## 🛠️ Descripción de los Scripts
+* **Python 3.8+**
+* **Java JRE/JDK 11+** (Requerido para SonarScanner y CNES Report)
+* **Acceso a Red**: Conexión activa a la VPN corporativa.
 
-### 1\. `01_config.ini.py` (Sincronización)
+---
 
-Asegura que los valores de `url` y `sonar.token` definidos en `config.ini` se apliquen estrictamente al archivo de configuración de escaneo (`sonar-project.properties`).
-
-### 2\. `02_validate_env.py` (Validación de PATH)
-
-Revisa si la variable de entorno **PATH** incluye una ruta al ejecutable de SonarScanner, lo cual es crucial para que el escáner sea invocable desde cualquier parte.
-
-### 3\. `03_download_scanner.py` (Descarga de Scanner)
-
-Descarga la versión más reciente de SonarScanner directamente desde GitHub, la descomprime y sugiere comandos para añadir su ruta al **PATH** del sistema operativo, si es necesario.
-
-### 4\. `04_validate_sonarscan.py` (Verificación API y CLI)
-
-  * **API:** Intenta conectar al servidor SonarQube usando la URL y el Token para verificar la conectividad.
-  * **CLI:** Ejecuta `sonar-scanner -v` para confirmar que el ejecutable esté disponible y funcionando.
-
-### 5\. `05_download_cnes_report.py` (Descarga de Reporte JAR)
-
-Verifica la versión más reciente del generador de reportes CNES (`sonar-cnes-report-X.Y.Z.jar`) en GitHub. Si hay una versión más nueva, pregunta si desea descargarla y limpiar las versiones antiguas.
-
-### 6\. `06_genera_nombre.py` (Generar Clave de Proyecto)
-
-Este es un script **altamente interactivo** que guía al usuario para:
-
-1.  Definir la **Clave de Proyecto** (`sonar.projectKey`) bajo la nomenclatura interna (ej. `BUG-XXXX`).
-2.  Definir el **Nombre de Proyecto** (`sonar.projectName`).
-3.  Generar y mostrar los comandos de escaneo completos (para Windows y Linux/Mac) para diferentes tecnologías (`mvn`, `gradle`, `sonar-scanner`).
-
-### 7\. `07_reporte.py` (Generación de Reporte)
-
-Utiliza el JAR de reporte CNES descargado en el Paso 5 para contactar al servidor SonarQube y generar un reporte en PDF/HTML/CSV/etc.
-
-  * Requiere la **Clave del Proyecto** (`-p`) y la **Ruta de Salida** (`-o`), o bien, la opción de **Reporte Comprimido** (`-r`).
-
------
-
-## 💡 Flujo de Trabajo Recomendado
-
-1.  **Configuración:** Ejecute el **Paso 1** para validar y sincronizar la configuración.
-2.  **Preparación:** Ejecute la **Secuencia Completa (Paso 8)** sin argumentos para verificar si el entorno está listo (PATH, Scanner, JAR).
-    ```bash
-    python 00_Main.py 8
-    ```
-3.  **Generación de Comandos:** Ejecute el **Paso 6** para obtener la clave del proyecto y los comandos de escaneo.
-    ```bash
-    python 00_Main.py 6
-    ```
-4.  **Ejecución del Escaneo:** Ejecute el comando generado por el Paso 6 *fuera* del Orquestador (por ejemplo, en el directorio raíz de su proyecto).
-5.  **Generación del Reporte:** Ejecute el **Paso 7** con los argumentos del proyecto que acaba de escanear.
-    ```bash
-    python 00_Main.py 7 -r 'Reporte_BUG-XXXX'
-    ```
+**Seguridad Ofensiva** | *Automatizando la calidad del código.*

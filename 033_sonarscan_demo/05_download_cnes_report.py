@@ -253,4 +253,22 @@ def main_download_cnes_report() -> bool:
     return False
 
 if __name__ == "__main__":
-    main_download_cnes_report()
+    import sys
+    try:
+        print("\n--- INICIO DE 05_download_cnes_report.py ---")
+        
+        if main_download_cnes_report():
+            print("\n[✓] 05_download_cnes_report.py finalizado con éxito.")
+            sys.exit(0)
+        else:
+            # Si retorna False (descarga fallida, JAR no encontrado o rechazada por usuario)
+            print("\n[❌] 05_download_cnes_report.py finalizado con errores funcionales (descarga/verificación fallida).")
+            sys.exit(1)
+            
+    except KeyboardInterrupt:
+        print("\n[👋] Proceso de descarga cancelado por el usuario.")
+        sys.exit(0)
+    except Exception as e:
+        # Captura errores críticos (red, IO, etc.)
+        print(f"\n[❌] Error crítico en 05_download_cnes_report.py: {e}", file=sys.stderr)
+        sys.exit(1)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # 00_Main.py
 # Versión: 1.0.0 - REFACCIÓN: Centralización Estricta de Strings y Constantes
 # Función: Orquestador de procesos con manejo de argumentos e interactividad para el Paso 7.
@@ -9,27 +10,27 @@ import argparse
 from typing import Dict, Any, Optional, List
 
 # ===================================================
-# 📝 CONSTANTES DE MENSAJES CENTRALIZADAS
+# 📌 CONSTANTES DE MENSAJES CENTRALIZADAS
 # ===================================================
 version= "1.0.0"
 fecha="18.11.2025"
 # --- SEPARADORES Y CABECERAS ---
 TITLE_SEPARATOR = "=================================================="
 SUCCESS_SEPARATOR = "====================================================="
-MAIN_TITLE = "          INICIO DEL ORQUESTADOR SONARQUBE        "
+MAIN_TITLE = "       INICIO DEL ORQUESTADOR SONARQUBE         "
 
 # --- MENSAJES DE ESTADO Y PROMPT ---
 PROMPT_CHOICE = "Seleccione una opción ({min}-{max}): "
 EXIT_MESSAGE = "\n[👋] Saliendo del Orquestador SonarQube. ¡Hasta pronto!"
-SUCCESS_FULL_SEQUENCE = "    [✓] SECUENCIA COMPLETA EJECUTADA CON ÉXITO.      "
+SUCCESS_FULL_SEQUENCE = "    [✔] SECUENCIA COMPLETA EJECUTADA CON ÉXITO.      "
 INFO_EXECUTING_STEP = "\n---> EJECUTANDO {step_number}. {description} ({file_name}) <---"
 INFO_REPORT_ARGS = "\n[i] El Paso 7 (Reporte) requiere argumentos. ¿Desea proporcionarlos ahora?"
 PROMPT_REPORT_ARGS = "¿Ingresar argumentos para el Paso 7? (s/n): "
 
 # --- MENSAJES DE ERROR ---
-ERROR_INVALID_INPUT = "[⚠️] Entrada no válida. Por favor, ingrese un número."
+ERROR_INVALID_INPUT = "[❗] Entrada no válida. Por favor, ingrese un número."
 ERROR_NOT_DEFINED = "[❌] Opción {choice} no válida o no definida."
-ERROR_OUT_OF_RANGE = "[⚠️] Opción {choice} fuera del rango permitido ({min}-{max})."
+ERROR_OUT_OF_RANGE = "[❗] Opción {choice} fuera del rango permitido ({min}-{max})."
 ERROR_STEP_NOT_DEFINED = "[❌] Error: El paso {step_number} no está definido."
 ERROR_STEP_EXECUTION = "[❌] Error durante la ejecución del paso {step_number} ({file_name}): {error}"
 ERROR_SEQUENCE_INTERRUPTED = "[❌] Secuencia interrumpida: Falló el Paso {step_number}."
@@ -42,7 +43,7 @@ _available_steps = {
     3: {'file': '03_download_scanner.py', 'description': 'Descarga de SonarScanner'},
     4: {'file': '04_validate_sonarscan.py', 'description': 'Verificación de Scanner y API'},
     5: {'file': '05_download_cnes_report.py', 'description': 'Descarga/Validación CNES Report JAR'},
-    6: {'file': '06_genera_nombre.py', 'description': 'Generar Clave de Proyecto/Reporte'}, 
+    6: {'file': '06_genera_nombre_env_v1.3.6.py', 'description': 'Generar Clave de Proyecto/Reporte'}, 
     7: {'file': '07_reporte.py', 'description': 'Generación de Reporte (Acepta -p, -o, -r)'}, 
 }
 
@@ -118,7 +119,7 @@ def execute_full_sequence(report_args: Optional[List[str]] = None) -> bool:
     
     # Usa la constante para la cabecera
     print(f"\n{TITLE_SEPARATOR}")
-    print(f"        INICIO DE LA SECUENCIA COMPLETA (1 -> {MAX_STEP})    ")
+    print(f"     INICIO DE LA SECUENCIA COMPLETA (1 -> {MAX_STEP})    ")
     print(f"{TITLE_SEPARATOR}")
     
     for step_number in range(1, FULL_SEQUENCE_STEP):
@@ -163,8 +164,8 @@ def main():
     # Usa las constantes para la cabecera
     print(TITLE_SEPARATOR)
     print(MAIN_TITLE)
-    # AÑADIR VERSIÓN Y FECHA (Cambios realizados aquí)
-    print(f"      Versión: {version} - Fecha: {fecha}")    
+    # AÑADIR VERSIÓN Y FECHA
+    print(f"     Versión: {version} - Fecha: {fecha}")     
     print(TITLE_SEPARATOR)
 
     while True:
@@ -220,9 +221,19 @@ def main():
 
 
 if __name__ == "__main__":
+    # La importación de sys ya está arriba, pero la dejamos para consistencia si se usa esta línea
+    # en scripts modulares.
+    
+    # Hemos corregido los mensajes en el bloque de excepciones para usar UTF-8 correctamente.
+    
     try:
-        main()
+        main() 
+        sys.exit(0) 
     except KeyboardInterrupt:
-        # Usa la constante de salida
-        print(EXIT_MESSAGE)
-        sys.exit(0)
+        # Captura de interrupcion (Ctrl+C)
+        print(EXIT_MESSAGE) # Usamos la constante centralizada
+        sys.exit(0) # Salida limpia
+    except Exception as e:
+        # Captura de cualquier otro error critico no previsto
+        print(f"\n[❓] Error crítico en el Orquestador (00_Main.py): {e}", file=sys.stderr)
+        sys.exit(1)
