@@ -1,64 +1,103 @@
-# 01_validate_env.py
-# Versión: 1.0.1 (Ahora es ejecutable independientemente y multiplataforma)
+# 02_validate_env.py
+# Versión: 1.3.5 (ESTABLE - SIN BUCLES)
+# Objetivo: Validar el PATH, limpiar rutas muertas y asegurar sincronización.
 
 import os
-import re
-import platform
+import winreg
+import ctypes
+import subprocess
+from pathlib import Path
 
-def validate_sonar_path():
-    """
-    Busca rutas relacionadas con SonarScanner en la variable de entorno PATH.
-    Es compatible con Windows, Linux y macOS.
-    
-    Retorna una lista de las rutas encontradas.
-    """
-    print("\n\n🔎 [Paso 1: Validación de Entorno]")
-    print("Buscando rutas que contengan 'sonar' en la variable PATH...")
-    
-    # Intenta obtener la variable PATH.
-    # El orden de búsqueda (PATH o Path) es más relevante en Windows,
-    # pero usamos el estándar de Python para obtener la variable de entorno.
-    # En Windows, os.environ.get('PATH') ya suele resolver el problema de mayúsculas/minúsculas.
-    path_variable = os.environ.get('PATH')
-    
-    if not path_variable:
-        # Si la variable principal (PATH) no se encuentra, intentamos con Path (Windows)
-        path_variable = os.environ.get('Path')
-    
-    if not path_variable:
-        print("❌ Variable de entorno PATH no encontrada.")
-        return []
+def refrescar_sistema():
+    """Avisa a Windows del cambio en las variables de entorno."""
+    HWND_BROADCAST = 0xFFFF
+    WM_SETTINGCHANGE = 0x001A
+    ctypes.windll.user32.SendMessageTimeoutW(
+        HWND_BROADCAST, WM_SETTINGCHANGE, 0, 'Environment', 0x0002, 1000, None
+    )
 
-    # Divide el string PATH usando el separador de ruta del sistema operativo
-    # os.pathsep es ';' en Windows y ':' en Linux/macOS, garantizando compatibilidad.
-    path_list = path_variable.split(os.pathsep)
-
-    # Filtra las rutas que contienen 'sonar' (ignorando mayúsculas/minúsculas)
-    sonar_paths = [
-        path.strip()
-        for path in path_list
-        # Usamos re.search para encontrar 'sonar' en cualquier parte de la ruta.
-        if re.search(r'sonar', path, re.IGNORECASE) and path.strip()
-    ]
-
-    if sonar_paths:
-        print(f"✅ ¡Éxito! Se encontraron {len(sonar_paths)} rutas relacionadas con SonarScanner:")
-        for path in sonar_paths:
-            print(f"   -> {path}")
-    else:
-        print("⚠️ Advertencia: No se encontraron rutas que contengan 'sonar' en la variable PATH.")
+def limpiar_y_actualizar_registro(nueva_ruta_bin):
+    """Sincroniza el registro eliminando duplicados o rutas de sonar viejas."""
+    try:
+        reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Environment', 0, winreg.KEY_ALL_ACCESS)
+        path_actual, _ = winreg.QueryValueEx(reg_key, 'Path')
         
-        # Sugerencia específica según el sistema operativo
-        sistema_os = platform.system().lower()
-        if sistema_os == 'windows':
-            print("   (Si acabas de instalarlo, recuerda abrir una NUEVA terminal de PowerShell/CMD.)")
-        else:
-            print("   (Si acabas de instalarlo, revisa tu archivo ~/.bashrc o ~/.zshrc y ejecuta 'source'.)")
+        lista_paths = [p.strip() for p in path_actual.split(';') if p.strip()]
+        lista_final = []
+        
+        # Saneamiento: Mantener rutas normales y solo la de sonar actual
+        for p in lista_paths:
+            if 'sonar' in p.lower():
+                # Si la ruta existe y es la que queremos, la mantenemos
+                if os.path.exists(p) and Path(p).resolve() == Path(nueva_ruta_bin).resolve():
+                    if p not in lista_final: lista_final.append(p)
+            else:
+                if p not in lista_final: lista_final.append(p)
 
-    return sonar_paths
+        # Asegurar que la nueva esté
+        nueva_ruta_str = str(Path(nueva_ruta_bin).resolve())
+        if nueva_ruta_str not in lista_final:
+            lista_final.append(nueva_ruta_str)
 
-# --- Bloque de ejecución principal para independencia ---
+        nuevo_path_str = ";".join(lista_final)
+        winreg.SetValueEx(reg_key, 'Path', 0, winreg.REG_EXPAND_SZ, nuevo_path_str)
+        winreg.CloseKey(reg_key)
+        
+        # Actualizar memoria del proceso actual
+        os.environ["PATH"] = nuevo_path_str
+        refrescar_sistema()
+        return True
+    except Exception as e:
+        print(f"[❌] Error actualizando registro: {e}")
+        return False
+
+def main():
+    print(f"\n{'='*60}\n🔍 PASO 02: VALIDACIÓN DE ENTORNO\n{'='*60}")
+    
+    # 1. Ruta local esperada
+    base_dir = Path(os.getcwd())
+    ruta_local = None
+    folder_scan = base_dir / "sonarscan"
+    if folder_scan.exists():
+        for item in folder_scan.iterdir():
+            if item.is_dir() and "sonar-scanner-" in item.name:
+                bin_p = item / "bin"
+                if bin_p.exists(): 
+                    ruta_local = bin_p.resolve()
+                    break
+
+    # 2. Rutas actuales en memoria
+    path_memoria = os.environ.get('PATH', '')
+    sonar_memoria = [p for p in path_memoria.split(os.pathsep) if 'sonar' in p.lower()]
+    
+    # 3. Lógica de decisión
+    if not ruta_local:
+        print("[❌] No se detectó SonarScanner en ./sonarscan/. Ejecuta el paso 03.")
+        return
+
+    # Verificar si la ruta en memoria es la correcta
+    esta_ok = False
+    if sonar_memoria:
+        for p in sonar_memoria:
+            if Path(p).resolve() == Path(ruta_local).resolve():
+                esta_ok = True
+                break
+
+    if esta_ok and len(sonar_memoria) == 1:
+        print(f"[✅] El entorno ya está correctamente configurado.")
+        print(f"    -> {ruta_local}")
+    else:
+        print(f"[!] Se requiere sincronización.")
+        print(f"    Scanner local: {ruta_local}")
+        if input("[?] ¿Sincronizar ahora? (s/N): ").lower() == 's':
+            if limpiar_y_actualizar_registro(ruta_local):
+                print("[✓] Registro saneado.")
+                # Intentar test de comando
+                try:
+                    subprocess.run(["sonar-scanner", "-v"], shell=True, check=True)
+                except:
+                    print("[i] Sincronización completa. Si el comando falla en esta ventana,")
+                    print("    ejecuta: $env:Path = [System.Environment]::GetEnvironmentVariable('Path','User')")
+
 if __name__ == "__main__":
-    # Si se ejecuta este script directamente (python 01_validate_env.py),
-    # se llama a la función de validación.
-    validate_sonar_path()
+    main()

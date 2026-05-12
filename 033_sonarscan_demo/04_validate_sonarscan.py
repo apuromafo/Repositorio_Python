@@ -1,6 +1,6 @@
-# 04_validate_sonarscan.py 
-# Versión: 6.0.0 (Minimalista. Solo CLI -v y API desde config.ini. Sin tocar properties.)
-# Objetivo: Validar conectividad al servidor SonarQube (API) y disponibilidad del scanner CLI (-v).
+# 04_validate_sonarscan.py
+# Versión: 6.5.0 (CORRECCIÓN DE RUTAS Y CONFIG.INI)
+# Objetivo: Validar API de SonarQube y ejecución del scanner usando la ruta del proyecto.
 
 import subprocess
 import os
@@ -8,140 +8,125 @@ import platform
 import configparser
 import requests
 import sys
-from requests.exceptions import RequestException
-from typing import Tuple, Optional
+from pathlib import Path
 import urllib3
+
+# Desactivar avisos de certificados inseguros
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# --- Configuración de Rutas ---
+# Ahora buscamos el config.ini en la misma carpeta que el script
+BASE_DIR = Path(__file__).parent.resolve()
+CONFIG_INI_PATH = BASE_DIR / "config.ini"
 
-# --- Constantes ---
-CONFIG_INI = "config.ini"
-SONAR_SECTION = "SonarQube"
-DEFAULT_URL_PLACEHOLDER = "https://sitio_demo.cl" 
-DEFAULT_TOKEN_PLACEHOLDER = "squ_demo" 
-
-# --- UTILITY: Lector de Configuración ---
-
-def _read_sonar_config() -> Tuple[str, str]:
-    """Lee y retorna la URL y el Token desde config.ini."""
+def leer_configuracion():
+    """Lee URL y Token desde el config.ini en la raíz."""
     config = configparser.ConfigParser()
+    print(f"[i] Leyendo configuración desde: {CONFIG_INI_PATH}")
     
-    try:
-        # Intenta leer el archivo
-        if not config.read(CONFIG_INI):
-            print(f"[⚠️] Advertencia: Archivo '{CONFIG_INI}' no encontrado.")
-            raise configparser.NoSectionError
-            
-        # Obtener valores con fallback
-        url = config.get(SONAR_SECTION, 'url', fallback=DEFAULT_URL_PLACEHOLDER)
-        token = config.get(SONAR_SECTION, 'sonar.token', fallback=DEFAULT_TOKEN_PLACEHOLDER)
-        
-    except configparser.NoSectionError:
-        print(f"[⚠️] Advertencia: Sección [{SONAR_SECTION}] no encontrada. Usando valores por defecto.")
-        url = DEFAULT_URL_PLACEHOLDER
-        token = DEFAULT_TOKEN_PLACEHOLDER
-        
-    return url, token
-
-# --- Funciones de Validación ---
-
-def _check_sonar_api_status(host_url: str, token: str) -> bool:
-    """Verifica la conectividad al servidor SonarQube."""
-    if not host_url or host_url == DEFAULT_URL_PLACEHOLDER:
-        print("[⚠️] Omisión API: URL del host SonarQube es placeholder. Saltando validación API.")
-        return True
-    
-    print(f"\n📞 Verificando conectividad API en: {host_url}")
-    # Endpoint recomendado para obtener la versión
-    version_endpoint = f"{host_url.rstrip('/')}/api/server/version"
-    headers = {'Authorization': f'Bearer {token}'}
+    if not CONFIG_INI_PATH.exists():
+        print(f"[❌] Error: No se encuentra el archivo {CONFIG_INI_PATH}")
+        return None, None
 
     try:
-        # Se incluye verify=False para entornos de prueba con certificados auto-firmados
-        response = requests.get(version_endpoint, headers=headers, timeout=10, verify=False) 
-        response.raise_for_status()
-        
-        server_version = response.text.strip()
-        print(f"[✓] Conexión API exitosa. Versión del Servidor SonarQube: {server_version}")
-        return True
-        
-    except RequestException as e:
-        print(f"[❌] ERROR de Conexión/HTTP: No se pudo conectar al servidor en {host_url}.")
-        if hasattr(e, 'response') and e.response.status_code in (401, 403):
-            print("   -> Causa: Token de SonarQube Inválido o sin permisos.")
+        config.read(CONFIG_INI_PATH, encoding='utf-8')
+        url = config.get("SonarQube", "url", fallback="").strip()
+        token = config.get("SonarQube", "sonar.token", fallback="").strip()
+        return url, token
+    except Exception as e:
+        print(f"[❌] Error al leer config.ini: {e}")
+        return None, None
+
+def buscar_ejecutable_scanner():
+    """Busca el ejecutable dentro de la carpeta 'sonarscan' local."""
+    executable = "sonar-scanner.bat" if platform.system().lower() == 'windows' else "sonar-scanner"
+    
+    # 1. Intentar usar el comando directo (si el paso 02 funcionó, esto debería bastar)
+    try:
+        subprocess.run([executable, "-v"], capture_output=True, shell=True)
+        return executable
+    except:
+        pass
+
+    # 2. Fallback: Buscar en la carpeta local sonarscan/
+    print("[i] El comando global no responde, buscando en carpeta local...")
+    folder_sonarscan = BASE_DIR / "sonarscan"
+    if folder_sonarscan.exists():
+        for item in folder_sonarscan.iterdir():
+            if item.is_dir() and "sonar-scanner-" in item.name:
+                full_path = item / "bin" / executable
+                if full_path.exists():
+                    return str(full_path)
+    return None
+
+def validar_api(url, token):
+    """Prueba la conexión con el servidor."""
+    if not url:
+        print("[❌] URL no configurada en config.ini")
+        return False
+
+    print(f"\n[+] Probando conexión a: {url}")
+    try:
+        # Validar Versión (Conectividad básica)
+        api_version = f"{url.rstrip('/')}/api/server/version"
+        res = requests.get(api_version, verify=False, timeout=10)
+        if res.status_code == 200:
+            print(f"✅ Conexión establecida. Versión de Sonar: {res.text}")
         else:
-            print(f"   -> Causa: {e}")
+            print(f"❌ Error de conexión. Código: {res.status_code}")
+            return False
+
+        # Validar Token (Autenticación)
+        if token:
+            print("[+] Validando Token de acceso...")
+            api_auth = f"{url.rstrip('/')}/api/authentication/validate"
+            res_auth = requests.get(api_auth, auth=(token, ''), verify=False, timeout=10)
+            if res_auth.status_code == 200 and "true" in res_auth.text.lower():
+                print("✅ Token válido y autenticado.")
+                return True
+            else:
+                print(f"❌ Token inválido o expirado (Código {res_auth.status_code})")
+                return False
+        else:
+            print("⚠️ No hay token para validar.")
+            return True
+
+    except Exception as e:
+        print(f"❌ Error de red: {e}")
         return False
 
+def main():
+    print(f"\n{'='*60}\n🚀 PASO 04: VALIDACIÓN DE SCANNER Y API\n{'='*60}")
+    
+    # 1. Verificar Configuración
+    url, token = leer_configuracion()
+    if not url:
+        print("[❌] Abortando: Falta configuración crítica.")
+        return
 
-def _check_cli_version(scanner_executable: str = "sonar-scanner") -> bool:
-    """
-    Verifica que el ejecutable 'sonar-scanner' esté disponible ejecutando '-v' (¡REQUERIDO!).
-    """
-    # Adaptación para Windows
-    if platform.system() == "Windows" and scanner_executable == "sonar-scanner":
-        scanner_executable = "sonar-scanner.bat"
-        
-    cli_version_command = [scanner_executable, "-v"]
-    print(f"\n🔍 Ejecutando verificación de versión CLI: {' '.join(cli_version_command)}")
-    
-    try:
-        result_v = subprocess.run(
-            cli_version_command, 
-            check=True, 
-            capture_output=True, 
-            text=True, 
-            encoding='utf-8',
-            timeout=15
-        )
-        
-        # Mostrar la salida que contiene la versión del Scanner
-        print("--- Salida de sonar-scanner -v ---")
-        print(result_v.stdout.strip())
-        print("----------------------------------")
-        
-        print("[✓] Verificación CLI exitosa.")
-        return True
-        
-    except FileNotFoundError:
-        print(f"[❌] ERROR CLI: El ejecutable '{scanner_executable}' no fue encontrado.")
-        return False
-    except subprocess.CalledProcessError as e:
-        print(f"[❌] ERROR CLI: La verificación falló (código {e.returncode}). Salida de error: {e.stderr.strip()}")
-        return False
+    # 2. Verificar Ejecutable
+    scanner_cmd = buscar_ejecutable_scanner()
+    if scanner_cmd:
+        print(f"✅ Scanner detectado: {scanner_cmd}")
+        try:
+            res = subprocess.check_output([scanner_cmd, "-v"], shell=True, text=True)
+            version = res.split('\n')[0]
+            print(f"   -> {version}")
+            cli_ok = True
+        except:
+            print("❌ Error al ejecutar el scanner detectado.")
+            cli_ok = False
+    else:
+        print("❌ No se encontró 'sonar-scanner' en el PATH ni en la carpeta local.")
+        cli_ok = False
 
-# --- Función Principal (Exportable al Orquestador 00_main.py) ---
+    # 3. Verificar API
+    api_ok = validar_api(url, token)
 
-def validate_sonar_scanner_and_api(scanner_executable: str = "sonar-scanner") -> bool:
-    """
-    Función principal del Paso 4. Lee la configuración de config.ini y realiza 
-    las verificaciones de la API y la CLI.
-    """
-    print("\n---------------------------------------------------")
-    print("🚀 [Paso 4: Validación de SonarScanner y Conectividad]")
-    print("---------------------------------------------------")
-    
-    # 1. Leer la configuración de la "fuente de verdad" (config.ini)
-    host_url, token = _read_sonar_config()
-    
-    # 2. Verificar la disponibilidad del SonarScanner CLI (-v)
-    cli_ok = _check_cli_version(scanner_executable)
-    
-    # 3. Verificar la API del servidor SonarQube
-    api_ok = _check_sonar_api_status(host_url, token)
-    
-    return api_ok and cli_ok
-
-# --- Bloque de ejecución principal para independencia ---
+    if cli_ok and api_ok:
+        print(f"\n{'='*60}\n[✓] TODO LISTO: Puedes proceder al escaneo.\n{'='*60}")
+    else:
+        print(f"\n{'='*60}\n[❌] FALLÓ LA VALIDACIÓN: Revisa los errores arriba.\n{'='*60}")
 
 if __name__ == "__main__":
-    print("\n--- PRUEBA INDEPENDIENTE DE 04_validate_sonarscan.py ---")
-    
-    # La prueba independiente llama directamente a la función principal
-    test_passed = validate_sonar_scanner_and_api()
-
-    # Mostrar resultado final
-    if test_passed:
-        print("\n✅ PRUEBA INDEPENDIENTE EXITOSA: CLI y conexión API validadas.")
-    else:
-        print("\n❌ PRUEBA INDEPENDIENTE FALLIDA: Revise los errores anteriores.")
+    main()
