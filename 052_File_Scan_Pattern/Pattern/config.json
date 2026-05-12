@@ -1,15 +1,35 @@
 {
   "version": "1.2",
   "scan_config": {
-    "exclude_extensions": [".exe", ".dll", ".so", ".bin", ".obj", ".pyc"],
+    "exclude_extensions": [".exe", ".dll", ".so", ".bin", ".obj", ".pyc", ".png", ".jpg", ".svg"],
     "max_file_size_mb": 100,
     "binary_detection_threshold": 0.05,
     "timeout_per_file_seconds": 30
   },
   "performance": {
-    "buffer_size": 100,
     "enable_multiprocessing": false,
     "max_workers": 4
+  },
+  "security_filters": {
+    "enable_false_positive_filter": true,
+    "negative_patterns": [
+      {
+        "name": "SVG_Path_Data",
+        "regex": "d=['\"]M[\\d\\s\\.,a-zA-Z-]{25,}['\"]",
+        "reason": "Iconos y vectores visuales"
+      },
+      {
+        "name": "Geo_Coordinates",
+        "regex": "(\\[\\s?-?\\d+\\.\\d+,\\s?-?\\d+\\.\\d+\\s?\\])",
+        "reason": "Ubicación de sucursales/cajeros"
+      },
+      {
+        "name": "CSS_Styles",
+        "regex": "(box-shadow|border|color):\\s?[\\d\\w#\\s,.(px)]+",
+        "reason": "Estilos visuales de la interfaz"
+      }
+    ],
+    "exclude_paths": ["/__tests__/", "/node_modules/", "\\.test\\.js"]
   },
   "output": {
     "show_progress": true,

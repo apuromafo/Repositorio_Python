@@ -831,7 +831,15 @@
         "recomendacion_mitigacion": "Usar un Secrets Manager (Vault) para almacenar las credenciales en lugar de hardcodearlas en el código fuente.",
         "url_hallazgo": "https://cwe.mitre.org/data/definitions/798.html|https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/",
         "url_mitigacion": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
-        "origen": "Genérico/Secrets"
+        "origen": "Genérico/Secrets",
+		"negative_search": [
+    "handle", "onToggle", "change", "set", "retry", "register", "validar", 
+    "isLoading", "showPassword", "hasCpass", "success", "isLocation", "tiempo",
+    "const ", "function ", "=>", "props",
+    ": false", ": true", ": null", ": undefined", ": {", ": (", "={",
+    "placeholder=", "target: { value }", "destinatario?.", "entities.",
+    "\"\"", "''", "120"
+]
     },
     "AZURE_CLIENT_SECRET": {
         "id_regla": "1117",
