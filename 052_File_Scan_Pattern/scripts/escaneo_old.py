@@ -50,21 +50,7 @@ def es_archivo_binario(ruta_archivo: Path, umbral: float) -> bool:
             return (count_nulos / len(bloque)) > umbral
     except Exception:
         return False
-def es_falso_positivo(texto_match: str, configuracion: Dict) -> bool:
-    filtros = configuracion.get("security_filters", {})
-    if not filtros.get("enable_false_positive_filter", True):
-        return False
-        
-    negative_patterns = filtros.get("negative_patterns", [])
-    for rule in negative_patterns:
-        try:
-            if re.search(rule["regex"], texto_match, re.IGNORECASE):
-                return True
-        except:
-            continue
-    return False
-    
-    
+
 def normalizar_hallazgo_informativo(texto: str) -> str:
     """
     Normaliza un texto (endpoint o URL) para crear una clave de agrupación semántica.
@@ -195,16 +181,13 @@ def escanear_archivo(
 ) -> Dict[str, Any]:
     registrar_log(f"Procesando: {ruta_archivo}", False)
 
-    # --- Validaciones preliminares ---
+    # ... (Validaciones preliminares se mantienen igual) ...
     try:
-        # Nota: He ajustado las llaves a 'exclude_extensions' y 'binary_detection_threshold' 
-        # para que coincidan con la lógica estándar, cámbialas si tu JSON usa las otras.
-        extensiones_excluidas = configuracion.get('scan_config', {}).get('extensiones_excluidas', [])
-        if ruta_archivo.suffix.lower() in extensiones_excluidas:
+        if ruta_archivo.suffix.lower() in configuracion.get('scan_config', {}).get('extensiones_excluidas', []):
             actualizar_estadistica('archivos_omitidos')
             return {"archivo": str(ruta_archivo), "sensibles": 0, "informativos": 0, "tiempo": 0, "omitido": True, "metadatos": {}}
 
-        umbral_binario = configuracion.get('scan_config', {}).get('umbral_deteccion_binaria', 0.05)
+        umbral_binario = configuracion.get('scan_config', {}).get('umbral_deteccion_binaria', UMBRAL_DETECCION_BINARIA_DEFAULT)
         if es_archivo_binario(ruta_archivo, umbral_binario):
             mostrar_recomendaciones_binario(ruta_archivo, sugerencias)
             actualizar_estadistica('archivos_binarios')
@@ -218,16 +201,19 @@ def escanear_archivo(
     metadatos = obtener_metadatos_archivo(ruta_archivo, sugerencias)
     print(texto_coloreado(f"\n🔎 Escaneando: {ruta_archivo}", Colores['AZUL_OK']))
 
+    # 🔑 CAMBIO CLAVE: Obtención del valor de timeout desde la configuración
     tiempo_limite = configuracion.get('scan_config', {}).get('timeout_por_archivo_segundos', 60)
     tiempo_inicio = time.time()
     
+    # --- ESTRUCTURAS DE REPORTE ---
     hallazgos_sensibles_dedup: Dict[str, Dict[str, Any]] = {}
     hallazgos_informativos_dedup: Dict[str, Dict[str, Any]] = {}
     total_raw_sensibles = 0
     total_raw_informativos = 0
     encoding = 'utf-8'
 
-    # --- FUNCIÓN INTERNA DE ESCANEO ---
+    # --- FUNCIÓN INTERNA DE ESCANEO (Concepto Refactorizado) ---
+    # Esta función contiene el bucle principal que podría fallar por Timeout o Exception
     def _ejecutar_escaneo_linea_por_linea():
         nonlocal total_raw_sensibles, total_raw_informativos
         
@@ -235,6 +221,7 @@ def escanear_archivo(
             for num_linea, linea in enumerate(archivo, 1):
                 actualizar_estadistica('lineas_analizadas')
 
+                # Pre-procesar la línea
                 linea_lower = linea.lower()
                 patrones_a_escanear = []
                 if opciones.get("sensibles", True):
@@ -243,32 +230,26 @@ def escanear_archivo(
                     patrones_a_escanear.extend(patrones_informativos)
 
                 for patron in patrones_a_escanear:
-                    # Lógica de Exclusión (Negative Search)
-                    if patron.get("negative_search") and any(neg.lower() in linea_lower for neg in patron["negative_search"]):
+                    # Lógica de Exclusión (Negative Search) Mejorada para Case-Insensitive
+                    if patron.get("negative_search") and any(neg_keyword.lower() in linea_lower for neg_keyword in patron["negative_search"]):
                         continue
 
                     for match in patron['regex'].finditer(linea):
                         texto_real_match = match.group(0).strip()
-
-                        # ==========================================================
-                        # 🛡️ INSERCIÓN DEL FILTRO ANTI-FALSOS POSITIVOS (SVG, Coords)
-                        # ==========================================================
-                        if es_falso_positivo(texto_real_match, configuracion):
-                            continue 
-                        # ==========================================================
-
                         clave_dedup_regla = str(patron['id_regla'])
 
-                        # Captura de Contexto
-                        snippet_start = max(0, match.start() - 80)
-                        snippet_end = min(len(linea), match.end() + 80)
-                        context_snippet_raw = linea[snippet_start:snippet_end].strip()
+                        # Captura de Contexto (Snippet)
+                        full_line = linea
+                        start_index = match.start()
+                        end_index = match.end()
+                        snippet_start = max(0, start_index - CONTEXT_LEN)
+                        snippet_end = min(len(full_line), end_index + CONTEXT_LEN)
+                        context_snippet_raw = full_line[snippet_start:snippet_end].strip()
 
                         # Lógica PII/Sensible
                         if patron.get("es_sensible", False):
                             actualizar_estadistica('hallazgos_sensibles')
                             total_raw_sensibles += 1
-                            
                             try:
                                 texto_clave_dedup = match.group(1).strip()
                             except IndexError:
@@ -303,89 +284,130 @@ def escanear_archivo(
                             })
                             match_data["count"] += 1
                             match_data["line_numbers"].add(num_linea)
+    # --- FIN FUNCIÓN INTERNA DE ESCANEO ---
 
-    # --- EJECUCIÓN CON MANEJO DE ERRORES/TIMEOUT ---
+
+    # 🔑 CAMBIO CLAVE: Bloque Try/Except enfocado en la ejecución con posible Timeout
     try:
+        # En una implementación real, aquí se llamaría a una función o decorador con timeout
+        # ejemplo: ejecutar_con_timeout(tiempo_limite, _ejecutar_escaneo_linea_por_linea)
         _ejecutar_escaneo_linea_por_linea()
+
     except TimeoutError:
         mensaje_error = f"⚠️ ALERTA: Escaneo de {ruta_archivo} excedió el límite de {tiempo_limite}s."
         print(texto_coloreado(mensaje_error, Colores['ADVERTENCIA']))
         registrar_log(mensaje_error, False, "ADVERTENCIA")
-        actualizar_estadistica('archivos_grandes')
+        actualizar_estadistica('archivos_grandes') # Se marca como grande/lento
     except Exception as e:
         mensaje_error = f"ERROR escaneando {ruta_archivo}: {e}"
         print(texto_coloreado(mensaje_error, Colores['FALLO']))
         registrar_log(mensaje_error, False, "ERROR")
         actualizar_estadistica('errores')
 
-    # --- POST-PROCESAMIENTO ---
+    # ... (El post-procesamiento e impresión se mantienen iguales) ...
+
     duracion = time.time() - tiempo_inicio
     actualizar_estadistica('archivos_procesados')
 
-    # Consolidar Sensibles
+    # 1. Sensibles (Lógica de consolidación idéntica a la versión previa)
     hallazgos_sensibles_final = list(hallazgos_sensibles_dedup.values())
+    total_sensibles_contados_raw = total_raw_sensibles
+
     for hall in hallazgos_sensibles_final:
         total_conteo_regla = sum(item['count'] for item in hall['consolidated_matches'].values())
         hall['conteo'] = total_conteo_regla
+
         evidencia_list = []
-        for unique_key, data in hall['consolidated_matches'].items():
+        for unique_pii_key, data in hall['consolidated_matches'].items():
             evidencia_list.append({
-                "contexto": unique_key, "conteo": data['count'], "normalized_key": unique_key,
-                "lineas": sorted(list(data['line_numbers'])), "lineacontenido": data['lineacontenido'],
+                "contexto": unique_pii_key,
+                "conteo": data['count'],
+                "normalized_key": unique_pii_key,
+                "lineas": sorted(list(data['line_numbers'])),
+                "lineacontenido": data['lineacontenido'],
                 "match_contexto": data['match_contexto']
             })
+
         evidencia_list.sort(key=lambda x: x['conteo'], reverse=True)
+
         hall['evidencia_consolidada'] = evidencia_list
         hall['evidencia_total_grupos'] = len(evidencia_list)
-        hall['descripcion'] = f"{hall['descripcion']} (Consolidado de {len(evidencia_list)} únicos, total {total_conteo_regla} matches)."
 
-    # Consolidar Informativos
+        hall['descripcion'] = f"{hall['descripcion']} (Consolidado de {hall['evidencia_total_grupos']} datos PII/Secretos únicos, total {total_conteo_regla} matches)."
+
+
+    # 2. Informativos (Lógica de consolidación idéntica a la versión previa)
     hallazgos_informativos_final = list(hallazgos_informativos_dedup.values())
+    total_informativos_contados_raw = total_raw_informativos
+
     for hall in hallazgos_informativos_final:
         total_conteo_regla = sum(item['count'] for item in hall['consolidated_matches'].values())
         hall['conteo'] = total_conteo_regla
+
         evidencia_list = []
-        for norm_key, data in hall['consolidated_matches'].items():
+        for normalized_key, data in hall['consolidated_matches'].items():
             evidencia_list.append({
-                "contexto": data['first_match'], "conteo": data['count'], "normalized_key": norm_key,
-                "lineas": sorted(list(data['line_numbers'])), "lineacontenido": data['lineacontenido'],
+                "contexto": data['first_match'],
+                "conteo": data['count'],
+                "normalized_key": normalized_key,
+                "lineas": sorted(list(data['line_numbers'])),
+                "lineacontenido": data['lineacontenido'],
                 "match_contexto": data['match_contexto']
             })
+
         evidencia_list.sort(key=lambda x: x['conteo'], reverse=True)
+
         hall['evidencia_consolidada'] = evidencia_list
         hall['evidencia_total_grupos'] = len(evidencia_list)
-        hall['descripcion'] = f"{hall['descripcion']} (Consolidado de {len(evidencia_list)} grupos, total {total_conteo_regla} matches)."
 
-    # Ordenación e Impresión
+        hall['descripcion'] = f"{hall['descripcion']} (Consolidado de {hall['evidencia_total_grupos']} grupos de endpoints, total {total_conteo_regla} matches)."
+
+
+    # --- CRITERIO DE ORDENACIÓN (Idéntico) ---
     hallazgos_todos_final = hallazgos_sensibles_final + hallazgos_informativos_final
-    hallazgos_todos_final.sort(key=lambda h: (not h.get('es_sensible', False), h.get('categoria', ''), h.get('clave', '')))
+    hallazgos_todos_final.sort(key=lambda h: (
+        not h.get('es_sensible', False),
+        h.get('categoria', ''),
+        h.get('clave', '')
+    ))
+    # --- FIN CRITERIO DE ORDENACIÓN ---
 
+    # --- IMPRESIÓN (Idéntico) ---
+    numero_hallazgo = 1
     if hallazgos_todos_final:
         print(texto_coloreado("\n===== HALLAZGOS =====", Colores['NEGRITA']))
+
         sensibles_imprimir = [h for h in hallazgos_todos_final if h.get('es_sensible', False)]
         informativos_imprimir = [h for h in hallazgos_todos_final if not h.get('es_sensible', False)]
 
-        num = 1
         if sensibles_imprimir:
-            print(texto_coloreado("\n--- Hallazgos Sensibles ---", Colores['FALLO']))
-            for h in sensibles_imprimir:
-                imprimir_hallazgo_sensible_consolidado(h, num)
-                registrar_hallazgo_por_archivo(ruta_archivo.name, formatear_texto_hallazgo(h, num), tipo="sensibles")
-                num += 1
+            print(texto_coloreado("\n--- Hallazgos Sensibles (PII/Secretos - CONSOLIDADO TOTAL POR REGLA) ---", Colores['FALLO']))
+            for hall in sensibles_imprimir:
+                imprimir_hallazgo_sensible_consolidado(hall, numero_hallazgo)
+                registrar_hallazgo_por_archivo(ruta_archivo.name, formatear_texto_hallazgo(hall, numero_hallazgo), tipo="sensibles")
+                numero_hallazgo += 1
+
         if informativos_imprimir:
-            print(texto_coloreado("\n--- Hallazgos Informativos ---", Colores['AZUL_OK']))
-            for h in informativos_imprimir:
-                imprimir_hallazgo_informativo_consolidado(h, num)
-                registrar_hallazgo_por_archivo(ruta_archivo.name, formatear_texto_hallazgo(h, num), tipo="informativos")
-                num += 1
+            print(texto_coloreado("\n--- Hallazgos Informativos (URLs/Endpoints - CONSOLIDADO TOTAL POR REGLA) ---", Colores['AZUL_OK']))
+            for hall in informativos_imprimir:
+                imprimir_hallazgo_informativo_consolidado(hall, numero_hallazgo)
+                registrar_hallazgo_por_archivo(ruta_archivo.name, formatear_texto_hallazgo(hall, numero_hallazgo), tipo="informativos")
+                numero_hallazgo += 1
 
     print(texto_coloreado(f"\n✅ Escaneo completado en {duracion:.2f} segundos\n", Colores['VERDE_OK']))
     vaciar_buffer_hallazgos()
 
     return {
-        "archivo": str(ruta_archivo), "sensibles": total_raw_sensibles, "informativos": total_raw_informativos,
-        "tiempo": duracion, "omitido": False, "metadatos": metadatos
+        "archivo": str(ruta_archivo),
+        "sensibles": total_sensibles_contados_raw,
+        "informativos": total_informativos_contados_raw,
+        "tiempo": duracion,
+        # Si el escaneo fue interrumpido por timeout, se puede considerar "omitido": True
+        # o se podría añadir un nuevo flag "timeout": True, pero por ahora se mantiene el False
+        "omitido": False,
+        "metadatos": metadatos
     }
+
 # =========================================================================
 # 🗂️ ESCANEO DE CARPETAS Y RESUMEN (Funciones auxiliares, se mantienen igual)
 # =========================================================================

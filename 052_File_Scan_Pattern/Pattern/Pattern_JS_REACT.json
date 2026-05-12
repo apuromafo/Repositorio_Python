@@ -86,7 +86,13 @@
 		"owasp": "MASVS-STORAGE-2",
 		"categoria": "Hardcoded Connection",
 		"activo": true,
-		"negative_search": []
+		"negative_search": [
+    "handle", "onToggle", "change", "set", "retry", "register", "validar", 
+    "isLoading", "showPassword", "hasCpass", "success", "isLocation", "tiempo",
+    "const ", "function ", "=>", "props",
+    ": false", ": true", ": null", ": undefined", ": {", ": (", "={",
+    "placeholder=", "target: { value }", "destinatario?.", "entities.",
+    "\"\"", "''", "120" ]
 	},
 	
 	"JS_CRYPTO_KEY_PEM": {
