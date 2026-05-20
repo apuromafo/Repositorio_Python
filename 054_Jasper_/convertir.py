@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Convertidor Jasper a PDF - Versión Final
-Completamente silencioso y funcional 
+Completamente silencioso y funcional para pentesting
 """
 
 import argparse
@@ -12,8 +12,22 @@ import time
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-VERSION = "1.0.0"
-# --- Funciones Auxiliares ---
+
+def resolve_output_path(output_arg, input_path):
+    """Resuelve la ruta de salida correctamente"""
+    if output_arg is None:
+        return Path.cwd()
+    
+    output_path = Path(output_arg)
+    
+    if output_path.is_absolute():
+        if os.name == 'nt' and str(output_arg).startswith('/'):
+            relative_path = str(output_arg).lstrip('/')
+            return (Path.cwd() / relative_path).resolve()
+        else:
+            return output_path.resolve()
+    else:
+        return (Path.cwd() / output_path).resolve()
 
 def format_duration(seconds):
     """Formatea la duración en formato legible"""
@@ -24,8 +38,6 @@ def format_duration(seconds):
     else:
         td = timedelta(seconds=int(seconds))
         return str(td)
-
-# --- Funciones de Utilidad de Archivos y Rutas ---
 
 def get_unique_filename(file_path):
     """
@@ -49,26 +61,6 @@ def get_unique_filename(file_path):
     
     return new_path, True
 
-def resolve_output_path(output_arg, input_path):
-    """Resuelve la ruta de salida correctamente"""
-    if output_arg is None:
-        return Path.cwd()
-    
-    output_path = Path(output_arg)
-    
-    if output_path.is_absolute():
-        if os.name == 'nt' and str(output_arg).startswith('/'):
-            # Manejar rutas absolutas de tipo Unix en Windows si se dan
-            relative_path = str(output_arg).lstrip('/')
-            return (Path.cwd() / relative_path).resolve()
-        else:
-            return output_path.resolve()
-    else:
-        # Ruta relativa
-        return (Path.cwd() / output_path).resolve()
-
-# --- Función de Lógica Principal de Conversión ---
-
 def convertir_jasper_a_pdf(archivo_jasper, archivo_salida_base):
     """Convierte un archivo .jasper a PDF con supresión REAL de mensajes Java"""
     start_time = time.time()
@@ -78,8 +70,7 @@ def convertir_jasper_a_pdf(archivo_jasper, archivo_salida_base):
         
         # Verificar si el archivo de salida ya existe y generar nombre único
         output_path_original = Path(f"{archivo_salida_base}.pdf")
-        # Utiliza get_unique_filename
-        output_path_final, was_renamed = get_unique_filename(output_path_original) 
+        output_path_final, was_renamed = get_unique_filename(output_path_original)
         salida_base_final = output_path_final.with_suffix('')
         
         # Configurar pyreportjasper
@@ -135,8 +126,6 @@ def convertir_jasper_a_pdf(archivo_jasper, archivo_salida_base):
         duration = end_time - start_time
         return False, f"❌ Error: {Path(archivo_jasper).name} - {str(e)[:60]}...", duration, False
 
-# --- Función Principal (Ejecución) ---
-
 def main():
     parser = argparse.ArgumentParser(
         description="🔧 Convertidor Jasper a PDF - Herramienta para Pentesting",
@@ -176,7 +165,6 @@ Características:
         print(f"❌ Error: '{input_path}' no existe")
         sys.exit(1)
     
-    # Utiliza resolve_output_path
     output_path = resolve_output_path(args.output, input_path)
     output_path.mkdir(parents=True, exist_ok=True)
     
@@ -213,7 +201,6 @@ Características:
         print(f"🔄 Convirtiendo: {input_path.name}")
         print()
         
-        # Utiliza convertir_jasper_a_pdf
         success, mensaje, duration, was_renamed = convertir_jasper_a_pdf(input_path, salida_pdf)
         tiempo_total_conversion += duration
         
@@ -223,8 +210,7 @@ Características:
                 archivos_renombrados = 1
         
         print(f"   {mensaje}")
-        # Utiliza format_duration
-        print(f"   ⏱️  Tiempo: {format_duration(duration)}") 
+        print(f"   ⏱️  Tiempo: {format_duration(duration)}")
         archivos_totales = 1
         
     else:
@@ -251,7 +237,6 @@ Características:
             print(f"🔄 [{i}/{archivos_totales}] {jasper_file.name}")
             print()
             
-            # Utiliza convertir_jasper_a_pdf
             success, mensaje, duration, was_renamed = convertir_jasper_a_pdf(jasper_file, salida_pdf)
             tiempo_total_conversion += duration
             
@@ -261,8 +246,7 @@ Características:
                     archivos_renombrados += 1
             
             print(f"   {mensaje}")
-            # Utiliza format_duration
-            print(f"   ⏱️  Tiempo: {format_duration(duration)}") 
+            print(f"   ⏱️  Tiempo: {format_duration(duration)}")
     
     # Tiempo total
     end_total = time.time()
@@ -273,7 +257,6 @@ Características:
     print(f"📊 Resumen: {archivos_convertidos}/{archivos_totales} archivos convertidos")
     if archivos_renombrados > 0:
         print(f"🔄 Archivos renombrados: {archivos_renombrados} (ya existían)")
-    # Utiliza format_duration
     print(f"⏱️  Tiempo total: {format_duration(duration_total)} (conversión: {format_duration(tiempo_total_conversion)})")
 
 if __name__ == "__main__":
