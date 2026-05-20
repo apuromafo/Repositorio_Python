@@ -7,33 +7,33 @@
 #
 # Uso:
 # python jasper_jrxml.py -a archivo.jrxml      # Analiza un JRXML
-# python jasper_jrxml.py -f carpeta/          # Analiza una carpeta
-# python jasper_jrxml.py -a archivo.jrxml -i  # Salida resumida
+# python jasper_jrxml.py -f carpeta/           # Analiza una carpeta
+# python jasper_jrxml.py -a archivo.jrxml -i   # Salida resumida
 # python jasper_jrxml.py -f carpeta/ -o salida.json # Salida JSON
 # ==============================================================================
 # --- HISTORIAL DE VERSIONES ---
 # ==============================================================================
 # v1.2.0 (2025-09-15) - [ESTABLE FINAL]
-#    ✅ Corregido: Función get_script_version() duplicada eliminada.
-#    ✅ Corregido: Hash SHA-256 ahora se genera correctamente para archivos JRXML.
-#    ✅ Corregido: Campo file_type añadido para consistencia en tabla resumen.
-#    ✅ Mejorado: Función parse_jasper_report() integrada en el flujo principal.
+#   ✅ Corregido: Función get_script_version() duplicada eliminada.
+#   ✅ Corregido: Hash SHA-256 ahora se genera correctamente para archivos JRXML.
+#   ✅ Corregido: Campo file_type añadido para consistencia en tabla resumen.
+#   ✅ Mejorado: Función parse_jasper_report() integrada en el flujo principal.
 #
 # v1.1.0 (2025-09-15) - [ESTABLE]
-#    ✅ Añadido: Detección y listado de archivos .jrxml y .jasper.
-#    ✅ Añadido: Generación de hash SHA-256 para todos los archivos.
-#    ✅ Mejorado: Salida en consola con una tabla resumen final.
-#    ✅ Añadido: Detección y muestra automática de la versión del script.
+#   ✅ Añadido: Detección y listado de archivos .jrxml y .jasper.
+#   ✅ Añadido: Generación de hash SHA-256 para todos los archivos.
+#   ✅ Mejorado: Salida en consola con una tabla resumen final.
+#   ✅ Añadido: Detección y muestra automática de la versión del script.
 #
 # v1.0.0 (2025-09-14) - [LANZAMIENTO]
-#    ✅ Primera versión funcional completa del analizador JRXML.
-#    ✅ Extracción de metadatos, textos, expresiones e imágenes.
-#    ✅ Manejo de argumentos para archivos y carpetas.
-#    ✅ Opción de salida resumida y JSON.
+#   ✅ Primera versión funcional completa del analizador JRXML.
+#   ✅ Extracción de metadatos, textos, expresiones e imágenes.
+#   ✅ Manejo de argumentos para archivos y carpetas.
+#   ✅ Opción de salida resumida y JSON.
 #
 # v0.1.0 (2025-09-13) - [INICIO]
-#    ✅ Creación del script.
-#    ✅ Estructura básica.
+#   ✅ Creación del script.
+#   ✅ Estructura básica.
 # ==============================================================================
 
 import argparse
@@ -44,10 +44,6 @@ import re
 import base64
 import hashlib
 import zipfile
-VERSION = "1.2.0"
-# ==============================================================================
-# --- FUNCIONES DE UTILIDAD Y AYUDA ---
-# ==============================================================================
 
 def get_script_version():
     """
@@ -76,6 +72,18 @@ def format_size(size_bytes):
         i += 1
     return f"{size_bytes:.2f} {size_name[i]}"
 
+def clean_content(content):
+    """Limpia etiquetas XML/HTML y CDATA, dejando solo texto plano."""
+    if not content:
+        return ""
+    cleaned = re.sub(r'<[^>]+>', '', content)
+    cleaned = re.sub(r'<!\[CDATA\[|\]\]>', '', cleaned)
+    return cleaned.strip()
+
+def find_line_number(content, start_pos):
+    """Devuelve el número de línea dado una posición."""
+    return content[:start_pos].count('\n') + 1
+
 def get_file_hash(file_path):
     """Calcula el hash SHA-256 de un archivo."""
     h = hashlib.sha256()
@@ -89,22 +97,6 @@ def get_file_hash(file_path):
         return h.hexdigest()
     except Exception as e:
         return f"Error al calcular hash: {e}"
-
-def clean_content(content):
-    """Limpia etiquetas XML/HTML y CDATA, dejando solo texto plano."""
-    if not content:
-        return ""
-    cleaned = re.sub(r'<[^>]+>', '', content)
-    cleaned = re.sub(r'<!\[CDATA\[|\]\]>', '', cleaned)
-    return cleaned.strip()
-
-def find_line_number(content, start_pos):
-    """Devuelve el número de línea dado una posición."""
-    return content[:start_pos].count('\n') + 1
-
-# ==============================================================================
-# --- FUNCIONES DE ESCANEO DE ARCHIVOS ---
-# ==============================================================================
 
 def scan_folder(path):
     """Escanea una carpeta en busca de archivos .jrxml y .jasper."""
@@ -120,10 +112,6 @@ def scan_folder(path):
             elif filename.lower().endswith(".jasper"):
                 jasper_files.append(file_path)
     return jrxml_files, jasper_files
-
-# ==============================================================================
-# --- FUNCIONES CENTRALES DE ANÁLISIS (CORE) ---
-# ==============================================================================
 
 def parse_jrxml(file_path, images_output_dir="./imagenes_extraidas"):
     """Analiza un archivo JRXML y extrae todos los elementos relevantes."""
@@ -393,9 +381,6 @@ def parse_jasper_report(file_path):
         "file_hash": get_file_hash(file_path)
     }
 
-# ==============================================================================
-# --- FUNCIONES DE FLUJO Y GESTIÓN DE SALIDA ---
-# ==============================================================================
 
 def process_file_or_folder(path, is_folder, images_output_dir):
     """Procesa un archivo o carpeta y devuelve una lista de resultados."""
@@ -448,7 +433,7 @@ def print_results(results, summary_mode=False):
     """Imprime resultados de forma completa o resumida."""
     script_version = get_script_version()
     print("\n" + "="*60)
-    print("      📊 ANALIZADOR DE REPORTES JASPER JRXML")
+    print("     📊 ANALIZADOR DE REPORTES JASPER JRXML")
     print(f"      v{script_version}")
     print("="*60)
 
@@ -588,7 +573,7 @@ def print_results(results, summary_mode=False):
         file_hash = item.get('file_hash', 'N/A')
         
         print(f"{file_name:<{filename_width}} {file_type:<{type_width}} {file_size:<{size_width}} {file_hash:<{hash_width}}")
-      
+     
         
         
 def main():
@@ -596,9 +581,9 @@ def main():
         description="Analizador de archivos JRXML. Extrae metadatos, texto, expresiones, imágenes embebidas, y más.",
         epilog="""
 Ejemplos:
-  python jasper_jrxml.py -a reporte.jrxml       # completo
-  python jasper_jrxml.py -f ./reportes/         # completo
-  python jasper_jrxml.py -a reporte.jrxml -i    # resumido
+  python jasper_jrxml.py -a reporte.jrxml     # completo
+  python jasper_jrxml.py -f ./reportes/       # completo
+  python jasper_jrxml.py -a reporte.jrxml -i  # resumido
   python jasper_jrxml.py -f ./reportes/ -o analisis.json
         """,
         formatter_class=argparse.RawTextHelpFormatter
