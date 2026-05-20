@@ -1,9 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Convertidor Jasper a PDF - Versión Final
-Completamente silencioso y funcional para pentesting
-"""
+#
+# convertir.py
+#
+# Herramienta de línea de comandos para la conversión silenciosa de archivos
+# .jasper a formato PDF. Diseñada para entornos de pentesting donde la 
+# supresión de ruido (logs de consola de la JVM) es crítica.
+#
+# Uso:
+# python convertir.py -a archivo.jasper -o ./pdf/
+# python convertir.py -f carpeta/ -o ./pdf/
+# ==============================================================================
+# --- HISTORIAL DE VERSIONES ---
+# ==============================================================================
+# v2.0.0 (2026-05-20) - [ESTANDARIZACIÓN]
+#   ✅ Alineación con Jasper CLI Suite v2.0.
+#   ✅ Mejorado: Manejo de rutas absolutas y relativas para evitar errores de escritura.
+#
+# v1.0.0 (2025-09-15) - [LANZAMIENTO]
+#   ✅ Primera versión funcional con supresión de salida de consola.
+# ==============================================================================
 
 import argparse
 import os

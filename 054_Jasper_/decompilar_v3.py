@@ -1,4 +1,28 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# decompilar_v3.py
+#
+# Herramienta de línea de comandos para la descompilación de binarios .jasper
+# a archivos fuente .jrxml. Integra un puente Java para una reconstrucción fiel
+# y ejecuta un motor de análisis estático (OWASP) sobre el código recuperado.
+#
+# Uso:
+# python decompilar_v3.py -a archivo.jasper -o salida/
+# python decompilar_v3.py -f carpeta/ -o salida/
+# ==============================================================================
+# --- HISTORIAL DE VERSIONES ---
+# ==============================================================================
+# v3.0.0 (2026-05-20) - [INTEGRACIÓN SUITE]
+#   ✅ Alineación con Jasper CLI Suite v2.0.
+#   ✅ Añadido: Reporte automático de auditoría de seguridad en formato JSON y Markdown.
+#
+# v2.0.0 (2025-09-20) - [ESTABLE]
+#   ✅ Lanzamiento del puente Java mejorado para evitar errores en versiones antiguas.
+#
+# v1.0.0 (2025-09-14) - [INICIO]
+#   ✅ Primera versión de descompilador funcional.
+# ==============================================================================
 import os
 import sys
 import subprocess

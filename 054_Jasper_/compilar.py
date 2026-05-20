@@ -1,4 +1,25 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# compilar.py
+#
+# Herramienta de línea de comandos para compilar archivos fuente .jrxml
+# a binarios .jasper. Utiliza un puente Java dinámico para asegurar la 
+# compatibilidad con JasperReports.
+#
+# Uso:
+# python compilar.py -a archivo.jrxml      # Compila un JRXML
+# python compilar.py -f carpeta/           # Compila una carpeta completa
+# ==============================================================================
+# --- HISTORIAL DE VERSIONES ---
+# ==============================================================================
+# v2.0.0 (2026-05-20) - [ESTANDARIZACIÓN]
+#   ✅ Alineación con la Jasper CLI Suite v2.0.
+#   ✅ Corregido: Gestión de rutas y creación automática de directorios de salida.
+#
+# v1.0.0 (2025-09-14) - [LANZAMIENTO]
+#   ✅ Primera versión funcional del compilador con puente Java.
+# ==============================================================================
 import os
 import sys
 import subprocess
@@ -6,8 +27,6 @@ import argparse
 import glob
 import site
 
-# Puente Java para compilación fiel
-# Este código se compila al vuelo para asegurar compatibilidad con JasperReports
 JAVA_COMPILER_BRIDGE = """
 import net.sf.jasperreports.engine.JasperCompileManager;
 import java.io.File;

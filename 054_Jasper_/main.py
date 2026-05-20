@@ -1,4 +1,24 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# main.py
+#
+# Lanzador central (Orquestador) de la Jasper CLI Suite.
+# Proporciona una interfaz interactiva para acceder a los módulos de:
+# Análisis, Conversión, Compilación y Descompilación de reportes Jasper.
+#
+# Uso:
+# python main.py
+# ==============================================================================
+# --- HISTORIAL DE VERSIONES ---
+# ==============================================================================
+# v2.0.0 (2026-05-20) - [INTEGRACIÓN TOTAL]
+#   ✅ Estandarización de nombres de módulos (analizar.py, compilar.py, etc.).
+#   ✅ Optimización de flujo de ejecución mediante subprocesos con codificación UTF-8.
+#
+# v1.0.0 (2025-09-15) - [LANZAMIENTO]
+#   ✅ Interfaz interactiva básica para la suite de herramientas.
+# ==============================================================================
 import subprocess
 import sys
 import os
