@@ -12,7 +12,7 @@ if sys.platform == 'win32':
 
 # Configuración de la Suite
 SUITE = {
-    "1": {"name": "Analizar (Auditoría)", "file": "analisys.py"},
+    "1": {"name": "Analizar (Auditoría)", "file": "analizar.py"},
     "2": {"name": "Convertir (.jasper -> PDF)", "file": "convertir.py"},
     "3": {"name": "Compilar (.jrxml -> .jasper)", "file": "compilar.py"},
     "4": {"name": "Descompilar (.jasper -> .jrxml)", "file": "decompilar_v3.py"}

@@ -1,97 +1,45 @@
+# 📊 Jasper CLI Suite v2.0
 
-# 📊 Jasper CLI: Herramienta de Análisis y Conversión de Reportes
-
-## 📄 Descripción del Proyecto
-
-**Jasper CLI** es una herramienta de línea de comandos en Python diseñada para facilitar el análisis y la conversión de reportes de JasperReports. Es ideal para tareas de pentesting, desarrollo o simplemente para obtener un resumen rápido de los archivos de reporte.
-
-El proyecto está compuesto por tres scripts principales:
-- `analisys.py`: Analiza archivos `.jrxml` y `.jasper`, extrayendo metadatos, textos, expresiones, consultas SQL e imágenes embebidas. [cite_start]Genera un hash SHA-256 para cada archivo[cite: 1].
-- `convertir.py`: Convierte archivos `.jasper` a PDF de manera silenciosa y eficiente.
-- `main.py`: Un lanzador principal que proporciona un menú interactivo para acceder a las funcionalidades de los otros scripts.
+**Jasper CLI Suite** es una herramienta integral de línea de comandos en Python diseñada para el análisis, compilación, descompilación y conversión de reportes de **JasperReports**. Esta suite es especialmente útil para tareas de pentesting, auditoría de seguridad y mantenimiento de reportes.
 
 ---
 
-## 🚀 Características Principales
+## 🛠️ Módulos Principales
 
-### Analizador (`analisys.py`)
-- [cite_start]**Extracción de Metadatos**: Obtiene la versión de Jasper, el nombre del reporte, UUID, lenguaje, dimensiones de la página y más[cite: 1].
-- [cite_start]**Análisis de Contenido**: Detecta y lista textos estáticos, expresiones de campo y la consulta SQL embebida[cite: 1].
-- [cite_start]**Manejo de Imágenes**: Identifica y extrae imágenes embebidas en formato `base64`, guardándolas automáticamente en la carpeta `./imagenes_extraidas`[cite: 1].
-- [cite_start]**Hash de Archivos**: Calcula el hash SHA-256 para cada archivo `.jrxml` o `.jasper` analizado[cite: 1].
-- [cite_start]**Soporte de Lotes**: Permite analizar archivos individuales o carpetas completas[cite: 1].
+La suite consta de cuatro herramientas especializadas accesibles desde un lanzador central:
 
-### Convertidor (`convertir.py`)
-- **Conversión Silenciosa**: Convierte `.jasper` a PDF sin mostrar los molestos mensajes de la JVM en la consola.
-- **Protección contra Sobrescritura**: Genera automáticamente un nombre de archivo único si el PDF de salida ya existe.
-- **Manejo de Lotes**: Convierte archivos individuales o todos los `.jasper` dentro de una carpeta.
-- **Información Detallada**: Muestra el progreso y el tiempo de conversión para cada archivo y un resumen final.
-
-### Lanzador (`main.py`)
-- **Menú Interactivo**: Simplifica el uso del proyecto con un menú de opciones intuitivo.
-- **Registro de Acciones**: Opcionalmente, registra cada acción del usuario en un archivo de log llamado `launcher_actions.log`. Esta función puede ser activada o desactivada desde el menú.
-- **Configuración Persistente**: Guarda la configuración de logging en `config.json` para que persista entre sesiones.
+1. **Analizar (`analisys.py`)**: Realiza auditorías de archivos `.jrxml` y `.jasper`, extrayendo metadatos, textos, consultas SQL e imágenes embebidas en Base64.
+2. **Convertir (`convertir.py`)**: Convierte archivos `.jasper` a formato PDF de forma silenciosa, evitando la salida ruidosa de la JVM.
+3. **Compilar (`compilar.py`)**: Compila archivos fuente `.jrxml` en binarios `.jasper` utilizando un puente Java dedicado.
+4. **Descompilar (`decompilar_v3.py`)**: Reconstruye archivos `.jrxml` a partir de binarios `.jasper` y realiza un análisis de seguridad automatizado en busca de vulnerabilidades comunes (SQLi, RCE, LFI, etc.).
 
 ---
 
-## 🛠️ Requisitos e Instalación
+## 🚀 Características Destacadas
 
-1.  **Requisitos de Python**: Asegúrate de tener Python 3.x instalado.
-2.  **Librerías de Python**: Instala las dependencias necesarias con `pip`.
+* **Auditoría de Seguridad**: El módulo de descompilación incluye un motor de análisis que detecta riesgos como:
+    * **Inyecciones (SQLi, LFI)**
+    * **Ejecución de Comandos (RCE)**
+    * **Exposición de Datos Sensibles (PII)**
+* **Operaciones Silenciosas**: Conversión eficiente sin mensajes innecesarios en consola.
+* **Gestión de Archivos**: Generación de hashes SHA-256 para integridad, manejo de rutas inteligente y protección contra sobrescritura.
+* **Lanzador Interactivo (`main.py`)**: Interfaz sencilla para ejecutar cualquiera de los módulos sin recordar comandos largos.
 
+---
+
+## ⚙️ Instalación
+
+1.  **Requisitos**: Asegúrate de tener instalado Java JRE o JDK (versión 1.8 o superior).
+2.  **Dependencias de Python**: Instala las librerías necesarias ejecutando:
     ```bash
     pip install -r requirements.txt
     ```
 
-    *Nota: `pyreportjasper` requiere que tengas la versión de Java JRE o JDK instalada y configurada en tu sistema. Se recomienda JRE 1.8 o superior.*
-
 ---
 
-## ⚙️ Uso
+## 📖 Uso
 
-El método recomendado es a través del lanzador principal `main.py`.
-
-### Menú Principal (`main.py`)
-
-Simplemente ejecuta el script y sigue las instrucciones del menú interactivo.
+El método recomendado es a través del lanzador interactivo:
 
 ```bash
 python main.py
-````
-
-El menú te guiará para elegir entre **analizar** archivos o **convertirlos**, y te pedirá las rutas necesarias.
-
-### Uso Directo de Scripts
-
-Si prefieres usar los scripts directamente, aquí tienes la sintaxis:
-
-#### Analizar Archivos
-
-```bash
-# Analiza un solo archivo .jrxml
-python analisys.py -a <ruta_al_archivo.jrxml>
-
-# Analiza todos los archivos en una carpeta
-python analisys.py -f <ruta_a_la_carpeta>
-
-# Salida resumida (solo títulos e imágenes)
-python analisys.py -a <ruta_al_archivo.jrxml> -i
-
-# Guardar los resultados en un archivo JSON
-python analisys.py -f <ruta_a_la_carpeta> -o salida.json
-```
-
-#### Convertir a PDF
-
-```bash
-# Convierte un solo archivo .jasper
-python convertir.py -a <ruta_al_archivo.jasper>
-
-# Convierte todos los archivos .jasper en una carpeta
-python convertir.py -f <ruta_a_la_carpeta>
-
-# Especifica una carpeta de salida diferente
-python convertir.py -f <ruta_a_la_carpeta> -o <ruta_carpeta_salida>
-```
-
-```
