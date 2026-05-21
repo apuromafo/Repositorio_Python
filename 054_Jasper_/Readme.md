@@ -1,45 +1,104 @@
-# 📊 Jasper CLI Suite v2.0
+# Jasper CLI Suite v2.0
 
-**Jasper CLI Suite** es una herramienta integral de línea de comandos en Python diseñada para el análisis, compilación, descompilación y conversión de reportes de **JasperReports**. Esta suite es especialmente útil para tareas de pentesting, auditoría de seguridad y mantenimiento de reportes.
+La **Jasper CLI Suite** es una herramienta de orquestación diseñada para la gestión, análisis de seguridad, compilación, descompilación y conversión de archivos de reportes JasperReports (`.jrxml` y `.jasper`).
 
----
-
-## 🛠️ Módulos Principales
-
-La suite consta de cuatro herramientas especializadas accesibles desde un lanzador central:
-
-1. **Analizar (`analisys.py`)**: Realiza auditorías de archivos `.jrxml` y `.jasper`, extrayendo metadatos, textos, consultas SQL e imágenes embebidas en Base64.
-2. **Convertir (`convertir.py`)**: Convierte archivos `.jasper` a formato PDF de forma silenciosa, evitando la salida ruidosa de la JVM.
-3. **Compilar (`compilar.py`)**: Compila archivos fuente `.jrxml` en binarios `.jasper` utilizando un puente Java dedicado.
-4. **Descompilar (`decompilar_v3.py`)**: Reconstruye archivos `.jrxml` a partir de binarios `.jasper` y realiza un análisis de seguridad automatizado en busca de vulnerabilidades comunes (SQLi, RCE, LFI, etc.).
+Esta suite integra capacidades de **análisis estático de seguridad (SAST)** bajo estándares OWASP para identificar vulnerabilidades comunes en reportes dinámicos.
 
 ---
 
-## 🚀 Características Destacadas
+## 🛠 Módulos de la Suite
 
-* **Auditoría de Seguridad**: El módulo de descompilación incluye un motor de análisis que detecta riesgos como:
-    * **Inyecciones (SQLi, LFI)**
-    * **Ejecución de Comandos (RCE)**
-    * **Exposición de Datos Sensibles (PII)**
-* **Operaciones Silenciosas**: Conversión eficiente sin mensajes innecesarios en consola.
-* **Gestión de Archivos**: Generación de hashes SHA-256 para integridad, manejo de rutas inteligente y protección contra sobrescritura.
-* **Lanzador Interactivo (`main.py`)**: Interfaz sencilla para ejecutar cualquiera de los módulos sin recordar comandos largos.
-
----
-
-## ⚙️ Instalación
-
-1.  **Requisitos**: Asegúrate de tener instalado Java JRE o JDK (versión 1.8 o superior).
-2.  **Dependencias de Python**: Instala las librerías necesarias ejecutando:
-    ```bash
-    pip install -r requirements.txt
-    ```
+| Módulo | Archivo | Descripción |
+| --- | --- | --- |
+| **Orquestador** | `main.py` | Lanzador central interactivo para toda la suite. |
+| **Análisis** | `analizar.py` | Auditoría de seguridad (SQLi, LFI, RCE, XXE, XSS) y extracción de metadatos. |
+| **Conversión** | `convertir.py` | Conversión silenciosa de `.jasper` a PDF. |
+| **Compilación** | `compilar.py` | Transformación de fuentes `.jrxml` a binarios `.jasper`. |
+| **Descompilación** | `decompilar_v3.py` | Reconstrucción de `.jrxml` a partir de `.jasper` con auditoría integrada. |
 
 ---
 
-## 📖 Uso
+## 🚀 Requisitos Previos
 
-El método recomendado es a través del lanzador interactivo:
+* **Python 3.x**
+* **JDK (Java Development Kit)** instalado y configurado en el PATH (necesario para el puente de compilación/descompilación).
+* **Librerías:** Asegúrate de tener instaladas las dependencias necesarias, incluyendo `pyreportjasper`.
+
+---
+
+## 📋 Guía de Uso
+
+Puedes ejecutar cada herramienta de forma independiente o a través del orquestador `main.py`.
+
+### 1. Orquestador Central
+
+Para una experiencia interactiva guiada:
 
 ```bash
 python main.py
+
+```
+
+### 2. Análisis de Seguridad
+
+Analiza archivos o directorios completos para detectar vulnerabilidades:
+
+```bash
+python analizar.py -a archivo.jrxml
+python analizar.py -f ./carpeta_reportes/
+
+```
+
+### 3. Compilación
+
+Convierte tus fuentes a formato ejecutable:
+
+```bash
+python compilar.py -f ./src/ -o ./bin/
+
+```
+
+### 4. Descompilación y Auditoría
+
+Reconstruye archivos `.jrxml` desde binarios y genera reportes de auditoría:
+
+```bash
+python decompilar_v3.py -f ./bin/ -o ./reconstruidos/
+
+```
+
+### 5. Conversión a PDF
+
+Genera documentos PDF de forma silenciosa (sin logs de consola):
+
+```bash
+python convertir.py -a reporte.jasper -o ./pdf_final/
+
+```
+
+---
+
+## 🛡 Capacidades de Auditoría (OWASP)
+
+El motor de análisis incluido detecta automáticamente:
+
+* **Inyecciones:** SQL Injection (`$P!{}`), LFI/RFI en imágenes dinámicas.
+* **Ejecución de Código:** Detección de clases peligrosas (`Runtime`, `ProcessBuilder`).
+* **Seguridad XML:** Detección de posibles ataques XXE.
+* **Calidad de Código:** Detección de deuda técnica, tipado débil (`java.lang.Object`) y obsolescencia.
+
+---
+
+## 📜 Historial de Versiones
+
+* **v2.0.0 (2026-05-20):**
+* Estandarización total de módulos y flujos de ejecución.
+* Optimización de subprocesos con soporte UTF-8 nativo.
+* Integración profunda del motor de auditoría en procesos de descompilación.
+
+
+* **v1.0.0 (2025-09-15):** Lanzamiento inicial de la suite.
+
+---
+
+*Desarrollado para entornos de auditoría y pentesting de reportes Jasper.*
