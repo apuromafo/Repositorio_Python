@@ -1,80 +1,110 @@
-# IBM_Analyzer - Suite de Análisis Estático y Seguridad para Código IBM i 🚀
+# IBM i Unified Auditor (v20.6.0-final) 🚀
 
 ## 📜 Descripción General
 
-**IBM_Analyzer** es una suite modular de análisis estático diseñada para examinar código fuente de sistemas IBM i: **RPG** (Report Program Generator), **CL** (Control Language) y **PF** (Physical File).
+**IBM i Unified Auditor** es una suite unificada avanzada de análisis estático y auditoría de seguridad diseñada para entornos **IBM i / AS400**. Permite escanear de manera masiva, automatizada e inteligente código fuente desarrollado en **RPG (clásico y Free-form), SQL, DB, CLP (Control Language), PF (Physical Files), LF (Logical Files) y DSPF (Display Files)**.
 
-La suite se compone de dos herramientas clave que trabajan en conjunto para proporcionar una visión completa del código.
+A diferencia de las versiones previas de la suite (que requerían un flujo secuencial en dos pasos separados `step1` y `step2`), esta versión integra el **análisis de calidad de código** y el **motor de detección de vulnerabilidades** en una única ejecución optimizada.
 
-### Herramienta 1: Análisis Detallado (`step1_IBM_scan_code.py`)
-Genera un **informe detallado** por cada archivo, que incluye:
-* Resumen de comandos y elementos utilizados.
-* Estadísticas de uso y variables/campos declarados.
-* Listado de líneas de código no reconocidas.
-
-### Herramienta 2: Escaneo de Seguridad (`step2x_IBM_...py`)
-Procesa los informes detallados generados en el Paso 1 para identificar **patrones de seguridad** (DUMP, Hardcoded Credentials, Debug, etc.) basados en estándares CWE y OWASP.
+El script opera de manera **totalmente segura**: es estrictamente de **solo lectura**, garantizando la integridad de los archivos analizados sin alterar el código original.
 
 ---
 
-## 🛠️ Flujo de Trabajo y Modo de Uso
+## ✨ Características Principales
 
-El análisis completo requiere de dos pasos secuenciales. El Paso 1 genera los datos de entrada necesarios para que el Paso 2 ejecute el escaneo de seguridad.
-
-### 1. PASO 1: Análisis de Código Detallado (`step1_IBM_scan_code.py`)
-
-Esta fase genera un **Header** de resumen y los **Reportes Individuales** (`_detallado_individual.txt`). Todos se guardarán dentro de la subcarpeta `Reporte/` en la ruta de salida que elijas.
-
-| Modo de Análisis | Descripción | Comando de Ejemplo |
-| :--- | :--- | :--- |
-| **Carpeta (Recursivo)** | Analiza la carpeta y todas sus subcarpetas. **(Recomendado)** | `python step1_IBM_scan_code.py -f <ruta_de_la_carpeta> -r` |
-| **Carpeta (No Recursivo)** | Analiza solo los archivos en la carpeta principal. | `python step1_IBM_scan_code.py -f <ruta_de_la_carpeta>` |
-
-> **Nota:** Al ejecutar el script, se le preguntará dónde desea guardar la salida:
-> 1. En la misma carpeta del análisis.
-> 2. En una nueva subcarpeta con fecha y hora (ej: `salida_20251003_110116`).
-> **La carpeta de salida que elija, contendrá la subcarpeta clave `Reporte/`.**
-
-***
-
-### 2. PASO 2: Escaneo de Seguridad (`step2x_IBM_...py`)
-
-Una vez que el Paso 1 ha finalizado, ejecute el escáner de seguridad apuntando a la **carpeta de los reportes generados** (la subcarpeta `Reporte/`).
-
-**Ejecución de Muestra (usando el escáner simple `step2a`):**
-
-| Modo de Análisis | Descripción | Comando de Ejemplo |
-| :--- | :--- | :--- |
-| **Analizar Reportes** | Analiza de forma recursiva todos los reportes `.txt` en la carpeta indicada. | `python step2a_IBM_simple_scan_finding_report_hallazgo.py -f <ruta_de_salida_del_paso_1>/Reporte -r` |
-
-> **Salida del Paso 2:** El reporte de seguridad (`SECURITY_FINDINGS_...txt`) se guarda en la carpeta configurada internamente en el script (por defecto, `resultados_analisis/`).
+* **Análisis Multilenguaje Integrado:** Soporte extendido con diccionarios semánticos avanzados para comandos CL, tokens RPG (incluyendo instrucciones embebidas `EXEC SQL`), sentencias lógicas SQL y layouts de pantallas/archivos.
+* **Doble Motor de Detección de Seguridad:**
+    * **Motor A (Patrones de Seguridad Críticos):** Identifica vulnerabilidades alineadas con los estándares **CWE** y **OWASP Top 10** (Inyección de comandos vía `QCMDEXC`, elevación de privilegios `USRPRF(*OWNER)`, contraseñas e IPs hardcodeadas, manipulación indebida de `*LIBL`, configuraciones de `DEBUG` activas, entre otros).
+    * **Motor B (Fugas en Comentarios):** Escanea metadatos, notas de desarrollo y marcadores técnicos (`TODO`, `FIXME`, `HACK`) que puedan exponer involuntariamente credenciales, rutas del IFS (`/QSYS.LIB`) o variables críticas.
+* **Mapeo de Arquitectura e Información:** Identifica llamadas a programas externos (`CALL`), accesos a colas de mensajería (`SNDPGMMSG`), APIs del sistema y flujos de datos (`CPYF`, `OVRDBF`) para generar un mapa técnico del entorno.
+* **Robustez de Codificación:** Integración opcional con la librería `chardet` para detectar de forma automática el *encoding* de los miembros fuente y procesarlos sin interrupciones por caracteres inválidos.
+* **Reportabilidad Centralizada:** Genera en un solo ciclo un artefacto estructurado JSON consolidado (ideal para integraciones DevSecOps) y un Reporte Master en formato Markdown listo para auditoría.
 
 ---
 
-## 📝 Requisitos
+## 🛠️ Requisitos del Sistema
 
-* **Python 3.x**
-* **Librerías (Recomendado):** La librería `chardet` (para mejor detección de codificación de texto).
-
----
-
-## 🌟 Historial de Versiones (v4.1.1 - FINAL COMPLETA)
-
-Esta versión representa una revisión completa con mejoras en la estabilidad, modularidad y generación de nombres de archivos:
-
-* **Modularidad:** Separación lógica entre el análisis de código (`step1`) y el análisis de seguridad (`step2`).
-* **Rutas Unificadas:** Todos los reportes (Header e Individuales) se agrupan consistentemente en la subcarpeta `Reporte/`.
-* **Detección Mejorada:** Los patrones de inclusión/exclusión del escáner de seguridad han sido actualizados para reconocer los nuevos nombres de los reportes.
-* **Archivos Mejorados:** Hash SHA-256 completo, número de líneas y detección de *encoding* incluidos en los reportes.
+* **Entorno:** Python 3.x instalado en el sistema de ejecución.
+* **Dependencias Opcionales (Recomendado):**
+    ```bash
+    pip install chardet
+    ```
+    *Nota: Si `chardet` no está presente, el script utilizará un mecanismo nativo de respaldo para la lectura de archivos.*
 
 ---
 
-## Disclaimer / Descargo de Responsabilidad
+## 🚀 Modo de Uso y Parámetros
 
-Este proyecto y sus herramientas asociadas se proporcionan **"tal cual"**, sin garantías de ningún tipo.
+El script se ejecuta a través de la interfaz de línea de comandos (CLI) utilizando `argparse`. Soporta el escaneo tanto de archivos individuales como de directorios completos de forma recursiva.
 
-El uso de esta herramienta es bajo la **exclusiva responsabilidad del usuario**. El desarrollador no se responsabiliza por daños directos, indirectos, incidentales, especiales, consecuentes o punitivos que puedan derivarse del uso o mal uso de esta herramienta.
+### Estructura del Comando
+```bash
+python ibm_i_unified_auditor_v20_6.py -t <ruta_objetivo> [opciones]
 
-Esta herramienta está destinada exclusivamente para **fines legales, éticos y con el debido consentimiento**. El uso para actividades maliciosas está estrictamente prohibido y puede ser ilegal.
+```
 
-**¡Usa esta herramienta responsablemente y con ética!**
+### Argumentos Disponibles:
+
+* `-t`, `--target` *(Obligatorio)*: Ruta del archivo o directorio que se desea auditar.
+* `-o`, `--outdir` *(Opcional)*: Directorio donde se guardarán los reportes resultantes (Por defecto: `./OUTPUT_AUDIT_IBM`).
+* `-r`, `--recursive` *(Opcional / Flag)*: Si se proporciona y el objetivo es una carpeta, el escáner analizará de forma recursiva todas las subcarpetas.
+
+### Ejemplos Prácticos de Ejecución:
+
+1. **Analizar un Directorio Completo (Recursivo):**
+```bash
+python ibm_i_unified_auditor_v20_6.py -t ./fuentes_as400 -r
+
+```
+
+
+2. **Analizar un Archivo Fuente Individual:**
+```bash
+python ibm_i_unified_auditor_v20_6.py -t ./fuentes_as400/QCLSRC/PROG01.clp
+
+```
+
+
+3. **Especificar un Directorio de Salida Personalizado:**
+```bash
+python ibm_i_unified_auditor_v20_6.py -t ./fuentes_as400 -o ./reportes_2026 -r
+
+```
+
+
+
+---
+
+## 📊 Artefactos Generados (Entregables)
+
+Al finalizar la auditoría, el script crea una subcarpeta estructurada según la marca de tiempo de la ejecución (`YYYYMMDD_HHMMSS`) conteniendo dos archivos fundamentales:
+
+1. **JSON Consolidado (`FINDINGS_AUDITORIA_IBM_*.json`):**
+Contiene el payload estructurado con estadísticas del escaneo, hash SHA-256 de cada archivo analizado, líneas totales, codificación detectada y el listado indexado de hallazgos clasificados por criticidad (**Alta, Media, Baja**) adjuntando su correspondiente mitigación, regla CWE y OWASP. Ideal para su ingesta en páneles SIEM o dashboards de seguridad.
+2. **Reporte Master (`REPORTE_MASTER_IBM_*.md`):**
+Un informe ejecutivo y técnico en formato Markdown amigable para lectura humana, que condensa las métricas globales, el resumen de criticidades y el desglose detallado línea por línea de cada vector de riesgo descubierto.
+
+---
+
+## 🔒 Reglas de Seguridad Soportadas (Muestra)
+
+| Código de Regla | Criticidad | Descripción | Estándar Asociado |
+| --- | --- | --- | --- |
+| `COMMAND_INJECTION_QCMDEXC` | **Alta** | Uso dinámico de la API QCMDEXC con concatenación de variables. | CWE-78 / OWASP A03 |
+| `ADOPT_AUTHORITY_POTENTIAL` | **Alta** | Uso de la directiva `USRPRF(*OWNER)` con riesgo de elevación de privilegios. | CWE-250 / OWASP A04 |
+| `HARDCODED_PASSWORDS` | **Alta** | Credenciales, llaves de servicio o tokens expuestos estáticamente. | CWE-798 / OWASP A07 |
+| `SECURITY_DOWNGRADE_SYSVAL` | **Alta** | Alteración o intento de degradación de valores críticos del sistema (`QSECURITY`). | CWE-284 / OWASP A05 |
+| `LIBRARY_LIST_MANIPULATION` | **Media** | Modificaciones dinámicas en el `*LIBL` propensas a secuestro de librerías. | CWE-427 / OWASP A05 |
+| `DUMP_STATEMENTS` | **Media** | Instrucciones de volcado de memoria técnica activos en entorno productivo. | CWE-215 / OWASP A05 |
+| `TODO_FIXME_SENSITIVE` | **Media** | Deuda técnica en comentarios que mencionan credenciales o llaves. | CWE-532 / OWASP A09 |
+| `BLIND_MONMSG` | **Baja** | Monitoreo ciego de excepciones con `CPF0000` que silencia fallos. | CWE-391 / OWASP A09 |
+
+---
+
+## ⚖️ Descargo de Responsabilidad (Disclaimer)
+
+Este proyecto y sus herramientas asociadas se proporcionan **"tal cual"**, sin garantías de ningún tipo explicitas o implícitas.
+
+El uso de esta herramienta se realiza bajo la **exclusiva responsabilidad del usuario**. El desarrollador no se responsabiliza por daños directos, indirectos, incidentales o consecuentes que puedan derivarse del uso o mal uso de este software. Esta herramienta está destinada exclusivamente para **fines auditoría legal, ética y con el debido consentimiento explícito** sobre los códigos examinados. El uso para actividades maliciosas o sin autorización está estrictamente prohibido.
+
+ 
