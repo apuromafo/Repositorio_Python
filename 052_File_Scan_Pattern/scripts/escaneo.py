@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 """
 escaneo.py - Versión 1.9.10 (Configuración de Snippet Interna)
 
@@ -429,6 +443,8 @@ def imprimir_resumen_tabla(resumenes: List[Dict]) -> None:
     Imprime una tabla consolidada de resultados de escaneo.
     """
     from .logger_manager import ESTADO_LOGGER
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
     estadisticas = ESTADO_LOGGER.get('estadisticas', {})
 
     print(texto_coloreado("\n" + "="*90, Colores['NEGRITA']))

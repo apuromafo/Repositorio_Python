@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 description = 'uso de frames, uso de ASCII inspirado en  [curl.exe ascii.live/parrot]'
 author = 'Apuromafo'
 version = '0.0.1'
@@ -7,6 +20,8 @@ date = '28.11.2024'
 
 import time
 import os
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 
 def clear_screen():
     # Limpia la pantalla para cada frame

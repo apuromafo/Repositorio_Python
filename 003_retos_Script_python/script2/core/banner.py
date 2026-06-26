@@ -1,5 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 #autor @apuromafo
 #history: i was search how do a banner in python3, and see many examples, not was like a static,and was see what happen if can be random
 #idea core as name  https://www.programcreek.com/python/?CodeExample=print+banner (many use core.py)
@@ -12,6 +26,8 @@
 from random import choice
 from termcolor import colored
 from colorama import init
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 
 def bienvenida() :
 	init() #reset the terminal color
