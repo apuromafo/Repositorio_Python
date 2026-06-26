@@ -1,4 +1,18 @@
 #!/usr/bin/env python
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 description = 'Herramienta para validar drivers vulnerables en windows'
 author = 'Apuromafo'
 version = '0.0.1'
@@ -116,6 +130,8 @@ class DriverBlockListChecker:
         if self.win_block_policy_xml.exists():
             self.win_block_policy_xml.unlink(missing_ok=True)
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     parser = ArgumentParser(description="Simple Driver Blocklist Checker")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print verbose output")
