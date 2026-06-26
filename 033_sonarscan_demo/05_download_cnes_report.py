@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 # 05_download_cnes_report.py
 # Versión: 2.1.0 (Corrección para independencia y validación completa del JAR CNES)
 # Objetivo: Validar la versión local del JAR de CNES, descargar/actualizar si es necesario y limpiar versiones antiguas.
@@ -252,6 +266,8 @@ def main_download_cnes_report() -> bool:
     # Si la lógica llegó aquí por un error no contemplado, o si needs_download fue False (manejado arriba)
     return False
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     import sys
     try:

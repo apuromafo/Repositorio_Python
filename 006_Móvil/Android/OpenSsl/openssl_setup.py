@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 import os
 import requests
 import subprocess
@@ -22,8 +36,10 @@ def is_openssl_installed():
     except FileNotFoundError:
         return False
 
-# Verificar permisos de administrador
+# Verificar permisos de administrador (solo Windows)
 def check_admin_permissions():
+    if sys.platform != "win32":
+        return os.geteuid() == 0 if hasattr(os, 'geteuid') else True
     try:
         import ctypes
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
@@ -48,10 +64,12 @@ def download_openssl(url):
 # Instalar OpenSSL
 def install_openssl(installer_path):
     logging.info("Instalando OpenSSL...")
+    pf_path = os.environ.get('PROGRAMFILES', r'C:\Program Files')
+    install_dir = os.path.join(pf_path, 'OpenSSL-Win64')
     install_command = [
         installer_path,
         "/SILENT",
-        "/DIR=C:\\Program Files\\OpenSSL-Win64"
+        f"/DIR={install_dir}"
     ]
     result = subprocess.run(install_command, capture_output=True, text=True)
     if result.returncode != 0:
@@ -61,7 +79,8 @@ def install_openssl(installer_path):
 
 # Configurar PATH
 def configure_path():
-    openssl_bin_path = r"C:\Program Files\OpenSSL-Win64\bin"
+    pf_path = os.environ.get('PROGRAMFILES', r'C:\Program Files')
+    openssl_bin_path = os.path.join(pf_path, 'OpenSSL-Win64', 'bin')
     logging.info("Configurando la variable de entorno PATH...")
     try:
         current_path = os.environ.get("PATH", "")
@@ -123,5 +142,7 @@ def main():
     configure_path()
     validate_openssl()
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     main()

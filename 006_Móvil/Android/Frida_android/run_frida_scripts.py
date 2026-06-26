@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 #--------------------------------------------------------------------------------------
 # Nombre del Script: Frida Script Runner
 # Versión: 1.9.9
@@ -709,5 +723,7 @@ def main():
                 input("[!] Presiona Enter una vez que la aplicación esté abierta para continuar...")
                 ejecutar_script_frida(dispositivo_seleccionado, paquete_seleccionado, scripts_a_ejecutar, modo_attach=True)
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     main()

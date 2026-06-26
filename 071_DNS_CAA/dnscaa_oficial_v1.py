@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 #
 # =============================================================================
 # dnscaa_oficial_v1.py  v2.0.0
@@ -15,11 +29,13 @@
 #   python dnscaa_oficial_v1.py -t app.ejemplo.com
 #   python dnscaa_oficial_v1.py -t sub.ejemplo.com -z ejemplo.com
 #   python dnscaa_oficial_v1.py -t app.ejemplo.com -o ./resultados
+#   python dnscaa_oficial_v1.py -t example.com --lang en
 #
 # Argumentos:
 #   -t, --target       Dominio objetivo (requerido)
 #   -z, --zone-apex    Zone apex (opcional, auto-derivado si se omite)
 #   -o, --output       Carpeta de salida (opcional, auto-generada si se omite)
+#   --lang             Idioma: es (espanol) / en (english) [default: es]
 #
 # Salida:
 #   Resultados_CAA/<dominio>_<fecha>/
@@ -49,10 +65,147 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-VERSION = "2.0.0"
+VERSION = "2.1.0"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RAIZ_RESULTADOS = os.path.join(BASE_DIR, "Resultados_CAA")
 USER_AGENT = "QA-Authorized-Security-Audit/CAA-Validation-v2"
+
+LANG = "es"
+
+TR: dict[str, dict[str, str]] = {
+    "es": {
+        "title": "Validacion avanzada de registros DNS CAA, herencia y evidencia RAW",
+        "fecha_utc": "Fecha UTC",
+        "version": "Version",
+        "auth_no": "Autenticacion enviada: NO",
+        "resolutores": "Resolutores: Google DNS y Cloudflare DNS",
+        "host": "Host",
+        "zona_evaluada": "Zona evaluada",
+        "cname_obs": "CNAME observado",
+        "si": "SI",
+        "no": "NO",
+        "dig_cname": "Comando dig CNAME",
+        "evidencia_cname_raw": "Evidencia CNAME RAW",
+        "error": "Error",
+        "nivel": "Nivel",
+        "dig_caa": "Comando dig CAA",
+        "registros_caa": "Registros CAA detectados",
+        "sin_registros": "SIN REGISTROS",
+        "header_peticion": "Evidencia DoH RAW (peticion original y respuesta)",
+        "url_consultada": "URL consultada",
+        "headers_enviados": "Headers enviados",
+        "error_conexion": "Error de conexion",
+        "respuesta_completa": "Respuesta DoH completa",
+        "politica_efectiva": "Politica CAA efectiva",
+        "presente": "PRESENTE",
+        "ausente": "AUSENTE",
+        "politica_heredada": "Politica heredada/efectiva desde",
+        "cert_tls_error": "Certificado TLS: Error de conexion",
+        "cert_tls": "Certificado TLS",
+        "emisor": "Emisor",
+        "reporte_ejecutivo": "REPORTE EJECUTIVO Y CONCLUSIONES DE SEGURIDAD",
+        "analisis_riesgo": "Analisis de Riesgo y Cumplimiento para",
+        "critico_expuesto": "[CRITICO] Postura de Seguridad: TOTALMENTE EXPUESTO (Ausencia de registros CAA).",
+        "critico_impacto": "Impacto: Cualquier Entidad de Certificacion (CA) de confianza publica global",
+        "critico_impacto2": "puede emitir un certificado valido para este dominio si es enganada",
+        "critico_impacto3": "mediante tecnicas como BGP Hijacking, DNS Cache Poisoning o compromiso DoH.",
+        "exito_protegida": "[EXITO] Postura de Seguridad: PROTEGIDA (Politica CAA definida explicitamente).",
+        "exito_restringida": "La superficie de emision esta restringida unicamente a las CAs listadas.",
+        "monitoreo_activo": "[INFO] Monitoreo Reactivo Activo (iodef):",
+        "monitoreo_alerta": "Las alertas por intentos ilicitos de emision se envian a",
+        "iodef_ausente": "[ADVERTENCIA] Deficiencia en Visibilidad: Canal de alertas 'iodef' AUSENTE.",
+        "iodef_recomendacion": "Recomendacion: Si un atacante intenta solicitar un certificado fraudulento",
+        "iodef_recomendacion2": "a una CA no autorizada, la organizacion NO recibira aviso alguno.",
+        "validacion_pasada": "[EXITO] Validacion de Cumplimiento Perimetral PASADA:",
+        "validacion_pasada_ca": "La CA que firmo el certificado web actual",
+        "validacion_pasada_coincide": "coincide plenamente con las reglas de autorizacion de su DNS.",
+        "alerta_shadow": "[ALERTA MAXIMA] Desalineacion Critica de Infraestructura / Anomalia Detectada:",
+        "alerta_shadow_servidor": "El servidor web responde con un certificado emitido por",
+        "alerta_shadow_dns": "Sin embargo, su registro DNS CAA solo autoriza a",
+        "alerta_shadow_riesgo": "Riesgo: Si el registro DNS es intencional, este certificado actual podria",
+        "alerta_shadow_riesgo2": "considerarse un 'Bypass' o un certificado en la sombra ('Shadow Certificate').",
+        "alerta_shadow_riesgo3": "Si cambio de proveedor TLS, recuerde actualizar su DNS de inmediato.",
+        "recomendacion_general": "[RECOMENDACION GENERAL]:",
+        "recomendacion_implementar": "Implementar urgentemente registros del tipo CAA en la raiz de la zona, delimitando",
+        "recomendacion_implementar2": "la emision estrictamente a las CAs de confianza del negocio (ej. Let's Encrypt, DigiCert, etc.)",
+        "recomendacion_implementar3": "e incluyendo un buzon de incidencias seguro mediante el parametro 'iodef'.",
+        "evidencia_json": "Evidencia JSON completa",
+        "log_proceso": "Log del proceso",
+        "respuesta_json": "Answer JSON",
+        "separador": "=",
+        "separador_corto": "-",
+    },
+    "en": {
+        "title": "Advanced DNS CAA record validation, inheritance and RAW evidence",
+        "fecha_utc": "UTC Date",
+        "version": "Version",
+        "auth_no": "Authentication sent: NO",
+        "resolutores": "Resolvers: Google DNS and Cloudflare DNS",
+        "host": "Host",
+        "zona_evaluada": "Zone evaluated",
+        "cname_obs": "CNAME observed",
+        "si": "YES",
+        "no": "NO",
+        "dig_cname": "dig CNAME command",
+        "evidencia_cname_raw": "CNAME RAW evidence",
+        "error": "Error",
+        "nivel": "Level",
+        "dig_caa": "dig CAA command",
+        "registros_caa": "Detected CAA records",
+        "sin_registros": "NO RECORDS",
+        "header_peticion": "DoH RAW evidence (original request and response)",
+        "url_consultada": "Queried URL",
+        "headers_enviados": "Sent headers",
+        "error_conexion": "Connection error",
+        "respuesta_completa": "Complete DoH response",
+        "politica_efectiva": "Effective CAA policy",
+        "presente": "PRESENT",
+        "ausente": "ABSENT",
+        "politica_heredada": "Inherited/effective policy from",
+        "cert_tls_error": "TLS Certificate: Connection error",
+        "cert_tls": "TLS Certificate",
+        "emisor": "Issuer",
+        "reporte_ejecutivo": "EXECUTIVE REPORT AND SECURITY CONCLUSIONS",
+        "analisis_riesgo": "Risk and Compliance Analysis for",
+        "critico_expuesto": "[CRITICAL] Security Posture: FULLY EXPOSED (No CAA records found).",
+        "critico_impacto": "Impact: Any globally trusted public Certificate Authority (CA)",
+        "critico_impacto2": "can issue a valid certificate for this domain if deceived",
+        "critico_impacto3": "via BGP Hijacking, DNS Cache Poisoning or DoH compromise.",
+        "exito_protegida": "[PASS] Security Posture: PROTECTED (Explicit CAA policy defined).",
+        "exito_restringida": "Issuance surface is restricted to the listed CAs only.",
+        "monitoreo_activo": "[INFO] Reactive Monitoring Active (iodef):",
+        "monitoreo_alerta": "Alerts for unauthorized issuance attempts are sent to",
+        "iodef_ausente": "[WARNING] Visibility Deficiency: 'iodef' alert channel ABSENT.",
+        "iodef_recomendacion": "Recommendation: If an attacker attempts to request a fraudulent certificate",
+        "iodef_recomendacion2": "from an unauthorized CA, the organization will receive NO notification.",
+        "validacion_pasada": "[PASS] Perimeter Compliance Validation PASSED:",
+        "validacion_pasada_ca": "The CA that signed the current web certificate",
+        "validacion_pasada_coincide": "fully matches the authorization rules in your DNS.",
+        "alerta_shadow": "[MAX ALERT] Critical Infrastructure Misalignment / Anomaly Detected:",
+        "alerta_shadow_servidor": "The web server responds with a certificate issued by",
+        "alerta_shadow_dns": "However, your DNS CAA record only authorizes",
+        "alerta_shadow_riesgo": "Risk: If the DNS record is intentional, this current certificate could",
+        "alerta_shadow_riesgo2": "be considered a 'Bypass' or a 'Shadow Certificate'.",
+        "alerta_shadow_riesgo3": "If you changed TLS providers, remember to update your DNS immediately.",
+        "recomendacion_general": "[GENERAL RECOMMENDATION]:",
+        "recomendacion_implementar": "Urgently implement CAA records at the zone root, restricting",
+        "recomendacion_implementar2": "issuance strictly to your trusted CAs (e.g. Let's Encrypt, DigiCert, etc.)",
+        "recomendacion_implementar3": "and include a secure incident mailbox via the 'iodef' parameter.",
+        "evidencia_json": "Full JSON evidence",
+        "log_proceso": "Process log",
+        "respuesta_json": "Answer JSON",
+        "separador": "=",
+        "separador_corto": "-",
+    },
+}
+
+
+def _(key: str, **kwargs: Any) -> str:
+    t = TR.get(LANG, TR["es"]).get(key, key)
+    if kwargs:
+        t = t.format(**kwargs)
+    return t
+
 
 RESOLVERS = [
     {
@@ -237,19 +390,16 @@ def derive_zone_apex(host: str) -> str:
 
 def tls_certificate(host: str, logger: logging.Logger) -> dict[str, Any]:
     logger.info(f"Inspeccionando certificado TLS de {host}:443")
-    
-    # Contexto SSL seguro para Pentesting (ignora errores de confianza)
+
     context = ssl.create_default_context()
     context.check_hostname = False
     context.verify_mode = ssl.CERT_NONE
-    
+
     try:
         with socket.create_connection((host, 443), timeout=20) as tcp:
             with context.wrap_socket(tcp, server_hostname=host) as tls:
-                # Al usar CERT_NONE, getpeercert() devuelve un diccionario vacío.
-                # Esto es normal en Python, pero confirma que la conexión TLS fue exitosa.
                 certificate = tls.getpeercert() or {}
-        
+
         subject = {
             key: value
             for group in certificate.get("subject", [])
@@ -260,8 +410,8 @@ def tls_certificate(host: str, logger: logging.Logger) -> dict[str, Any]:
             for group in certificate.get("issuer", [])
             for key, value in group
         }
-        
-        logger.debug(f"Conexión TLS establecida. CN={subject.get('commonName', 'N/A')}")
+
+        logger.debug(f"Conexion TLS establecida. CN={subject.get('commonName', 'N/A')}")
         return {
             "subject": subject,
             "issuer": issuer,
@@ -348,34 +498,37 @@ def inspect_target(host: str, zone_apex: str | None, logger: logging.Logger) -> 
 
 
 def print_report(report: dict[str, Any]) -> None:
+    sep = _("separador") * 78
+    sep_short = _("separador_corto") * 40
+
     print(report["title"])
-    print(f"Fecha UTC: {report['timestamp_utc']}")
-    print(f"Version: {VERSION}")
-    print("Autenticacion enviada: NO")
-    print("Resolutores: Google DNS y Cloudflare DNS")
+    print(f"{_('fecha_utc')}: {report['timestamp_utc']}")
+    print(f"{_('version')}: {VERSION}")
+    print(_("auth_no"))
+    print(_("resolutores"))
 
     for target in report["targets"]:
-        print("\n" + "=" * 78)
-        print(f"Host: {target['host']}")
-        print(f"Zona evaluada: {target['zone_apex']}")
-        print(f"CNAME observado: {target['cname'] or 'NO'}")
+        print(f"\n{sep}")
+        print(f"{_('host')}: {target['host']}")
+        print(f"{_('zona_evaluada')}: {target['zone_apex']}")
+        print(f"{_('cname_obs')}: {target['cname'] or _('no')}")
 
         if target["cname"]:
-            print(f"  -> Comando dig CNAME: {get_dig_command(target['host'], 'CNAME')}")
-            print(f"  -> Evidencia CNAME RAW:")
+            print(f"  -> {_('dig_cname')}: {get_dig_command(target['host'], 'CNAME')}")
+            print(f"  -> {_('evidencia_cname_raw')}:")
             for res in target["cname_evidence"]:
                 status_name = get_dns_status_name(res["dns_status"])
                 print(f"     {res['resolver']}: HTTP {res['http_status']} | DNS {res['dns_status']} ({status_name})")
                 if res["error"]:
-                    print(f"     Error: {res['error']}")
+                    print(f"     {_('error')}: {res['error']}")
                 raw_answers = res["raw_dns_response"].get("Answer", [])
-                print(f"     Answer JSON: {json.dumps(raw_answers, ensure_ascii=False)}")
+                print(f"     {_('respuesta_json')}: {json.dumps(raw_answers, ensure_ascii=False)}")
 
         for level in target["lookup_hierarchy"]:
-            print(f"\n[+] Nivel: {level['name']}")
-            print(f"    Comando dig: {get_dig_command(level['name'], 'CAA')}")
+            print(f"\n[+] {_('nivel')}: {level['name']}")
+            print(f"    {_('dig_caa')}: {get_dig_command(level['name'], 'CAA')}")
 
-            print("    Registros CAA detectados:")
+            print(f"    {_('registros_caa')}:")
             if level["records"]:
                 for record in level["records"]:
                     if "raw" in record:
@@ -386,122 +539,113 @@ def print_report(report: dict[str, Any]) -> None:
                             f"tag={record.get('tag')} value={record.get('value')}"
                         )
             else:
-                print("      SIN REGISTROS")
+                print(f"      {_('sin_registros')}")
 
-            print("    Evidencia DoH RAW (peticion original y respuesta):")
+            print(f"    {_('header_peticion')}:")
             for res in level["resolver_results"]:
                 status_name = get_dns_status_name(res["dns_status"])
                 print(f"      - {res['resolver']}:")
-                print(f"        URL consultada: {res.get('url_used', 'N/A')}")
-                print(f"        Headers enviados: {json.dumps(res.get('request_headers', {}), ensure_ascii=False)}")
+                print(f"        {_('url_consultada')}: {res.get('url_used', 'N/A')}")
+                print(f"        {_('headers_enviados')}: {json.dumps(res.get('request_headers', {}), ensure_ascii=False)}")
                 if res["error"]:
-                    print(f"        Error de conexion -> {res['error']}")
+                    print(f"        {_('error_conexion')} -> {res['error']}")
                 else:
                     print(f"        HTTP {res['http_status']} | DNS Status: {res['dns_status']} ({status_name})")
                     raw_answers = res["raw_dns_response"].get("Answer", [])
-                    print(f"        Answer JSON: {json.dumps(raw_answers, ensure_ascii=False)}")
+                    print(f"        {_('respuesta_json')}: {json.dumps(raw_answers, ensure_ascii=False)}")
                     full_doc = res["raw_dns_response"]
-                    print(f"        Respuesta DoH completa: {json.dumps(full_doc, ensure_ascii=False)}")
+                    print(f"        {_('respuesta_completa')}: {json.dumps(full_doc, ensure_ascii=False)}")
 
-        print("\n" + "-" * 40)
+        print(f"\n{sep_short}")
         print(
-            f"Politica CAA efectiva: "
-            f"{'PRESENTE' if target['caa_policy_present'] else 'AUSENTE'}"
+            f"{_('politica_efectiva')}: "
+            f"{_('presente') if target['caa_policy_present'] else _('ausente')}"
         )
         if target["effective_caa_name"]:
-            print(f"Politica heredada/efectiva desde: {target['effective_caa_name']}")
+            print(f"{_('politica_heredada')}: {target['effective_caa_name']}")
 
         certificate = target["tls_certificate"]
         if certificate["error"]:
-            print(f"Certificado TLS: Error de conexion -> {certificate['error']}")
+            print(f"{_('cert_tls_error')} -> {certificate['error']}")
         else:
             issuer = certificate["issuer"]
             print(
-                "Certificado TLS: "
+                f"{_('cert_tls')}: "
                 f"CN={certificate['subject'].get('commonName')} | "
-                f"Emisor={issuer.get('organizationName')} / "
+                f"{_('emisor')}={issuer.get('organizationName')} / "
                 f"{certificate['issuer'].get('commonName')}"
             )
 
-    # ==========================================================================
-    # NUEVA SECCIÓN: REPORTE CONSULTIVO, CONCLUSIONES Y RECOMENDACIONES TÉCNICAS
-    # ==========================================================================
-    print("\n" + "=" * 78)
-    print("REPORTE EJECUTIVO Y CONCLUSIONES DE SEGURIDAD")
-    print("=" * 78)
+    print(f"\n{sep}")
+    print(_("reporte_ejecutivo"))
+    print(sep)
 
     for target in report["targets"]:
-        print(f"\n[>] Analisis de Riesgo y Cumplimiento para: {target['host']}")
-        
+        print(f"\n[>] {_('analisis_riesgo')}: {target['host']}")
+
         has_caa = target['caa_policy_present']
         records = target['effective_caa_records'] or []
         cert = target['tls_certificate']
-        
-        # 1. EVALUACIÓN DE LA POSTURA DE SEGURIDAD DNS
-        if not has_caa:
-            print("  [CRITICO] Postura de Seguridad: TOTALMENTE EXPUESTO (Ausencia de registros CAA).")
-            print("            Impacto: Cualquier Entidad de Certificacion (CA) de confianza publica global")
-            print("                     puede emitir un certificado valido para este dominio si es engañada")
-            print("                     mediante tecnicas como BGP Hijacking, DNS Cache Poisoning o compromiso DoH.")
-        else:
-            print("  [EXITO] Postura de Seguridad: PROTEGIDA (Politica CAA definida explicitamente).")
-            print(f"          La superficie de emision esta restringida unicamente a las CAs listadas.")
 
-            # Analizar de manera reactiva si hay monitoreo activo (registro iodef)
+        if not has_caa:
+            print(f"  {_('critico_expuesto')}")
+            print(f"            {_('critico_impacto')}")
+            print(f"                     {_('critico_impacto2')}")
+            print(f"                     {_('critico_impacto3')}")
+        else:
+            print(f"  {_('exito_protegida')}")
+            print(f"          {_('exito_restringida')}")
+
             iodef_records = [r for r in records if r.get('tag') == 'iodef']
             if iodef_records:
-                print("  [INFO] Monitoreo Reactivo Activo (iodef):")
+                print(f"  {_('monitoreo_activo')}")
                 for r in iodef_records:
-                    print(f"         Las alertas por intentos ilicitos de emision se envian a: {r.get('value')}")
+                    print(f"         {_('monitoreo_alerta')}: {r.get('value')}")
             else:
-                print("  [ADVERTENCIA] Deficiencia en Visibilidad: Canal de alertas 'iodef' AUSENTE.")
-                print("                Recomendacion: Si un atacante intenta solicitar un certificado fraudulento")
-                print("                               a una CA no autorizada, la organizacion NO recibira aviso alguno.")
+                print(f"  {_('iodef_ausente')}")
+                print(f"                {_('iodef_recomendacion')}")
+                print(f"                               {_('iodef_recomendacion2')}")
 
-        # 2. VALIDACIÓN CRUZADA INTELIGENTE (DNS vs TLS)
         if not cert.get('error') and cert.get('issuer'):
             real_ca_org = (cert['issuer'].get('organizationName') or "").lower()
             real_ca_cn = (cert['issuer'].get('commonName') or "").lower()
-            
+
             if has_caa:
-                # Extraemos de forma limpia las palabras clave de las CAs autorizadas en issue e issuewild
                 allowed_keywords = []
                 for r in records:
                     if r.get('tag') in ['issue', 'issuewild'] and r.get('value'):
-                        # Tomamos la primera palabra del dominio (ej: 'digicert.com' o 'pki.goog' -> 'digicert', 'pki')
                         base_val = r.get('value').split(';')[0].strip().split('.')[0].lower()
                         if base_val:
                             allowed_keywords.append(base_val)
-                
-                # Buscamos si la CA real con la que responde el servidor actual esta en la lista blanca de su DNS
+
                 match_found = False
                 for kw in allowed_keywords:
                     if kw in real_ca_org or kw in real_ca_cn:
                         match_found = True
                         break
-                
+
                 if match_found:
-                    print("  [EXITO] Validacion de Cumplimiento Perimetral PASADA:")
-                    print(f"          La CA que firmo el certificado web actual ('{cert['issuer'].get('organizationName')}')")
-                    print("          coincide plenamente con las reglas de autorizacion de su DNS.")
+                    print(f"  {_('validacion_pasada')}")
+                    print(f"          {_('validacion_pasada_ca')} ('{cert['issuer'].get('organizationName')}')")
+                    print(f"          {_('validacion_pasada_coincide')}")
                 else:
-                    print("  [ALERTA MAXIMA] Desalineacion Critica de Infraestructura / Anomalía Detectada:")
-                    print(f"                  El servidor web responde con un certificado emitido por: '{cert['issuer'].get('organizationName')}'")
-                    print(f"                  Sin embargo, su registro DNS CAA solo autoriza a: {', '.join(allowed_keywords)}.")
-                    print("                  Riesgo: Si el registro DNS es intencional, este certificado actual podria")
-                    print("                          considerarse un 'Bypass' o un certificado en la sombra ('Shadow Certificate').")
-                    print("                          Si cambio de proveedor TLS, recuerde actualizar su DNS de inmediato.")
+                    print(f"  {_('alerta_shadow')}")
+                    print(f"                  {_('alerta_shadow_servidor')}: '{cert['issuer'].get('organizationName')}'")
+                    print(f"                  {_('alerta_shadow_dns')}: {', '.join(allowed_keywords)}.")
+                    print(f"                  {_('alerta_shadow_riesgo')}")
+                    print(f"                  {_('alerta_shadow_riesgo2')}")
+                    print(f"                  {_('alerta_shadow_riesgo3')}")
         else:
             if not has_caa:
-                print("  [RECOMENDACION GENERAL]:")
-                print("    Implementar urgentemente registros del tipo CAA en la raiz de la zona, delimitando")
-                print("    la emision estrictamente a las CAs de confianza del negocio (ej. Let's Encrypt, DigiCert, etc.)")
-                print("    e incluyendo un buzon de incidencias seguro mediante el parametro 'iodef'.")
+                print(f"  {_('recomendacion_general')}")
+                print(f"    {_('recomendacion_implementar')}")
+                print(f"    {_('recomendacion_implementar2')}")
+                print(f"    {_('recomendacion_implementar3')}")
 
-    print("\n" + "=" * 78)
-    print(f"Evidencia JSON completa: {report['output_json']}")
-    print(f"Log del proceso: {report['output_log']}")
-    
+    print(f"\n{sep}")
+    print(f"{_('evidencia_json')}: {report['output_json']}")
+    print(f"{_('log_proceso')}: {report['output_log']}")
+
 
 def create_output_dir(host: str) -> str:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -548,7 +692,7 @@ def run(target: str, zone_apex: str | None, output_dir: str | None) -> int:
         )
 
     report = {
-        "title": "Validacion avanzada de registros DNS CAA, herencia y evidencia RAW",
+        "title": _("title"),
         "version": VERSION,
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "authentication_sent": False,
@@ -582,6 +726,7 @@ def run(target: str, zone_apex: str | None, output_dir: str | None) -> int:
 
 
 def main() -> int:
+    global LANG
     parser = argparse.ArgumentParser(
         description=f"Valida registros DNS CAA, herencia, genera equivalencias dig y extrae respuestas RAW. v{VERSION}"
     )
@@ -600,7 +745,14 @@ def main() -> int:
         default=None,
         help="Carpeta de salida personalizada. Si se omite, se crea en Resultados_CAA/<dominio>_<fecha>.",
     )
+    parser.add_argument(
+        "--lang",
+        choices=["es", "en"],
+        default="es",
+        help="Idioma: es (espanol) / en (english) [default: es]",
+    )
     args = parser.parse_args()
+    LANG = args.lang
 
     exit_code = 1
     try:
@@ -611,5 +763,7 @@ def main() -> int:
     return exit_code
 
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     sys.exit(main())

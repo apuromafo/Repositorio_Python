@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 #-------------------------------------------------------------------------------------------------
 #   Convierte un archivo de texto de encabezados HTTP (obtenidos de una herramienta como Burp Suite o proxy)
 #   a un archivo JSON para facilitar su posterior análisis de seguridad.
@@ -125,6 +139,8 @@ def convert_to_json(input_file, output_file):
     except Exception as e:
         print(f"Error: No se pudo escribir en el archivo '{output_file}'. Detalles: {e}")
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print("Uso: python convert_headers.py <archivo_de_entrada.txt> <archivo_de_salida.json>")

@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 # 03_download_scanner.py
 # Versión: 2.0.2 (Corrección: Mostrar la versión a descargar en el prompt)
 # Objetivo: Gestiona la descarga, descompresión y localización del ejecutable de SonarScanner
@@ -362,6 +376,8 @@ def download_sonar_scanner() -> bool:
 
 # --- Bloque de ejecución principal para independencia ---
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     try:
         print(STRINGS["INFO_START"])

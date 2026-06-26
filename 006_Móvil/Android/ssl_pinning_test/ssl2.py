@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 import os
 import sys
 import subprocess
@@ -5,11 +19,12 @@ import shutil
 import argparse
 
 # Configuración inicial
-APKTOOL = "herramientas\\apktool\\apktool.jar"  # Ruta relativa o absoluta al archivo apktool.jar
-APKSIGNER = "herramientas\\uber-apk-signer\\uber-apk-signer.jar"  # Ruta relativa o absoluta al archivo uber-apk-signer.jar
-KEYSTORE = "my-release-key.jks"  # Clave de firma personalizada
-KEY_ALIAS = "alias_name"
-KEY_PASSWORD = "apuromafo"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+APKTOOL = os.path.join(BASE_DIR, "herramientas", "apktool", "apktool.jar")
+APKSIGNER = os.path.join(BASE_DIR, "herramientas", "uber-apk-signer", "uber-apk-signer.jar")
+KEYSTORE = os.path.join(BASE_DIR, "my-release-key.jks")
+KEY_ALIAS = os.environ.get("APK_KEY_ALIAS", "alias_name")
+KEY_PASSWORD = os.environ.get("APK_KEY_PASSWORD", "change_me")
 
 def log(message):
     """Función para registrar mensajes."""
@@ -67,7 +82,7 @@ def decompile_apk(apk_path):
 def modify_ssl_pinning(decompiled_dir):
     """Modificar el código para quitar SSL pinning."""
     log("Quitando SSL pinning...")
-    network_security_config = os.path.join(decompiled_dir, "res\\xml\\network_security_config.xml")
+    network_security_config = os.path.join(decompiled_dir, "res", "xml", "network_security_config.xml")
     if os.path.exists(network_security_config):
         log("Bypassing SSL pinning en network_security_config.xml...")
         with open(network_security_config, "r", encoding="utf-8") as file:
@@ -126,7 +141,7 @@ def modify_antiroot(decompiled_dir):
 def recompile_apk(decompiled_dir):
     """Recompilar el APK usando apktool."""
     log("Recompilando APK...")
-    output_apk = "output\\repackaged.apk"
+    output_apk = os.path.join("output", "repackaged.apk")
     run_command(["java", "-jar", APKTOOL, "b", decompiled_dir, "-o", output_apk], "Error al recompilar el APK")
     log(f"APK recompilado en: {output_apk}")
     return output_apk
@@ -134,7 +149,7 @@ def recompile_apk(decompiled_dir):
 def sign_apk(apk_path):
     """Firmar el APK usando apksigner."""
     log("Firmando APK...")
-    signed_apk = "output\\signed.apk"
+    signed_apk = os.path.join("output", "signed.apk")
     run_command([
         "java", "-jar", APKSIGNER,
         "-a", apk_path,
@@ -183,5 +198,7 @@ def main():
 
     log(f"Auditoría completada. APK modificado disponible en: {signed_apk}")
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     main()
