@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports">
+    <parameter name="query_base" class="java.lang.String"/>
+    <queryString><![CDATA[SELECT * FROM tabla WHERE id = $P!{query_base}]]></queryString>
+    <field name="cuenta_bancaria" class="java.lang.String"/>
+</jasperReport>
