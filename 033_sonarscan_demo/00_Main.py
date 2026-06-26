@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 # 00_Main.py
 # Versión: 1.0.0 - REFACCIÓN: Centralización Estricta de Strings y Constantes
 # Función: Orquestador de procesos con manejo de argumentos e interactividad para el Paso 7.
@@ -220,6 +234,8 @@ def main():
             print(ERROR_OUT_OF_RANGE.format(choice=choice, min=0, max=FULL_SEQUENCE_STEP))
 
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     # La importación de sys ya está arriba, pero la dejamos para consistencia si se usa esta línea
     # en scripts modulares.

@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 # 02_validate_env.py
 # Versión: 1.3.5 (ESTABLE - SIN BUCLES)
 # Objetivo: Validar el PATH, limpiar rutas muertas y asegurar sincronización.
@@ -99,5 +113,7 @@ def main():
                     print("[i] Sincronización completa. Si el comando falla en esta ventana,")
                     print("    ejecuta: $env:Path = [System.Environment]::GetEnvironmentVariable('Path','User')")
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     main()

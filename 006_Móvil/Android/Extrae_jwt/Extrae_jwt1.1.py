@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 # ==============================================================================
 # --- HISTORIAL DE VERSIONES ---
 # ==============================================================================
@@ -124,6 +138,8 @@ def procesar_archivo(archivo_entrada, archivo_salida):
     else:
         logger.info("😔 No se encontraron JWTs válidos y decodificables en el archivo.")
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     VERSION = "v1.1.0"
     print(f"EXTRAE JWT SCRIPT - {VERSION}")

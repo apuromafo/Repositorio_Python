@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 description = 'pequeña herramienta de rotación ROT-n, , haciendo uso de rot13'
 author = 'Apuromafo'
 version = '0.0.1'
@@ -91,6 +104,8 @@ def main():
     for attempt in results:
         print(f"Amount = {attempt[0]:>3}: {attempt[1]}")
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     print_banner()
     main()

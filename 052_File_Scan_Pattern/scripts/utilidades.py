@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 """
 utilidades.py - Versión 1.0.2
 Funciones auxiliares: carga de sugerencias, formato e impresión de hallazgos.
@@ -7,6 +21,8 @@ Ajustado para mostrar el 'Match Contexto' dedupado y la descripción con conteo.
 import json
 from pathlib import Path
 from .logger_manager import texto_coloreado, Colores
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 
 
 __version__ = "1.0.2"

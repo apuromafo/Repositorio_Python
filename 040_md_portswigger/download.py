@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 import requests
 from bs4 import BeautifulSoup
 import os
@@ -400,6 +414,8 @@ def create_directory_for_url(url_path, base_output_dir):
     os.makedirs(dir_path, exist_ok=True)
     return dir_path
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     print(f"Iniciando descarga desde {ACADEMY_INDEX_URL} a formato Markdown (contenido limpio, activos filtrados con rutas simplificadas y bloques no deseados eliminados).")
 
