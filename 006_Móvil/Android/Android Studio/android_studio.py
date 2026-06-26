@@ -1,9 +1,28 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 import os
 import subprocess
 import sys
 
 # Ruta predeterminada al ejecutable del emulador
-EMULATOR_PATH = r"C:\Users\pente\AppData\Local\Android\Sdk\emulator\emulator.exe"
+if sys.platform == "win32":
+    EMULATOR_PATH = os.path.join(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')), 'Android', 'Sdk', 'emulator', 'emulator.exe')
+elif sys.platform == "darwin":
+    EMULATOR_PATH = os.path.join(os.path.expanduser('~'), 'Library', 'Android', 'sdk', 'emulator', 'emulator')
+else:
+    EMULATOR_PATH = os.path.join(os.path.expanduser('~'), 'Android', 'Sdk', 'emulator', 'emulator')
 
 def verificar_emulador():
     """
@@ -40,9 +59,7 @@ def solicitar_ruta_manual():
     """
     while True:
         # Solución 1: Usar una cadena raw (r"...")
-        ruta_manual = input(r"Por favor, ingresa la ruta correcta al emulador de Android: Ejemplo C:\Users\pente\AppData\Local\Android\Sdk\emulator\emulator.exe  ")
-        # Solución 2: Escapar las barras invertidas
-        # ruta_manual = input("Por favor, ingresa la ruta correcta al emulador de Android: Ejemplo C:\\Users\\pente\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe  ")
+        ruta_manual = input(r"Por favor, ingresa la ruta correcta al emulador de Android: Ejemplo C:\Users\TuUsuario\AppData\Local\Android\Sdk\emulator\emulator.exe  ")
 
         if os.path.exists(ruta_manual):
             return ruta_manual
@@ -120,5 +137,7 @@ def main():
         start_emulator(selected_avd)
         break
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     main()

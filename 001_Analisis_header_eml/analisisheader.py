@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 # Descripción: Herramienta para análisis de encabezados EML, validación de MTAs y análisis de archivos con VirusTotal
 # Autor: Apuromafo
 # Versión: 0.0.6
@@ -254,5 +268,7 @@ def mostrar_resultados(correo_analizado, resultados_mtas, hash_archivo, resultad
         print(f"Hash SHA-256: {hash_archivo}")
         print(f"Resultado: {resultado_virustotal}")
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     main()

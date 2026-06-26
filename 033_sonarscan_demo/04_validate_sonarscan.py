@@ -1,3 +1,17 @@
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 # 04_validate_sonarscan.py
 # Versión: 6.5.0 (CORRECCIÓN DE RUTAS Y CONFIG.INI)
 # Objetivo: Validar API de SonarQube y ejecución del scanner usando la ruta del proyecto.
@@ -128,5 +142,7 @@ def main():
     else:
         print(f"\n{'='*60}\n[❌] FALLÓ LA VALIDACIÓN: Revisa los errores arriba.\n{'='*60}")
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     main()

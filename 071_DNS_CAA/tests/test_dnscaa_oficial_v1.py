@@ -397,7 +397,7 @@ class TestRunIntegracion(unittest.TestCase):
                         data = json.load(f)
                     self.assertIn("targets", data)
                     self.assertIn("zones", data)
-                    self.assertEqual(data["version"], "2.0.0")
+                    self.assertEqual(data["version"], "2.1.0")
             finally:
                 mod.RAIZ_RESULTADOS = original_raiz
 

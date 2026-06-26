@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+
+# =============================================================================
+# AVISO LEGAL / LEGAL NOTICE
+# -----------------------------------------------------------------------------
+# Esta herramienta es unicamente para fines educativos y de auditoria de
+# seguridad autorizada. El uso no autorizado contra sistemas sin el
+# consentimiento explicito del propietario es ilegal.
+# El usuario asume toda responsabilidad por el uso indebido.
+#
+# This tool is for educational and authorized security auditing purposes only.
+# Unauthorized use against systems without the owner's explicit consent is
+# illegal. The user assumes all responsibility for misuse.
+# =============================================================================
+
 import random
 import sys
 import os
@@ -20,7 +34,7 @@ COLORS = {
 # Rutas de base de datos
 DB_PATHS = [
     os.path.join("db", "nmap-mac-prefixes"),
-    r"C:\Program Files (x86)\Nmap\nmap-mac-prefixes",
+    os.path.join(os.environ.get('PROGRAMFILES(X86)', 'C:\\Program Files (x86)'), 'Nmap', 'nmap-mac-prefixes'),
     "/usr/share/nmap/nmap-mac-prefixes"
 ]
 
@@ -133,6 +147,8 @@ def main():
     if args.output and results_to_save:
         save_to_csv(results_to_save)
 
+
+print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
     try:
         main()
