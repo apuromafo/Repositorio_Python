@@ -83,3 +83,9 @@ El script funciona en los siguientes pasos:
 *   El factor `0.55` en la función `resize_image` está diseñado para compensar la tendencia de los caracteres ASCII a ser más altos que anchos en muchas terminales.  Puedes ajustar este valor si encuentras que el arte ASCII se ve distorsionado.
 *   Este script es una implementación básica y puede no funcionar perfectamente con todas las imágenes o terminales.
  
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

@@ -42,3 +42,9 @@ Una vez que el script finalice con éxito, Pwndoc estará accesible en:
 ### **⚠️ Aviso de Seguridad**
 
 La aplicación usa un certificado SSL autofirmado por defecto. Es normal que su navegador muestre una advertencia de seguridad. **Se recomienda encarecidamente cambiar los certificados SSL y la clave secreta JWT** para cualquier entorno de producción.
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

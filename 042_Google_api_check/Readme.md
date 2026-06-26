@@ -1,6 +1,6 @@
------
+# Google API Check
 
-### **Google Maps API Key Validator**
+Validador de claves de API de Google Maps para detectar configuraciones vulnerables.
 
 **`gmaps_auditor.py`** es un script de Python diseñado para auditar y validar si una clave de API de Google Maps está mal configurada y es vulnerable a un uso no autorizado. La herramienta realiza una serie de pruebas automatizadas contra las diversas APIs de Google Maps para determinar si la clave tiene restricciones de uso adecuadas.
 

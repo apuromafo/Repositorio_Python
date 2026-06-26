@@ -9,7 +9,7 @@ Este script de Python (`security_audit.py`) es una **herramienta de prueba de co
   * **Python 3.x**
   * Biblioteca `requests`:
 
-<!-- end list -->
+
 
 ```bash
 pip install requests

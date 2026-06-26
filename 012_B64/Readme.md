@@ -1,9 +1,14 @@
-Pequeña tool para abordar archivos de base64 si, se tilda permite decodificar.
-al ser interfaz gráfica, requiere python3 b64.py
+# 012 — Base64
 
+Herramientas CLI para codificar y decodificar texto en Base64.
 
-![](./img/img1.png)
+```bash
+python B64_Cli.py
+python base64_converter.py
+```
 
+## ⚠️ Aviso Legal / Legal Notice
 
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
 
-personalmente recomiendo más el uso de cyberchef, pero nunca está de más intentar armar algo.
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

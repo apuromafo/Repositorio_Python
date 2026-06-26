@@ -1,7 +1,7 @@
 
-### Script de Análisis de Cabeceras de Seguridad v0.0.7
+# Cabeceras Seguridad
 
-Pequeño script pensado en validar las cabeceras de seguridad de un sitio web, inspirado en las buenas prácticas de OWASP.
+Script para validar cabeceras de seguridad HTTP de sitios web, inspirado en buenas prácticas de OWASP.
 
 -----
 
@@ -85,3 +85,9 @@ Este es un proyecto funcional para las necesidades actuales de análisis, con po
 -----
 
 **Fecha de actualización:** 15 de julio de 2025.
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

@@ -1,6 +1,6 @@
------
+# CVE Check
 
-### 🛡️ NVD CVE Downloader
+Descargador y consultor de vulnerabilidades CVE desde la API oficial de NVD.
 
 **`cve_downloader.py`** es un script de Python interactivo diseñado para descargar y almacenar datos de vulnerabilidades **CVE (Common Vulnerabilities and Exposures)** directamente desde la API oficial de la Base de Datos Nacional de Vulnerabilidades (NVD) de NIST.
 
@@ -67,3 +67,9 @@ Al ejecutar el script, se creará una estructura de directorios para almacenar l
 ```
 
 Cada archivo `.txt` contiene un listado de CVEs en formato de texto plano, fácil de leer y de procesar.
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

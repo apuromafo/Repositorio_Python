@@ -26,7 +26,7 @@ pip install requests beautifulsoup4 html2text
 2.  Navega al directorio donde se encuentra el script.
 3.  Ejecuta el script desde tu terminal:
 
-<!-- end list -->
+
 
 ```bash
 python portswigger_scraper.py
