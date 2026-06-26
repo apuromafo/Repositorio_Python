@@ -35,3 +35,9 @@ python Simulateday.py --fecha 2026-04-03 --hora 10:00
 ## ⚠️ Notas
 - Los feriados pueden ser trasladables o variar según las leyes locales.
 - El calendario se actualiza automáticamente cuando la fecha cambia.
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

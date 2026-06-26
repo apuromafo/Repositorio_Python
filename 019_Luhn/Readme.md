@@ -51,3 +51,10 @@ Puedes validar números IMEI en línea utilizando servicios como IMEI.info, sin 
 ##Advertencias
 Asegúrate de usar este script y la información sobre el IMEI de manera responsable. El IMEI es una parte crucial de la identidad de un dispositivo y debe ser protegido adecuadamente.
 
+
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

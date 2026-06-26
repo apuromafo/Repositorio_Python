@@ -2,6 +2,12 @@
 
 Este repositorio contiene herramientas en Python para **generar hashes SHA-256** y realizar **ataques de fuerza bruta** (crack) sobre hashes SHA-256. Los scripts son útiles para fines educativos y de aprendizaje sobre criptografía básica.
 
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.
+
 ## Contenido del Repositorio
 
 1. **Generador de SHA-256**:

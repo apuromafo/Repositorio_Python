@@ -96,3 +96,9 @@ python linkedin_resolver.py -a mi_post.txt -o informe_linkedin.md -t
 
   * **Fiabilidad:** Aunque se han implementado métodos robustos (seguimiento de redirecciones y búsqueda de enlaces específicos en el HTML), la fiabilidad de la resolución de URLs externas puede variar. Esto depende de cómo LinkedIn y los sitios de destino manejan sus enlaces y redirecciones.
   * **Rendimiento:** Cada solicitud de URL se realiza de manera individual. Si procesas un gran número de enlaces, ten en cuenta que el proceso puede tomar tiempo.
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

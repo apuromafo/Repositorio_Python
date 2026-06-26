@@ -25,3 +25,10 @@ El juego genera un número secreto aleatorio entre 1 y 100. El jugador debe adiv
 *   **Intentos Limitados:** El jugador tiene 10 intentos para adivinar el número.
 *   **Retroalimentación:** Después de cada intento, el programa le indica si su respuesta es demasiado alta o demasiado baja.
 *   **Mensaje de Pérdida:** Si el jugador no adivina el número en 10 intentos, se muestra un mensaje indicando que ha perdido y revela el número secreto.
+
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

@@ -76,3 +76,9 @@ pip install requests beautifulsoup4
 ## 📝 Salida
 
 El script guardará los enlaces de Udemy resueltos y limpios en un archivo de texto con un nombre que incluye la fecha y hora, por ejemplo: `links_udemy_limpios_feed_2025-08-11_10-30-00.txt`.
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

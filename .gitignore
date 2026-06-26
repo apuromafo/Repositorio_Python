@@ -405,3 +405,6 @@ venv.bak
 \.coverage
 \.temp
 \.backup
+# Archivos sensibles / APK financieras
+006_Móvil/Android/HermesDecOrchestrator/Old/
+006_Móvil/Android/Research_distintos hitos/

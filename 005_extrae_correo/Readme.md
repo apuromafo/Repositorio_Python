@@ -102,3 +102,9 @@ Correos inválidos ignorados: 1
 - Si el archivo de salida ya existe, será sobrescrito.
 - Los correos inválidos (por ejemplo, aquellos que no cumplen con el formato estándar de correo electrónico) serán ignorados.
  
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

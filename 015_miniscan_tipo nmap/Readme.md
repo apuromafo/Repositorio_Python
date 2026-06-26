@@ -1,4 +1,4 @@
-###Escáner de Puertos con Banner Grabbing
+# MiniScan — Escáner de Puertos con Banner Grabbing
 
 Este script es un escáner de puertos simple que permite identificar puertos abiertos en un objetivo y obtener información del banner de servicios en esos puertos. Además, incluye manejo avanzado de errores, verificación de dependencias y soporte para la instalación automática de módulos necesarios.
 
@@ -58,3 +58,10 @@ Si no se encuentran puertos abiertos, el script informará:
 ```
 No se encontraron puertos abiertos.
 ```
+
+
+## ⚠️ Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.
