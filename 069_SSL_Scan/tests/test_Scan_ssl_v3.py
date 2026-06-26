@@ -189,7 +189,7 @@ class TestProvisionarBinario(unittest.TestCase):
         self.assertTrue(sslscan.provisionar_binario())
         u.assert_not_called()
 
-    @patch('Scan_ssl_v3.os.path.exists', side_effect=[False, False])
+    @patch('Scan_ssl_v3.os.path.exists', side_effect=[False, False, False])
     @patch('Scan_ssl_v3.os.makedirs')
     @patch('Scan_ssl_v3.urllib.request.urlopen')
     @patch('Scan_ssl_v3.zipfile.ZipFile')
@@ -289,6 +289,7 @@ class TestMainFunction(unittest.TestCase):
     @patch('Scan_ssl_v3.os.listdir', return_value=[])
     def test_main_with_target(self, mlist, mf, mm, mr, mp):
         sys.argv = ['Scan_ssl_v3.py', '-t', 'example.com']
+        sslscan.SSLSCAN_BIN = "sslscan"
         mr.return_value = MagicMock(
             stdout="Version: 2.2.2\nIssuer:   Test CA\nNot valid after:  Jun 21 23:59:59 2026 GMT\n")
         f = io.StringIO()

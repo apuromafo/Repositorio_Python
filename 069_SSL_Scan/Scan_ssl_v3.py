@@ -18,20 +18,197 @@ import re
 import json
 import subprocess
 import os
+import platform
 import urllib.request
+import urllib.error
 import zipfile
+import tarfile
 import shutil
+import io
 from datetime import datetime, timezone
 from colorama import init, Fore, Style, Back
 
 init(autoreset=True)
 
+if sys.stdout.encoding and sys.stdout.encoding.upper() not in ("UTF-8", "UTF8"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 VERSION = "v34.1"
+
+# -----------------------------------------------------------------------
+# SISTEMA DE IDIOMAS (ES/EN)
+# -----------------------------------------------------------------------
+LANG = "es"
+
+TR = {
+    "es": {
+        "vanguardia": "Vanguardia",
+        "no_cumple": "No cumple",
+        "no_cumple_nist": "No cumple con NIST",
+        "confiable": "Confiable",
+        "no_vulnerable": "No vulnerable",
+        "vulnerable": "VULNERABLE",
+        "buena_config": "Buena configuración",
+        "riesgo": "Riesgo",
+        "correcto": "Correcto",
+        "legado_riesgo": "Legado / Riesgo",
+        "vigente": "Vigente",
+        "expirado": "Expirado",
+        "header_auditoria": "INFORME TÉCNICO DE AUDITORÍA SSL",
+        "header_pqc": ">>> Prueba de Preparación Post-Cuántica (PQC) FIPS 203/204",
+        "header_pci": ">>> Prueba de Cumplimiento PCI DSS 4.0.1",
+        "header_nist": ">>> Prueba NIST SP 800-52 y Mejores Prácticas",
+        "header_cvss": ">>> Resumen Ejecutivo de Riesgo (CVSS 4.0 / 3.1)",
+        "item_kex": "Intercambio de Claves Híbrido ML-KEM",
+        "item_firma": "Firma Digital PQC (ML-DSA)",
+        "item_certs": "Certificados Confiables",
+        "item_heartbleed": "Vulnerabilidad: HEARTBLEED",
+        "item_reneg": "Renegociación Segura",
+        "item_tls13": "TLS 1.3 Soportado",
+        "item_vigencia": "Vigencia del Certificado",
+        "ref": "Referencia",
+        "evidencia": "Evidencia",
+        "accion": "ACCIÓN REQUERIDA",
+        "motivo_harvest": "Mitigación de ataques de retro-descifrado (Harvest-now).",
+        "motivo_shor": "Algoritmo {algo} vulnerable al algoritmo de Shor.",
+        "motivo_heartbleed": "Fuga de memoria en memoria del servidor.",
+        "motivo_reneg": "Protección contra inyección de datos durante el apretón de manos.",
+        "motivo_tls13": "Recomendado por NIST para confidencialidad persistente.",
+        "accion_ml_dsa": "Migrar a ML-DSA en la próxima renovación de certificados.",
+        "ref_fips203": "FIPS 203",
+        "ref_fips204": "FIPS 204",
+        "ref_pci": "PCI DSS 4.2",
+        "ref_cve_heartbleed": "CVE-2014-0160",
+        "ref_rfc5746": "RFC 5746",
+        "ref_nist52": "NIST SP 800-52 Rev.2",
+        "ref_pci_req": "PCI DSS 4.0.1 req.",
+        "evidencia_clasica": "Criptografía asimétrica clásica detectada.",
+        "score_riesgo": "Score de Riesgo Acumulado:",
+        "hallazgos_criticos": "Hallazgos Críticos:",
+        "hallazgos_altos": "Hallazgos Altos:",
+        "hallazgos_medios": "Hallazgos Medios:",
+        "ref_cvss40": "Referencia CVSS 4.0:",
+        "ref_cvss31": "Referencia CVSS 3.1:",
+        "bajo": "BAJO",
+        "medio": "MEDIO",
+        "alto": "ALTO",
+        "provision_ok": "Binario sslscan listo.",
+        "provision_desc": "Descargando sslscan {ver}...",
+        "provision_error": "Error crítico de provisión: {e}",
+        "analizando": "Ejecutando análisis técnico sobre {target}...",
+        "no_evidencia": "No se encontró evidencia en la ruta especificada.",
+        "findings_export": "Findings exportados",
+        "curls_export": "Curls exportados",
+        "resumen_ejecucion": "RESUMEN DE LA EJECUCIÓN",
+        "target": "Target:",
+        "fecha": "Fecha:",
+        "estado": "Estado:",
+        "completado": "COMPLETADO",
+        "evidencia": "Evidencia:",
+        "banner_titulo": "SCAN SSL {ver} — AUDITOR DE SEGURIDAD SSL/TLS",
+        "banner_linea2": "PCI DSS 4.0.1 | NIST SP 800-52 | FIPS 203/204 | CVSS 4.0/3.1",
+        "uso": "Uso:",
+        "ejemplo": "Ej:",
+        "offline": "Offline:",
+        "info": "Info:",
+        "version": "Versión:",
+        "disclaimer_title": "⚠  AVISO LEGAL / LEGAL NOTICE",
+        "disclaimer_auth": "Este escaneo debe realizarse ÚNICAMENTE con autorización explícita del propietario o con fines educativos en entornos controlados.",
+        "disclaimer_no_perjuicio": "El uso indebido de esta herramienta es responsabilidad exclusiva del usuario. No nos hacemos responsables por daños o perjuicios.",
+        "disclaimer_cvss": "Las puntuaciones CVSS 4.0 y 3.1 son REFERENCIALES, asignadas por analogía con CVE documentados (fuentes: FIRST.org CVSS v4.0 y v3.1 Specification Documents).",
+    },
+    "en": {
+        "vanguardia": "Vanguard",
+        "no_cumple": "Non-compliant",
+        "no_cumple_nist": "Non-compliant with NIST",
+        "confiable": "Trusted",
+        "no_vulnerable": "Not vulnerable",
+        "vulnerable": "VULNERABLE",
+        "buena_config": "Good configuration",
+        "riesgo": "Risk",
+        "correcto": "OK",
+        "legado_riesgo": "Legacy / Risk",
+        "vigente": "Valid",
+        "expirado": "Expired",
+        "header_auditoria": "SSL AUDIT TECHNICAL REPORT",
+        "header_pqc": ">>> Post-Quantum Cryptography (PQC) Readiness Test FIPS 203/204",
+        "header_pci": ">>> PCI DSS 4.0.1 Compliance Test",
+        "header_nist": ">>> NIST SP 800-52 & Best Practices Test",
+        "header_cvss": ">>> Executive Risk Summary (CVSS 4.0 / 3.1)",
+        "item_kex": "Hybrid ML-KEM Key Exchange",
+        "item_firma": "PQC Digital Signature (ML-DSA)",
+        "item_certs": "Certificates are Trusted",
+        "item_heartbleed": "Vulnerability: HEARTBLEED",
+        "item_reneg": "Secure Renegotiation",
+        "item_tls13": "TLS 1.3 Supported",
+        "item_vigencia": "Certificate Validity",
+        "ref": "Reference",
+        "evidencia": "Evidence",
+        "accion": "REQUIRED ACTION",
+        "motivo_harvest": "Mitigation of Harvest-now decrypt attacks.",
+        "motivo_shor": "Algorithm {algo} vulnerable to Shor's algorithm.",
+        "motivo_heartbleed": "Memory leak in server memory.",
+        "motivo_reneg": "Protection against data injection during handshake.",
+        "motivo_tls13": "Recommended by NIST for forward secrecy.",
+        "accion_ml_dsa": "Migrate to ML-DSA on next certificate renewal.",
+        "ref_fips203": "FIPS 203",
+        "ref_fips204": "FIPS 204",
+        "ref_pci": "PCI DSS 4.2",
+        "ref_cve_heartbleed": "CVE-2014-0160",
+        "ref_rfc5746": "RFC 5746",
+        "ref_nist52": "NIST SP 800-52 Rev.2",
+        "ref_pci_req": "PCI DSS 4.0.1 req.",
+        "evidencia_clasica": "Classic asymmetric cryptography detected.",
+        "score_riesgo": "Accumulated Risk Score:",
+        "hallazgos_criticos": "Critical Findings:",
+        "hallazgos_altos": "High Findings:",
+        "hallazgos_medios": "Medium Findings:",
+        "ref_cvss40": "CVSS 4.0 Reference:",
+        "ref_cvss31": "CVSS 3.1 Reference:",
+        "bajo": "LOW",
+        "medio": "MEDIUM",
+        "alto": "HIGH",
+        "provision_ok": "sslscan binary ready.",
+        "provision_desc": "Downloading sslscan {ver}...",
+        "provision_error": "Critical provisioning error: {e}",
+        "analizando": "Running technical analysis on {target}...",
+        "no_evidencia": "No evidence log found at specified path.",
+        "findings_export": "Findings exported",
+        "curls_export": "Curls exported",
+        "resumen_ejecucion": "EXECUTION SUMMARY",
+        "target": "Target:",
+        "fecha": "Date:",
+        "estado": "Status:",
+        "completado": "COMPLETED",
+        "evidencia": "Evidence:",
+        "banner_titulo": "SCAN SSL {ver} — SSL/TLS SECURITY AUDITOR",
+        "banner_linea2": "PCI DSS 4.0.1 | NIST SP 800-52 | FIPS 203/204 | CVSS 4.0/3.1",
+        "uso": "Usage:",
+        "ejemplo": "Example:",
+        "offline": "Offline:",
+        "info": "Info:",
+        "version": "Version:",
+        "disclaimer_title": "⚠  LEGAL NOTICE / AVISO LEGAL",
+        "disclaimer_auth": "This scan MUST only be performed with explicit authorization from the owner or for educational purposes in controlled environments.",
+        "disclaimer_no_perjuicio": "Misuse of this tool is the sole responsibility of the user. We are not liable for any damages or harm.",
+        "disclaimer_cvss": "CVSS 4.0 and 3.1 scores are REFERENTIAL, assigned by analogy with documented CVEs (sources: FIRST.org CVSS v4.0 and v3.1 Specification Documents).",
+    }
+}
+
+def _(key, **kwargs):
+    t = TR.get(LANG, TR["es"]).get(key, key)
+    if kwargs:
+        t = t.format(**kwargs)
+    return t
+
 
 # --- [CONFIGURACIÓN Y RUTAS] ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TOOLS_DIR = os.path.join(BASE_DIR, "tools", "sslscan", "2.2.2")
-SSLSCAN_BINARY = os.path.join(TOOLS_DIR, "sslscan.exe")
+SISTEMA = platform.system()
+ARQUITECTURA = platform.machine().lower()
+ES_WINDOWS = SISTEMA == "Windows"
+BIN_EXT = ".exe" if ES_WINDOWS else ""
+TOOLS_BASE = os.path.join(BASE_DIR, "tools", "sslscan")
 RAIZ_RESULTADOS = os.path.join(BASE_DIR, "Resultados_SSL")
 
 TITULOS_CYAN = [
@@ -84,23 +261,100 @@ CVSS_MAP = {
                                "score31": 5.3, "vector31": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N", "severity": "MEDIUM"},
 }
 
-def provisionar_binario():
-    """Garantiza la disponibilidad de la herramienta de escaneo."""
-    if os.path.exists(SSLSCAN_BINARY): return True
-    os.makedirs(TOOLS_DIR, exist_ok=True)
-    url = "https://github.com/rbsec/sslscan/releases/download/2.2.2/sslscan-2.2.2.zip"
+def obtener_ultima_version_sslscan():
+    """Obtiene la última versión de sslscan desde GitHub API."""
+    url = "https://api.github.com/repos/rbsec/sslscan/releases/latest"
     try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        zip_path = os.path.join(TOOLS_DIR, "temp.zip")
-        with urllib.request.urlopen(req) as r, open(zip_path, 'wb') as f: f.write(r.read())
-        with zipfile.ZipFile(zip_path, 'r') as z: z.extractall(TOOLS_DIR)
-        for root, _, files in os.walk(TOOLS_DIR):
-            if "sslscan.exe" in files: shutil.move(os.path.join(root, "sslscan.exe"), SSLSCAN_BINARY)
-        if os.path.exists(zip_path): os.remove(zip_path)
+        req = urllib.request.Request(url, headers={'User-Agent': 'Scan_SSL/1.0', 'Accept': 'application/vnd.github.v3+json'})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            data = json.loads(r.read().decode("utf-8"))
+            tag = data.get("tag_name", "")
+            assets = data.get("assets", [])
+            return tag.lstrip("v"), assets
+    except Exception as e:
+        return "2.2.2", []
+
+def provisionar_binario():
+    """Garantiza la disponibilidad de sslscan (multiplataforma)."""
+    global SSLSCAN_BIN, SSLSCAN_VER
+    fallback_ver = "2.2.2"
+    fallback_dir = os.path.join(TOOLS_BASE, fallback_ver)
+    fallback_bin = os.path.join(fallback_dir, f"sslscan{BIN_EXT}")
+    if os.path.exists(fallback_bin):
+        SSLSCAN_BIN = fallback_bin
+        SSLSCAN_VER = fallback_ver
+        print(f"{Fore.GREEN}[✔] {_('provision_ok')} ({fallback_ver}){Style.RESET_ALL}")
+        return True
+
+    tag_ver, assets = obtener_ultima_version_sslscan()
+    SSLSCAN_VERSION = tag_ver
+    SSLSCAN_DIR = os.path.join(TOOLS_BASE, SSLSCAN_VERSION)
+    SSLSCAN_BINARY = os.path.join(SSLSCAN_DIR, f"sslscan{BIN_EXT}")
+    SSLSCAN_BIN = SSLSCAN_BINARY
+    SSLSCAN_VER = SSLSCAN_VERSION
+
+    if os.path.exists(SSLSCAN_BINARY):
+        print(f"{Fore.GREEN}[✔] {_('provision_ok')} ({SSLSCAN_VERSION}){Style.RESET_ALL}")
+        return True
+
+    os.makedirs(SSLSCAN_DIR, exist_ok=True)
+    print(f"{Fore.YELLOW}[*] {_('provision_desc', ver=SSLSCAN_VERSION)}...{Style.RESET_ALL}")
+
+    download_url = None
+    for a in assets:
+        name = a.get("name", "")
+        if ES_WINDOWS and name.endswith(".zip") and "win" in name.lower():
+            download_url = a.get("browser_download_url")
+            break
+        elif not ES_WINDOWS and name.endswith(".tgz"):
+            download_url = a.get("browser_download_url")
+            break
+
+    if not download_url:
+        fallback = "2.2.2"
+        base = "https://github.com/rbsec/sslscan/releases/download"
+        if ES_WINDOWS:
+            download_url = f"{base}/{fallback}/sslscan-{fallback}.zip"
+        else:
+            download_url = f"{base}/{fallback}/sslscan-{fallback}.tgz"
+
+    try:
+        req = urllib.request.Request(download_url, headers={'User-Agent': 'Mozilla/5.0'})
+        archivo_temp = os.path.join(SSLSCAN_DIR, "temp" + (".zip" if download_url.endswith(".zip") else ".tgz"))
+        with urllib.request.urlopen(req, timeout=60) as r, open(archivo_temp, 'wb') as f:
+            f.write(r.read())
+
+        if archivo_temp.endswith(".zip"):
+            with zipfile.ZipFile(archivo_temp, 'r') as z:
+                z.extractall(SSLSCAN_DIR)
+        else:
+            with tarfile.open(archivo_temp, 'r:gz') as t:
+                t.extractall(SSLSCAN_DIR)
+
+        for root, dirs, files in os.walk(SSLSCAN_DIR):
+            for fname in files:
+                if fname == f"sslscan{BIN_EXT}" or fname == "sslscan":
+                    src = os.path.join(root, fname)
+                    if src != SSLSCAN_BINARY:
+                        shutil.move(src, SSLSCAN_BINARY)
+                    break
+
+        if not ES_WINDOWS and os.path.exists(SSLSCAN_BINARY):
+            os.chmod(SSLSCAN_BINARY, 0o755)
+
+        if os.path.exists(archivo_temp):
+            os.remove(archivo_temp)
+
+        print(f"{Fore.GREEN}[✔] {_('provision_ok')} ({SSLSCAN_VERSION}){Style.RESET_ALL}")
         return True
     except Exception as e:
-        print(f"{Fore.RED}[✘] Error crítico de provisión: {e}")
+        print(f"{Fore.RED}[✘] {_('provision_error', e=e)}{Style.RESET_ALL}")
+        SSLSCAN_BIN = None
         return False
+
+
+SSLSCAN_BIN = None
+SSLSCAN_VER = "desconocida"
 
 # --- [MOTOR DE COLOREADO PROFESIONAL] ---
 
@@ -156,70 +410,75 @@ def ejecutar_auditoria_v34(texto_analizar, target_id):
     ts_actual = datetime.now()
     
     def print_h(item, status, ref="", motivo="", evidencia="", accion=""):
-        if any(x in status for x in ["Buena config", "Vanguardia", "No vulnerable", "Confiable", "Vigente", "Correcto"]):
+        ok_statuses = [_("buena_config"), _("vanguardia"), _("no_vulnerable"), _("confiable"), _("vigente"), _("correcto")]
+        bad_statuses = [_("no_cumple"), _("vulnerable"), _("riesgo"), _("legado_riesgo"), "Inseguro"]
+        if any(x in status for x in ok_statuses):
             color = Fore.GREEN + Style.BRIGHT
-        elif any(x in status for x in ["No cumple", "VULNERABLE", "Riesgo", "Legado", "Inseguro"]):
+        elif any(x in status for x in bad_statuses):
             color = Fore.RED + Style.BRIGHT
         else:
             color = Fore.YELLOW
             
         print(f"{item:45} | {color}{status}")
-        if ref: print(f"    {Fore.WHITE}Referencia: {ref}")
+        if ref: print(f"    {Fore.WHITE}{_('ref')}: {ref}")
         if motivo: print(f"    {Fore.WHITE}{Style.DIM}└─ {motivo}")
-        if evidencia: print(f"    {Fore.BLUE}{Style.NORMAL}└─ Evidencia: {evidencia}")
-        if accion: print(f"    {Fore.MAGENTA}{Style.BRIGHT}└─ ACCIÓN REQUERIDA: {accion}")
+        if evidencia: print(f"    {Fore.BLUE}{Style.NORMAL}└─ {_('evidencia')}: {evidencia}")
+        if accion: print(f"    {Fore.MAGENTA}{Style.BRIGHT}└─ {_('accion')}: {accion}")
 
     print(f"\n{Fore.MAGENTA}{'='*95}")
-    print(f"INFORME TÉCNICO DE AUDITORÍA SSL {VERSION} | TARGET: {target_id}")
-    print(f"Fecha de análisis: {ts_actual.strftime('%d-%m-%Y %H:%M:%S')}")
+    print(f"{_('header_auditoria')} {VERSION} | TARGET: {target_id}")
+    tsf = ts_actual.strftime('%d-%m-%Y %H:%M:%S')
+    print(f"Fecha: {tsf}" if LANG == "es" else f"Date: {tsf}")
     print(f"{Fore.MAGENTA}{'='*95}")
 
     # --- SECCIÓN: POST-QUANTUM (FIPS 203/204) ---
-    print(f"\n{Fore.CYAN}>>> Prueba de Preparación Post-Cuántica (PQC) FIPS 203/204 ".ljust(95, "-"))
+    print(f"\n{Fore.CYAN}{_('header_pqc')} ".ljust(95, "-"))
     kex = re.search(r"(X25519MLKEM\d+|MLKEM\d+|Kyber\d+)", texto_analizar, re.I)
-    print_h("Intercambio de Claves Híbrido ML-KEM", "Vanguardia" if kex else "No cumple", 
-            ref="FIPS 203", motivo="Mitigación de ataques de retro-descifrado (Harvest-now).",
-            evidencia=kex.group(1) if kex else "Criptografía asimétrica clásica detectada.")
+    print_h(_("item_kex"), _("vanguardia") if kex else _("no_cumple"),
+            ref=_("ref_fips203"), motivo=_("motivo_harvest"),
+            evidencia=kex.group(1) if kex else _("evidencia_clasica"))
 
     sig = re.search(r"Signature Algorithm:\s+(.*)", texto_analizar)
-    alg_str = sig.group(1).strip() if sig else "RSA/Classic"
+    alg_str = sig.group(1).strip() if sig else (LANG == "es" and "RSA/Classic" or "RSA/Classic")
     is_pqc_sig = not any(x in alg_str.lower() for x in ["rsa", "sha256", "ecdsa"])
-    print_h("Firma Digital PQC (ML-DSA)", "Vanguardia" if is_pqc_sig else "No cumple con NIST",
-            ref="FIPS 204", motivo=f"Algoritmo {alg_str} vulnerable al algoritmo de Shor.",
-            evidencia=alg_str, accion="Migrar a ML-DSA en la próxima renovación de certificados.")
+    print_h(_("item_firma"), _("vanguardia") if is_pqc_sig else _("no_cumple_nist"),
+            ref=_("ref_fips204"), motivo=_("motivo_shor", algo=alg_str),
+            evidencia=alg_str, accion=_("accion_ml_dsa"))
 
     # --- SECCIÓN: PCI DSS 4.0.1 ---
-    print(f"\n{Fore.CYAN}>>> Prueba de Cumplimiento PCI DSS 4.0.1 ".ljust(95, "-"))
+    print(f"\n{Fore.CYAN}{_('header_pci')} ".ljust(95, "-"))
     issuer = re.search(r"Issuer:\s+(.*)", texto_analizar)
-    print_h("Certificados Confiables", "Confiable" if issuer else "No cumple", 
-            ref="PCI DSS 4.2", evidencia=f"CA Emisora: {issuer.group(1).strip() if issuer else 'Desconocida'}")
+    print_h(_("item_certs"), _("confiable") if issuer else _("no_cumple"),
+            ref=_("ref_pci"), evidencia=f"CA: {issuer.group(1).strip() if issuer else 'Unknown'}")
 
     hb = "vulnerable to heartbleed" in texto_analizar.lower() and "not vulnerable" not in texto_analizar.lower()
-    print_h("Vulnerabilidad: HEARTBLEED", "No vulnerable" if not hb else "VULNERABLE",
-            ref="CVE-2014-0160", motivo="Fuga de memoria en memoria del servidor.")
+    print_h(_("item_heartbleed"), _("no_vulnerable") if not hb else _("vulnerable"),
+            ref=_("ref_cve_heartbleed"), motivo=_("motivo_heartbleed"))
 
     reneg = "Insecure client-initiated renegotiation" in texto_analizar and "not supported" not in texto_analizar
-    print_h("Renegociación Segura", "Buena configuración" if not reneg else "Riesgo", 
-            ref="RFC 5746", motivo="Protección contra inyección de datos durante el apretón de manos.")
+    print_h(_("item_reneg"), _("buena_config") if not reneg else _("riesgo"),
+            ref=_("ref_rfc5746"), motivo=_("motivo_reneg"))
 
     # --- SECCIÓN: NIST & MEJORES PRÁCTICAS ---
-    print(f"\n{Fore.CYAN}>>> Prueba NIST SP 800-52 y Mejores Prácticas ".ljust(95, "-"))
+    print(f"\n{Fore.CYAN}{_('header_nist')} ".ljust(95, "-"))
     tls13_match = re.search(r"TLSv1\.3\s+(\w+)", texto_analizar)
     tls13_on = tls13_match and tls13_match.group(1) == "enabled"
-    print_h("TLS 1.3 Soportado", "Correcto" if tls13_on else "Legado / Riesgo", 
-            ref="NIST SP 800-52 Rev.2", motivo="Recomendado por NIST para confidencialidad persistente.")
+    print_h(_("item_tls13"), _("correcto") if tls13_on else _("legado_riesgo"),
+            ref=_("ref_nist52"), motivo=_("motivo_tls13"))
 
     try:
         exp = re.search(r"Not valid after:\s+(.*) GMT", texto_analizar)
         if exp:
             f_exp = datetime.strptime(exp.group(1).strip(), "%b %d %H:%M:%S %Y")
             dias = (f_exp - ts_actual).days
-            print_h("Vigencia del Certificado", "Vigente" if dias > 0 else "Expirado",
-                    ref="PCI DSS 4.0.1 req.", motivo=f"Vencimiento: {f_exp.strftime('%d-%m-%Y')}", evidencia=f"{dias} días restantes.")
+            plazo = f"{'Vencimiento' if LANG == 'es' else 'Expiry'}: {f_exp.strftime('%d-%m-%Y')}"
+            restan = f"{dias} {'días restantes' if LANG == 'es' else 'days remaining'}"
+            print_h(_("item_vigencia"), _("vigente") if dias > 0 else _("expirado"),
+                    ref=_("ref_pci_req"), motivo=plazo, evidencia=restan)
     except: pass
 
     # --- RESUMEN EJECUTIVO CON CVSS ---
-    print(f"\n{Fore.CYAN}>>> Resumen Ejecutivo de Riesgo (CVSS 4.0 / 3.1) ".ljust(95, "-"))
+    print(f"\n{Fore.CYAN}{_('header_cvss')} ".ljust(95, "-"))
     hallazgos = []
     riesgo_total = 0.0
     max_score = 0.0
@@ -234,8 +493,13 @@ def ejecutar_auditoria_v34(texto_analizar, target_id):
             hallazgos.append(("HIGH", proto, CVSS_MAP["TLSv1.0 enabled"]))
             riesgo_total += 7.4; max_score = max(max_score, 7.4)
 
+    no_tls13_label = "TLS 1.3 not enabled" if LANG == "en" else "TLS 1.3 no habilitado"
+    no_kex_label = "No PQC KEX" if LANG == "en" else "Sin KEX Post-Cuántico"
+    no_firma_label = "No PQC signature" if LANG == "en" else "Sin firma Post-Cuántica"
+    reneg_label = "Insecure Renegotiation" if LANG == "en" else "Renegociación insegura"
+
     if "TLSv1.3   disabled" in texto_analizar:
-        hallazgos.append(("MEDIUM", "TLS 1.3 no habilitado", CVSS_MAP["TLSv1.3 disabled"]))
+        hallazgos.append(("MEDIUM", no_tls13_label, CVSS_MAP["TLSv1.3 disabled"]))
         riesgo_total += 5.9; max_score = max(max_score, 5.9)
 
     if "vulnerable to heartbleed" in texto_analizar.lower() and "not vulnerable" not in texto_analizar.lower():
@@ -243,15 +507,15 @@ def ejecutar_auditoria_v34(texto_analizar, target_id):
         riesgo_total += 7.5; max_score = max(max_score, 7.5)
 
     if "Insecure client-initiated renegotiation" in texto_analizar and "not supported" not in texto_analizar:
-        hallazgos.append(("MEDIUM", "Renegociación insegura", CVSS_MAP["insecure renegotiation"]))
+        hallazgos.append(("MEDIUM", reneg_label, CVSS_MAP["insecure renegotiation"]))
         riesgo_total += 6.8; max_score = max(max_score, 6.8)
 
     if not kex:
-        hallazgos.append(("MEDIUM", "Sin KEX Post-Cuántico", CVSS_MAP["no_pqc_kex"]))
+        hallazgos.append(("MEDIUM", no_kex_label, CVSS_MAP["no_pqc_kex"]))
         riesgo_total += 4.8; max_score = max(max_score, 4.8)
 
     if not is_pqc_sig:
-        hallazgos.append(("MEDIUM", "Sin firma Post-Cuántica", CVSS_MAP["no_pqc_sig"]))
+        hallazgos.append(("MEDIUM", no_firma_label, CVSS_MAP["no_pqc_sig"]))
         riesgo_total += 5.3; max_score = max(max_score, 5.3)
 
     for severity, finding, info in hallazgos:
@@ -261,15 +525,15 @@ def ejecutar_auditoria_v34(texto_analizar, target_id):
         print(f"    CVSS 3.1: {info['score31']} | {info['vector31']}")
 
     riesgo_normalizado = min(riesgo_total / 10.0, 10.0)
-    nivel = "BAJO" if riesgo_normalizado < 4 else ("MEDIO" if riesgo_normalizado < 7 else "ALTO")
-    color_nivel = Fore.GREEN if nivel == "BAJO" else (Fore.YELLOW if nivel == "MEDIO" else Fore.RED)
+    nivel = _("bajo") if riesgo_normalizado < 4 else (_("medio") if riesgo_normalizado < 7 else _("alto"))
+    color_nivel = Fore.GREEN if nivel == _("bajo") else (Fore.YELLOW if nivel == _("medio") else Fore.RED)
 
-    print(f"\n  {'Score de Riesgo Acumulado:' :50} {color_nivel}{riesgo_normalizado:.1f}/10 ({nivel}){Style.RESET_ALL}")
-    print(f"  {'Hallazgos Críticos:' :50} {Fore.RED}{sum(1 for s,_,_ in hallazgos if s=='CRITICAL')}{Style.RESET_ALL}")
-    print(f"  {'Hallazgos Altos:' :50} {Fore.YELLOW}{sum(1 for s,_,_ in hallazgos if s=='HIGH')}{Style.RESET_ALL}")
-    print(f"  {'Hallazgos Medios:' :50} {Fore.CYAN}{sum(1 for s,_,_ in hallazgos if s=='MEDIUM')}{Style.RESET_ALL}")
-    print(f"  {'Referencia CVSS 4.0:' :50} https://www.first.org/cvss/calculator/4.0")
-    print(f"  {'Referencia CVSS 3.1:' :50} https://www.first.org/cvss/calculator/3.1")
+    print(f"\n  {_('score_riesgo'):50} {color_nivel}{riesgo_normalizado:.1f}/10 ({nivel}){Style.RESET_ALL}")
+    print(f"  {_('hallazgos_criticos'):50} {Fore.RED}{sum(1 for s,_,_ in hallazgos if s=='CRITICAL')}{Style.RESET_ALL}")
+    print(f"  {_('hallazgos_altos'):50} {Fore.YELLOW}{sum(1 for s,_,_ in hallazgos if s=='HIGH')}{Style.RESET_ALL}")
+    print(f"  {_('hallazgos_medios'):50} {Fore.CYAN}{sum(1 for s,_,_ in hallazgos if s=='MEDIUM')}{Style.RESET_ALL}")
+    print(f"  {_('ref_cvss40'):50} https://www.first.org/cvss/calculator/4.0")
+    print(f"  {_('ref_cvss31'):50} https://www.first.org/cvss/calculator/3.1")
     print(f"\n{Fore.MAGENTA}{'='*95}\n")
 
     return hallazgos, riesgo_normalizado, nivel
@@ -280,52 +544,54 @@ def ejecutar_auditoria_v34(texto_analizar, target_id):
 def generar_curls(target, folder=""):
     """Genera comandos curl para verificación manual de SSL/TLS."""
     target_clean = target.replace("https://", "").replace("http://", "").split("/")[0]
+    main_lang = LANG
     curls = {
         "meta": {
             "target": target_clean,
             "generado": datetime.now(timezone.utc).isoformat(),
             "herramienta": f"Scan_SSL {VERSION}",
-            "propósito": "Comandos curl para verificación manual de SSL/TLS"
+            "propósito": "Comandos curl para verificación manual SSL/TLS" if main_lang == "es" else "Curl commands for manual SSL/TLS verification",
+            "idioma": main_lang
         },
         "comandos": [
             {
                 "id": "01",
-                "descripcion": "Handshake SSL básico (verbose)",
+                "descripcion": "Handshake SSL básico (verbose)" if main_lang == "es" else "Basic SSL handshake (verbose)",
                 "comando": f"curl -vI https://{target_clean} 2>&1"
             },
             {
                 "id": "02",
-                "descripcion": "Forzar TLS 1.2 (excluye 1.3/1.1/1.0)",
+                "descripcion": "Forzar TLS 1.2 (excluye 1.3/1.1/1.0)" if main_lang == "es" else "Force TLS 1.2 (excludes 1.3/1.1/1.0)",
                 "comando": f"curl --tlsv1.2 --tls-max 1.2 -vI https://{target_clean} 2>&1"
             },
             {
                 "id": "03",
-                "descripcion": "Forzar TLS 1.3 (excluye 1.2/1.1/1.0)",
+                "descripcion": "Forzar TLS 1.3 (excluye 1.2/1.1/1.0)" if main_lang == "es" else "Force TLS 1.3 (excludes 1.2/1.1/1.0)",
                 "comando": f"curl --tlsv1.3 --tls-max 1.3 -vI https://{target_clean} 2>&1"
             },
             {
                 "id": "04",
-                "descripcion": "Ver cadena de certificados completa",
+                "descripcion": "Ver cadena de certificados completa" if main_lang == "es" else "View full certificate chain",
                 "comando": f"openssl s_client -connect {target_clean}:443 -showcerts < /dev/null 2>/dev/null | openssl x509 -text -noout"
             },
             {
                 "id": "05",
-                "descripcion": "Cifrados soportados (nmap)",
+                "descripcion": "Cifrados soportados (nmap)" if main_lang == "es" else "Supported ciphers (nmap)",
                 "comando": f"nmap --script ssl-enum-ciphers -p 443 {target_clean}"
             },
             {
                 "id": "06",
-                "descripcion": "Heartbleed check (nmap)",
+                "descripcion": "Heartbleed check (nmap)" if main_lang == "es" else "Heartbleed check (nmap)",
                 "comando": f"nmap --script ssl-heartbleed -p 443 {target_clean}"
             },
             {
                 "id": "07",
-                "descripcion": "Fecha de expiración del certificado",
+                "descripcion": "Fecha de expiración del certificado" if main_lang == "es" else "Certificate expiry date",
                 "comando": f"echo | openssl s_client -connect {target_clean}:443 -servername {target_clean} 2>/dev/null | openssl x509 -noout -dates"
             },
             {
                 "id": "08",
-                "descripcion": "TODO: Protocolos y cifrados (curl + openssl)",
+                "descripcion": "Protocolos y cifrados (curl + openssl)" if main_lang == "es" else "Protocols and ciphers (curl + openssl)",
                 "comando": f"for v in ssl2 ssl3 tls1 tls1_1 tls1_2 tls1_3; do echo \"=== $v ===\"; curl --$v -vI https://{target_clean} 2>&1 | grep -E \"(SSL connection|error|alert)\"; done"
             },
         ]
@@ -397,15 +663,23 @@ def exportar_findings_json(hallazgos, riesgo_normalizado, nivel, target_id, fold
 # --- [FLUJO DE CONTROL] ---
 
 def main():
+    # Parse --lang first to set language before building full parser
+    pre_parser = argparse.ArgumentParser(add_help=False)
+    pre_parser.add_argument("--lang", choices=["es", "en"], default="es")
+    pre_args, __ = pre_parser.parse_known_args()
+    global LANG
+    LANG = pre_args.lang
+
     parser = argparse.ArgumentParser(
         prog="Scan_SSL",
-        description=f"SCAN SSL {VERSION} — Auditor de seguridad SSL/TLS con PQC y cumplimiento normativo.",
-        epilog="Documentación: https://github.com/apuromafo/Repositorio_Python/tree/main/069_SSL_Scan",
+        description=f"SCAN SSL {VERSION} — {'Auditor de seguridad SSL/TLS con PQC' if LANG == 'es' else 'SSL/TLS Security Auditor with PQC'}.",
+        epilog=f"{'Documentación' if LANG == 'es' else 'Docs'}: https://github.com/apuromafo/Repositorio_Python/tree/main/069_SSL_Scan",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("-t", "--target", help="Dominio o IP a escanear (ej: example.com)")
-    parser.add_argument("-f", "--file", help="Carga de evidencia offline (ruta a carpeta con EVIDENCIA_SSLSCAN.log)")
-    parser.add_argument("-c", "--curl", action="store_true", help="Genera comandos curl compatibles para verificación manual SSL/TLS")
+    parser.add_argument("-t", "--target", help=f"{'Dominio o IP a escanear (ej: example.com)' if LANG == 'es' else 'Domain or IP to scan (e.g. example.com)'}")
+    parser.add_argument("-f", "--file", help=f"{'Carga de evidencia offline (carpeta con EVIDENCIA_SSLSCAN.log)' if LANG == 'es' else 'Load offline evidence (folder with EVIDENCIA_SSLSCAN.log)'}")
+    parser.add_argument("-c", "--curl", action="store_true", help=f"{'Genera comandos curl para verificación manual SSL/TLS' if LANG == 'es' else 'Generate curl commands for manual SSL/TLS verification'}")
+    parser.add_argument("--lang", choices=["es", "en"], default="es", help=f"{'Idioma: es=español, en=english' if LANG == 'es' else 'Language: es=spanish, en=english'}")
     parser.add_argument("-V", "--version", action="version", version=f"%(prog)s {VERSION}")
     args = parser.parse_args()
 
@@ -423,14 +697,18 @@ def main():
             if args.curl:
                 generar_curls(args.file, folder=args.file)
         else:
-            print(f"{Fore.RED}[✘] No se encontró evidencia en la ruta especificada.")
+            print(f"{Fore.RED}[✘] {_('no_evidencia')}{Style.RESET_ALL}")
         return
 
     if args.target:
         if not provisionar_binario(): return
-        print(f"{Fore.YELLOW}[*] Ejecutando análisis técnico sobre {args.target}...")
+        print(f"{Fore.YELLOW}[*] {_('analizando', target=args.target)}...{Style.RESET_ALL}")
+        print(f"  {Fore.YELLOW}{Style.BRIGHT}{_('disclaimer_title')}{Style.RESET_ALL}")
+        print(f"  {Fore.YELLOW}▶ {_('disclaimer_auth')}{Style.RESET_ALL}")
+        print(f"  {Fore.YELLOW}▶ {_('disclaimer_no_perjuicio')}{Style.RESET_ALL}")
+        print(f"  {Fore.YELLOW}▶ {_('disclaimer_cvss')}{Style.RESET_ALL}")
         
-        proc = subprocess.run([SSLSCAN_BINARY, "--no-colour", args.target], capture_output=True, text=True)
+        proc = subprocess.run([SSLSCAN_BIN, "--no-colour", args.target], capture_output=True, text=True)
         
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         folder = os.path.join(RAIZ_RESULTADOS, f"{args.target.replace('.','_')}_{stamp}")
@@ -450,26 +728,32 @@ def main():
 
         ts_resumen = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         print(f"\n{Fore.CYAN}{Style.BRIGHT}╔{'═'*70}╗")
-        print(f"║{'RESUMEN DE LA EJECUCIÓN':^70}║")
+        print(f"║{_('resumen_ejecucion'):^70}║")
         print(f"╠{'═'*70}╣")
-        print(f"║ {'Target:':30} {args.target:<37} ║")
-        print(f"║ {'Fecha:':30} {ts_resumen:<37} ║")
-        print(f"║ {'Estado:':30} {Fore.GREEN}{'COMPLETADO':<37}{Style.RESET_ALL} ║")
-        print(f"║ {'Evidencia:':30} {folder:<37} ║")
+        print(f"║ {_('target'):30} {args.target:<37} ║")
+        print(f"║ {_('fecha'):30} {ts_resumen:<37} ║")
+        print(f"║ {_('estado'):30} {Fore.GREEN}{_('completado'):<37}{Style.RESET_ALL} ║")
+        print(f"║ {_('evidencia'):30} {folder:<37} ║")
         archivos = os.listdir(folder)
         for a in archivos:
             print(f"║ {'':30} {Fore.YELLOW}├─ {a:<35}{Style.RESET_ALL} ║")
         print(f"╚{'═'*70}╝{Style.RESET_ALL}")
     else:
+        b1 = _("banner_titulo", ver=VERSION)
+        b2 = _("banner_linea2")
         print(f"\n{Fore.CYAN}{Style.BRIGHT}╔{'═'*70}╗")
-        print(f"║{'SCAN SSL ' + VERSION + ' — AUDITOR DE SEGURIDAD SSL/TLS':^70}║")
-        print(f"║{'PCI DSS 4.0.1 | NIST SP 800-52 | FIPS 203/204 | CVSS 4.0/3.1':^70}║")
+        print(f"║{b1:^70}║")
+        print(f"║{b2:^70}║")
         print(f"╚{'═'*70}╝{Style.RESET_ALL}")
-        print(f"\n  {Fore.GREEN}Uso:{Style.RESET_ALL} python Scan_ssl_v3.py -t <dominio>")
-        print(f"  {Fore.GREEN}Ej:{Style.RESET_ALL}  python Scan_ssl_v3.py -t example.com")
-        print(f"  {Fore.GREEN}Offline:{Style.RESET_ALL} python Scan_ssl_v3.py -f ./Resultados_SSL/example_20260625_120000")
-        print(f"  {Fore.GREEN}Info:{Style.RESET_ALL}  python Scan_ssl_v3.py -h")
-        print(f"  {Fore.GREEN}Versión:{Style.RESET_ALL} python Scan_ssl_v3.py --version\n")
+        print(f"  {Fore.YELLOW}{Style.BRIGHT}{_('disclaimer_title')}{Style.RESET_ALL}")
+        print(f"  {Fore.YELLOW}▶ {_('disclaimer_auth')}{Style.RESET_ALL}")
+        print(f"  {Fore.YELLOW}▶ {_('disclaimer_no_perjuicio')}{Style.RESET_ALL}")
+        print(f"  {Fore.YELLOW}▶ {_('disclaimer_cvss')}{Style.RESET_ALL}")
+        print(f"\n  {Fore.GREEN}{_('uso')}:{Style.RESET_ALL} python Scan_ssl_v3.py -t <{'dominio' if LANG == 'es' else 'domain'}>")
+        print(f"  {Fore.GREEN}{_('ejemplo')}:{Style.RESET_ALL}  python Scan_ssl_v3.py -t example.com")
+        print(f"  {Fore.GREEN}{_('offline')}:{Style.RESET_ALL} python Scan_ssl_v3.py -f ./Resultados_SSL/example_20260625_120000")
+        print(f"  {Fore.GREEN}{_('info')}:{Style.RESET_ALL}  python Scan_ssl_v3.py -h")
+        print(f"  {Fore.GREEN}{_('version')}:{Style.RESET_ALL} python Scan_ssl_v3.py --version\n")
 
 if __name__ == "__main__":
     main()
