@@ -1,20 +1,407 @@
-/33_sonarscan_demo/sonarscan
-33_sonarscan_demo/sonar-cnes-report-5.0.2.jar
-33_sonarscan_demo/sonar-project.properties
-33_sonarscan_demo/config.ini.demo
-33_sonarscan_demo/config.ini
-33_sonarscan_demo/_config.ini
-/52_File_Scan_Pattern/scripts/__pycache__
-/42_Google_api_check/Reporte
-/33_sonarscan_demo
-65_convert xml to json/demo..txt
-/52_File_Scan_Pattern/Scan_Reports/2025-12-29
-/033_sonarscan_demo/sonarscan/sonar-scanner-7.3.0.5189-windows-x64
-/052_File_Scan_Pattern/scripts/__pycache__
-/006_Móvil/Android/HermesDecOrchestrator/Old
-/008_Cabeceras_Seguridad/Cors_auditor/OLD
-/033_sonarscan_demo/Old
-008_Cabeceras_Seguridad/Cors_auditor/Cors_auditor.rar
-008_Cabeceras_Seguridad/Cors_auditor/input.txt
-008_Cabeceras_Seguridad/Cors_auditor/input.txt
-/068_SCA_Grype_scan/old
+# Python development
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.pytest_cache/
+.pytest
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+.nose.ids
+.tox/
+.tox-windows/
+.phpunit.result.cache
+
+# Environments
+.venv
+venv/
+ENV
+env/
+ENV/
+env.bak
+venv.bak
+
+# IDE
+.vscode/
+.idea/
+.ipynb_checkpoints
+
+# OS
+.DS_Store
+.DS_Store?
+.*_*
+.Spotlight-V100
+.Trashes
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.swn
+*~
+
+# Documentation
+*.md
+*.md_
+*.md/
+
+# Logs
+*.log
+*.logs
+
+# Environment variables
+.env*
+
+# Data files
+*.csv
+*.tsv
+*.xlsx
+*.json
+*.xml
+*.yaml
+*.yml
+*.ini
+*.cfg
+
+# Binary files
+*.dll
+*.so
+*.dylib
+*.exe
+*.bin
+
+# Build artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.out
+*.log
+
+# Git
+.git
+.gitmodules
+
+# Personal files
+*.key
+*.pem
+*.p12
+*.crt
+*.cer
+
+# Backup files
+*backup*
+*bak*
+
+# Testing artifacts
+*.coverage
+*.html
+*.xml
+
+# Virtual environments
+.venv
+env/
+*.egg-info/
+
+# OS temporary files
+Thumbs.db
+.DS_Store
+
+# Python 3.8 and earlier
+*.py[cod]
+__pycache__/
+*.pyc
+*.pyo
+*__pycache__
+
+# pip
+*.whl
+*.egg
+
+# Poetry
+poetry.lock
+.pytest
+.pytest_cache
+
+# Flask
+instance/*
+.webassets-cache
+
+# Django
+staticfiles/
+db.sqlite3
+.db.sqlite3-journal
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# PyCharm
+.idea/
+.idea/*
+
+# Personal files and logs
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE backup files
+*.swp
+*.swn
+*~
+*backup*
+*bak*
+
+# Environment variable files
+.env*
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Python profiling data
+.prof
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+htmlcov/
+.pytest
+.pytest_cache
+nose.xml
+
+# PyCharm
+.idea/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/git.xml
+.idea/vcs.xml
+.idea/runConfigurations.xml
+.idea/completion-xml
+.idea/codeStyles/codeStyleConfig.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/scopes/scope_settings.xml
+.idea/vcs.xml
+.idea/runConfigurations.xml
+.idea/compiler.xml
+.idea/copyright/profiles_settings.xml
+.idea/executionHistory.xml
+.idea/externalDependencies.xml
+.idea/codeTemplatesSettings.xml
+.idea/templatesSettings.xml
+.idea/encodings.xml
+idea/
+.idea/workspace.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea.run
+*.iml
+*.ipr
+
+# File templates
+*.ini
+*.yaml
+*.yml
+
+# OS watermark
+*.DS_Store
+
+# Video / Audio files
+*.mp4
+*.avi
+*.flv
+*.wav
+*.mp3
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Source archive
+*.rar
+*.zip
+
+# Log files
+*.log
+
+# Database files
+*.sqlite
+*.db
+
+# Session files
+*.session
+
+# Project specific
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+.ipynb_checkpoints
+.Egg-info
+
+# Testing and coverage
+__pycache__/
+*.py[cod]
+.pytest
+.pytest_cache
+htmlcov/
+.coverage
+
+# Virtual environments
+.venv
+env/
+venv.bak
+\ENV\n\ENV\n\venv
+\venv.bak
+
+# IDE and editor configs
+.vscode
+.idea
+.ipynb_checkpoints
+\.tox
+\.venv
+\.poetry
+\.pytest_cache
+
+# Mac OS
+.DS_Store
+\.
+
+# Windows
+temp\
+*.log
+*.tmp
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Build artifacts
+build/
+*.egg-info
+*.egg
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+\.env
+\.vscode
+tmp
+staticfiles/
+
+# Font files
+*.woff
+*.woff2
+*.ttf
+
+# PDF files
+*.pdf
+
+# Private keys
+*.key
+
+# SQL files
+*.sql
+
+# Docker
+Dockerfile*
+.dockerignore
+
+tmp
+htmlcov
+*.pyc
+*.pyo
+__pycache__/
+*htmlcov
+.pytest
+.pytest_cache
+.nose.xml
+
+# Platform
+Thumbs.db
+.DS_Store
+
+# Dependencies
+.pytest
+.pytest_cache
+.tox
+
+# Code coverage
+.coverage
+htmlcov
+
+# Virtual environments
+.venv
+env
+venv.bak
+\.venv
+\.env
+\.env.*\n\.env
+\.venv
+\.tox
+\.mypy.ini
+
+# IDE configs
+\.idea
+\.vscode
+\.sublimetext
+
+# Project specific
+\.log
+\.coverage
+\.temp
+\.backup
