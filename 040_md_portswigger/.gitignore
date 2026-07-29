@@ -1,0 +1,37 @@
+# Python artefacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# Virtual‑env / conda
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Sensitive configuration files
+config.api
+*.pem
+*.key
+*.crt
+*.csr
+*.db
+*.sqlite3
+*.log
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / IDE
+*.swp
+*.swo
+.idea/
+.vscode/
+
+[Oo][Ll][Dd]/
