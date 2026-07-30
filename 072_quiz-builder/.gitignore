@@ -4,9 +4,14 @@
 !*.json
 !*.css
 !*.js
+!LICENSE
+!.gitattributes
 
 # Python
 __pycache__/
 *.pyc
 .pytest_cache/
 *.egg-info/
+
+# backups
+backups/

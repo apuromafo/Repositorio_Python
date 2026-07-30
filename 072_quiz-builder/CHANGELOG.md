@@ -1,21 +1,19 @@
 # Changelog
 
-## [1.0.0] — 2026-07-29
+## 1.0.0 (2026-07-30)
 
-### Added
-- Proyecto inicial Quiz Builder
-- Script `generar.py` para crear examenes desde terminal
-- Template base con 4 modos: Examen, Estudio, Temas, Adaptativo
-- Dashboard HTML para gestion de examenes
-- Temporizador configurable por examen
-- Marcado de preguntas con bandera
-- Atajos de teclado (1-5 respuesta, Enter siguiente, F marcar)
-- Estadisticas por tema con heatmap
-- Historial de intentos y repaso de fallos
-- Exportacion a PDF
-- Datos guardados en localStorage (100% offline)
-- Demo incluido: `demo_quiz/` con datos dummy
-
-### Fixed
-- Correccion en `generar.py`: regex de `timeRemaining` ahora reemplaza correctamente
-  el valor completo (antes dejaba `* 60` residual, duplicando el tiempo)
+- CLI `preguntas.py` con 16 comandos: list, show, add, edit, delete, count, validate, export, import, exams, reindex, doctor, search, stats, backup, grade
+- Soporte multi-idioma ES/EN
+- Validacion de preguntas con `--fix` automatico
+- Escaneo `doctor` para todos los examenes
+- Dashboard HTML con vista profesor/alumno
+- Ranking de alumnos por examen
+- Asignacion de examenes por alumno
+- Exportacion CSV/JSON de calificaciones
+- Panel de configuracion con toggles de features
+- Tipo `likert` para cuestionarios de escala
+- Sistema de calificacion por rangos (`result_ranges`)
+- Nota de aprobacion configurable (`passing_grade`)
+- Comando `grade` con output texto y JSON
+- Renderizado frontend de preguntas likert
+- Licencia MIT

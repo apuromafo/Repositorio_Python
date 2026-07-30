@@ -22,10 +22,23 @@ def main():
 ╚══════════════════════════════════════╝
 ''')
 
+    tipo = preguntar('Tipo (quiz/likert)', 'quiz')
+    passing = preguntar('Nota de aprobacion (0-100, Enter=50)', '50')
+    ranges_raw = preguntar('Rangos de resultado (opcional, ej: "Minimo:0-4|Moderado:5-9|Severo:10-14")', '')
+    result_ranges = []
+    if ranges_raw:
+        for part in ranges_raw.split('|'):
+            m = re.match(r'([^:]+):(\d+)-(\d+)', part.strip())
+            if m:
+                result_ranges.append({'label': m.group(1), 'min': int(m.group(2)), 'max': int(m.group(3)), 'color': 'primary'})
+
     examen = {
         'id': preguntar('ID unico (ej: lpica1_101)', 'mi_examen'),
         'titulo': preguntar('Titulo del examen', 'Mi Examen'),
         'tiempo': int(preguntar('Tiempo en minutos', '90')),
+        'tipo': tipo,
+        'passing_grade': int(passing) if passing else 50,
+        'result_ranges': result_ranges,
         'temas': []
     }
 
@@ -95,6 +108,11 @@ def main():
         html = f.read()
     html = html.replace('{NOMBRE_EXAMEN}', examen['titulo'])
     html = html.replace('{TIEMPO}', str(examen['tiempo']))
+
+    # Fill exam config
+    cfg_json = json.dumps({'tipo': tipo, 'passing_grade': int(passing) if passing else 50, 'result_ranges': result_ranges})
+    html = html.replace("var _examConfig = { tipo: 'quiz', passing_grade: 50, result_ranges: [] };", f'var _examConfig = {cfg_json};')
+
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(html)
 
@@ -143,13 +161,19 @@ def main():
         with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
             examenes = json.load(f)
 
-    examenes.append({
+    entry = {
         'id': examen['id'],
         'titulo': examen['titulo'],
         'tiempo': examen['tiempo'],
+        'tipo': tipo,
         'temas': examen['temas'],
         'creado': datetime.now().strftime('%Y-%m-%d %H:%M')
-    })
+    }
+    if tipo == 'likert':
+        entry['result_ranges'] = result_ranges
+    if passing:
+        entry['passing_grade'] = int(passing) if passing else 50
+    examenes.append(entry)
 
     with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
         json.dump(examenes, f, indent=2, ensure_ascii=False)

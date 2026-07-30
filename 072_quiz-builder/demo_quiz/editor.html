@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor de Preguntas</title>
+<link rel="stylesheet" href="css/exam.css">
+<link rel="stylesheet" href="css/themes.css">
+<style>
+.editor-layout { display:flex; height:calc(100vh - 50px); }
+.editor-sidebar { width:320px; background:var(--light); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; }
+.editor-sidebar h3 { margin:0; padding:15px; font-size:0.9rem; color:var(--text-muted); border-bottom:1px solid var(--border); }
+.editor-list { flex:1; overflow-y:auto; padding:8px; }
+.editor-list .q-card { padding:10px; margin-bottom:6px; border-radius:6px; cursor:pointer; border:1px solid var(--border); background:var(--surface); font-size:0.85rem; transition:.15s; }
+.editor-list .q-card:hover { border-color:var(--primary); }
+.editor-list .q-card.active { border-color:var(--primary); background:rgba(59,130,246,.15); }
+.editor-list .q-card .q-topic { font-size:.75rem; color:var(--text-muted); }
+.editor-list .q-card .q-text { color:var(--text); margin-top:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.editor-list .q-card .q-meta { font-size:.7rem; color:var(--text-muted); margin-top:4px; display:flex; gap:8px; }
+.editor-main { flex:1; padding:24px; overflow-y:auto; max-width:800px; margin:0 auto; width:100%; }
+.editor-main h2 { margin:0 0 20px; color:var(--text); }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:.85rem; color:var(--text-muted); margin-bottom:4px; font-weight:600; }
+.form-group input,.form-group textarea,.form-group select { width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; font-size:1rem; background:var(--light); color:var(--text); box-sizing:border-box; }
+.form-group textarea { min-height:60px; resize:vertical; font-family:inherit; }
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(59,130,246,.2); }
+.form-row { display:flex; gap:10px; align-items:center; margin-bottom:6px; }
+.form-row input { flex:1; }
+.form-row .btn-del { background:var(--danger); color:#fff; border:none; border-radius:4px; cursor:pointer; padding:4px 10px; font-size:.8rem; }
+.opt-list { margin-bottom:8px; }
+.opt-list .opt-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--border); border-radius:6px; margin-bottom:6px; background:var(--surface); }
+.opt-item .opt-letra { font-weight:700; color:var(--text); min-width:20px; }
+.opt-item .opt-text { flex:1; }
+.opt-item .opt-correct { color:var(--success); font-size:.8rem; }
+.opt-item .opt-btn { background:var(--danger); color:#fff; border:none; border-radius:4px; cursor:pointer; padding:2px 8px; font-size:.75rem; }
+.opt-add { margin-top:4px; }
+.empty-state { text-align:center; padding:40px; color:var(--text-muted); }
+.editor-toolbar { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.editor-toolbar select { padding:8px; border:1px solid var(--border); border-radius:6px; background:var(--light); color:var(--text); font-size:.9rem; }
+.img-preview { max-width:200px; max-height:120px; border-radius:6px; margin-top:6px; border:1px solid var(--border); display:block; object-fit:cover; }
+.tab-bar { display:flex; border-bottom:1px solid var(--border); margin-bottom:20px; }
+.tab-bar button { padding:10px 20px; border:none; background:none; color:var(--text-muted); cursor:pointer; font-size:.9rem; border-bottom:2px solid transparent; }
+.tab-bar button.active { color:var(--primary); border-bottom-color:var(--primary); }
+.editor-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+.editor-actions .btn { padding:10px 20px; }
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <div style="display:flex;align-items:center;gap:15px;">
+    <a class='nav-btn' href='index.html'>Volver al examen</a>
+    <h1 style="font-size:1rem;margin:0;font-weight:600;">Editor de Preguntas</h1>
+  </div>
+  <button class="nav-btn" onclick="Editor.sync()" title="Forzar recarga desde preguntas.js">Sincronizar</button>
+</div>
+
+<div class="editor-layout">
+  <div class="editor-sidebar">
+    <h3>Preguntas <span id="q-total" style="font-weight:400"></span></h3>
+    <div style="padding:8px;border-bottom:1px solid var(--border);display:flex;gap:4px;flex-wrap:wrap;">
+      <select id="filter-topic" style="flex:1;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--light);color:var(--text);font-size:.8rem;">
+        <option value="">Todas</option>
+      </select>
+      <button class="nav-btn" onclick="Editor.add()" title="Nueva pregunta">+</button>
+    </div>
+    <div class="editor-list" id="question-list"></div>
+  </div>
+
+  <div class="editor-main" id="editor-main">
+
+    <div class="empty-state" id="empty-state">
+      <p style="font-size:1.2rem;margin-bottom:10px;">Sin preguntas</p>
+      <p>Agrega una pregunta usando el boton + de la izquierda</p>
+    </div>
+
+    <div id="editor-form" style="display:none;">
+      <h2 id="form-title">Nueva Pregunta</h2>
+
+      <div class="editor-toolbar">
+        <select id="q-type" onchange="Editor.onTypeChange()">
+          <option value="choice">Opción multiple (unica)</option>
+          <option value="multi">Opción multiple (varias)</option>
+          <option value="input">Texto libre</option>
+        </select>
+        <select id="q-topic">
+          <option value="">Seleccionar tema...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Enunciado</label>
+        <textarea id="q-question" rows="3" placeholder="Escribe la pregunta..."></textarea>
+      </div>
+
+      <div class="form-group" id="image-group">
+        <label>Imagen (opcional)</label>
+        <div style="display:flex;gap:8px;">
+          <input id="q-image" placeholder="URL de la imagen o dejar vacio">
+          <input type="file" id="q-image-file" accept="image/*" style="display:none">
+          <button class="nav-btn" onclick="document.getElementById('q-image-file').click()">Subir</button>
+        </div>
+        <img id="q-image-preview" class="img-preview" style="display:none;">
+      </div>
+
+      <div id="options-section">
+        <div class="form-group">
+          <label>Opciones de respuesta</label>
+          <div class="opt-list" id="opt-list"></div>
+          <button class="btn btn-secondary" onclick="Editor.addOption()" style="font-size:.85rem;padding:6px 12px;">+ Agregar opcion</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Respuesta(s) correcta(s)</label>
+        <div id="answer-section"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Explicacion (opcional)</label>
+        <textarea id="q-explanation" rows="2" placeholder="Por que es correcta..."></textarea>
+      </div>
+
+      <div class="editor-actions">
+        <button class="btn btn-primary" onclick="Editor.save()">Guardar</button>
+        <button class="btn btn-secondary" onclick="Editor.cancel()">Cancelar</button>
+        <button class="btn btn-danger" id="btn-delete" style="margin-left:auto;display:none;" onclick="Editor.remove()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const Editor = {
+  questions: [],
+  editingId: null,
+
+  init() {
+    this.load()
+    this.renderList()
+    this.populateTopicFilter()
+    this.populateTopicSelect()
+    document.getElementById('filter-topic').onchange = () => this.renderList()
+    document.getElementById('q-image').oninput = () => this.previewImage()
+    document.getElementById('q-image-file').onchange = (e) => this.handleFile(e)
+  },
+
+  load() {
+    if (typeof questionBank !== 'undefined' && Array.isArray(questionBank)) {
+      this.questions = JSON.parse(JSON.stringify(questionBank))
+    } else {
+      this.questions = []
+    }
+    document.getElementById('q-total').textContent = `(${this.questions.length})`
+  },
+
+  sync() {
+    this.load()
+    this.renderList()
+    this.populateTopicFilter()
+    this.populateTopicSelect()
+    if (!this.editingId) this.showEmpty()
+  },
+
+  populateTopicFilter() {
+    const sel = document.getElementById('filter-topic')
+    const current = sel.value
+    sel.innerHTML = '<option value="">Todas</option>'
+    const topics = [...new Set(this.questions.map(q => q.topic))].sort()
+    topics.forEach(t => {
+      const opt = document.createElement('option')
+      opt.value = t; opt.textContent = (AppState.topicNames && AppState.topicNames[t]) || t
+      sel.appendChild(opt)
+    })
+    sel.value = current
+  },
+
+  populateTopicSelect() {
+    const sel = document.getElementById('q-topic')
+    sel.innerHTML = '<option value="">Seleccionar tema...</option>'
+    const topics = [...new Set(this.questions.map(q => q.topic))].sort()
+    if (AppState.topicNames) {
+      topics.forEach(t => {
+        const opt = document.createElement('option')
+        opt.value = t; opt.textContent = AppState.topicNames[t] || t
+        sel.appendChild(opt)
+      })
+    }
+  },
+
+  renderList() {
+    const container = document.getElementById('question-list')
+    const filter = document.getElementById('filter-topic').value
+    let qs = filter ? this.questions.filter(q => q.topic === filter) : this.questions
+    if (!qs.length) {
+      container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:.85rem;">Sin preguntas</div>'
+      return
+    }
+    container.innerHTML = qs.map(q => {
+      const isMulti = Array.isArray(q.answer)
+      const isInput = q.type === 'input'
+      const hasImg = !!q.image
+      const tags = []
+      if (isInput) tags.push('texto')
+      else if (isMulti) tags.push('multi')
+      else tags.push('unica')
+      if (hasImg) tags.push('img')
+      const active = q.id === this.editingId ? ' active' : ''
+      return `<div class="q-card${active}" onclick="Editor.edit(${q.id})">
+        <div class="q-topic">${AppState.topicNames && AppState.topicNames[q.topic] || q.topic}</div>
+        <div class="q-text">${(q.question || '?').substring(0, 80)}</div>
+        <div class="q-meta"><span>#${q.id}</span><span>${tags.join(' | ')}</span></div>
+      </div>`
+    }).join('')
+  },
+
+  add() {
+    this.editingId = null
+    document.getElementById('form-title').textContent = 'Nueva Pregunta'
+    document.getElementById('btn-delete').style.display = 'none'
+    document.getElementById('empty-state').style.display = 'none'
+    document.getElementById('editor-form').style.display = 'block'
+    this.clearForm()
+    this.onTypeChange()
+  },
+
+  edit(id) {
+    const q = this.questions.find(x => x.id === id)
+    if (!q) return
+    this.editingId = id
+    document.getElementById('form-title').textContent = `Editar #${id}`
+    document.getElementById('btn-delete').style.display = 'inline-block'
+    document.getElementById('empty-state').style.display = 'none'
+    document.getElementById('editor-form').style.display = 'block'
+    this.fillForm(q)
+    this.renderList()
+  },
+
+  cancel() {
+    this.editingId = null
+    this.renderList()
+    this.showEmpty()
+  },
+
+  showEmpty() {
+    document.getElementById('editor-form').style.display = 'none'
+    document.getElementById('empty-state').style.display = 'block'
+  },
+
+  clearForm() {
+    document.getElementById('q-type').value = 'choice'
+    document.getElementById('q-topic').value = ''
+    document.getElementById('q-question').value = ''
+    document.getElementById('q-image').value = ''
+    document.getElementById('q-image-preview').style.display = 'none'
+    document.getElementById('q-explanation').value = ''
+    this.renderOptions([])
+    this.renderAnswer()
+  },
+
+  fillForm(q) {
+    const isInput = q.type === 'input'
+    const isMulti = Array.isArray(q.answer)
+    document.getElementById('q-type').value = isInput ? 'input' : isMulti ? 'multi' : 'choice'
+    document.getElementById('q-topic').value = q.topic || ''
+    document.getElementById('q-question').value = q.question || ''
+    document.getElementById('q-image').value = q.image || ''
+    document.getElementById('q-explanation').value = q.explanation || ''
+    this.previewImage()
+    if (!isInput && q.options) {
+      this.renderOptions(q.options, q.answer)
+    } else {
+      this.renderOptions([])
+    }
+    this.onTypeChange()
+    if (isInput) {
+      this.renderAnswer(q.answer)
+    } else {
+      this.renderAnswer(q.answer)
+    }
+  },
+
+  onTypeChange() {
+    const type = document.getElementById('q-type').value
+    const section = document.getElementById('options-section')
+    if (type === 'input') {
+      section.style.display = 'none'
+      this.renderAnswer()
+    } else {
+      section.style.display = 'block'
+    }
+  },
+
+  renderOptions(options, answer) {
+    const list = document.getElementById('opt-list')
+    const isMulti = Array.isArray(answer)
+    const correctArr = isMulti ? answer : (answer !== undefined ? [answer] : [])
+    list.innerHTML = options.map((opt, i) => {
+      const letra = String.fromCharCode(65 + i)
+      const checked = correctArr.includes(i)
+      return `<div class="opt-item">
+        <span class="opt-letra">${letra}</span>
+        <input class="opt-text" value="${opt.replace(/"/g,'&quot;')}" onchange="Editor.onOptChange()" placeholder="Opcion ${letra}">
+        <span class="opt-correct" style="${checked?'':'display:none'}">Correcta</span>
+        <button class="opt-btn" onclick="Editor.removeOption(${i})">x</button>
+      </div>`
+    }).join('')
+    this.renderAnswer()
+  },
+
+  addOption() {
+    const list = document.getElementById('opt-list')
+    const i = list.children.length
+    const letra = String.fromCharCode(65 + i)
+    const div = document.createElement('div')
+    div.className = 'opt-item'
+    div.innerHTML = `<span class="opt-letra">${letra}</span>
+      <input class="opt-text" value="" onchange="Editor.onOptChange()" placeholder="Opcion ${letra}">
+      <span class="opt-correct" style="display:none">Correcta</span>
+      <button class="opt-btn" onclick="Editor.removeOption(${i})">x</button>`
+    list.appendChild(div)
+    this.renderAnswer()
+  },
+
+  removeOption(idx) {
+    const list = document.getElementById('opt-list')
+    if (list.children.length <= 2) return
+    list.children[idx].remove()
+    this.reindexOptions()
+    this.renderAnswer()
+  },
+
+  reindexOptions() {
+    const items = document.querySelectorAll('#opt-list .opt-item')
+    items.forEach((item, i) => {
+      const letra = String.fromCharCode(65 + i)
+      item.querySelector('.opt-letra').textContent = letra
+      item.querySelector('.opt-text').placeholder = `Opcion ${letra}`
+      item.querySelector('.opt-btn').onclick = () => this.removeOption(i)
+    })
+    this.renderAnswer()
+  },
+
+  onOptChange() {
+    this.renderAnswer()
+  },
+
+  renderAnswer(forceAnswer) {
+    const type = document.getElementById('q-type').value
+    const container = document.getElementById('answer-section')
+    if (type === 'input') {
+      const val = forceAnswer ? (Array.isArray(forceAnswer) ? forceAnswer.join(' | ') : String(forceAnswer)) : ''
+      container.innerHTML = `<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:4px;">Respuestas separadas por |</p>
+        <input id="answer-input" value="${val}" placeholder="ej: Paris | La Ciudad Luz">`
+      return
+    }
+    const opts = document.querySelectorAll('#opt-list .opt-item')
+    const isMulti = type === 'multi'
+    container.innerHTML = opts.map((item, i) => {
+      const letra = String.fromCharCode(65 + i)
+      const inputType = isMulti ? 'checkbox' : 'radio'
+      const name = isMulti ? 'answer-multi' : 'answer-single'
+      const checked = forceAnswer !== undefined
+        ? (Array.isArray(forceAnswer) ? forceAnswer.includes(i) : forceAnswer === i)
+        : false
+      return `<label style="display:flex;align-items:center;gap:8px;padding:6px;cursor:pointer;border-radius:4px;hover:background:var(--surface);color:var(--text)">
+        <input type="${inputType}" name="${name}" value="${i}" ${checked?'checked':''} onchange="Editor.onAnswerChange()">
+        <strong>${letra}</strong>
+        <span>${item.querySelector('.opt-text').value || `Opcion ${letra}`}</span>
+      </label>`
+    }).join('')
+  },
+
+  onAnswerChange() {
+    document.querySelectorAll('#opt-list .opt-item .opt-correct').forEach(el => el.style.display = 'none')
+    const type = document.getElementById('q-type').value
+    const checked = document.querySelectorAll('#answer-section input:checked')
+    checked.forEach(cb => {
+      const i = parseInt(cb.value)
+      const items = document.querySelectorAll('#opt-list .opt-item')
+      if (items[i]) items[i].querySelector('.opt-correct').style.display = 'inline'
+    })
+  },
+
+  save() {
+    const type = document.getElementById('q-type').value
+    const topic = document.getElementById('q-topic').value
+    const question = document.getElementById('q-question').value.trim()
+    const image = document.getElementById('q-image').value.trim()
+    const explanation = document.getElementById('q-explanation').value.trim()
+
+    if (!topic) { alert('Selecciona un tema.'); return }
+    if (!question) { alert('Escribe el enunciado.'); return }
+
+    let q
+    const existing = this.editingId ? this.questions.find(x => x.id === this.editingId) : null
+    if (existing) {
+      q = existing
+    } else {
+      const maxId = this.questions.reduce((m, x) => Math.max(m, x.id || 0), 0)
+      q = { id: maxId + 1 }
+      this.questions.push(q)
+    }
+
+    q.topic = topic
+    q.question = question
+    q.image = image || undefined
+    q.explanation = explanation || undefined
+
+    if (type === 'input') {
+      q.type = 'input'
+      delete q.options
+      const raw = document.getElementById('answer-input').value
+      q.answer = raw.split('|').map(s => s.trim()).filter(Boolean)
+      if (!q.answer.length) { alert('Ingresa al menos una respuesta.'); return }
+    } else {
+      delete q.type
+      const opts = []
+      document.querySelectorAll('#opt-list .opt-text').forEach(inp => {
+        if (inp.value.trim()) opts.push(inp.value.trim())
+      })
+      if (opts.length < 2) { alert('Minimo 2 opciones.'); return }
+      q.options = opts
+      const checked = document.querySelectorAll('#answer-section input:checked')
+      const vals = Array.from(checked).map(cb => parseInt(cb.value))
+      if (!vals.length) { alert('Selecciona la respuesta correcta.'); return }
+      q.answer = type === 'multi' ? vals : vals[0]
+    }
+
+    this.saveToDisk()
+    this.renderList()
+    this.populateTopicFilter()
+    this.populateTopicSelect()
+    this.editingId = q.id
+    this.fillForm(q)
+    this.renderList()
+    alert('Guardado. Recuerda reemplazar el archivo preguntas.js en la carpeta del examen.')
+  },
+
+  remove() {
+    if (!this.editingId) return
+    if (!confirm('Eliminar esta pregunta?')) return
+    this.questions = this.questions.filter(q => q.id !== this.editingId)
+    this.editingId = null
+    this.saveToDisk()
+    this.renderList()
+    this.populateTopicFilter()
+    this.populateTopicSelect()
+    this.showEmpty()
+  },
+
+  saveToDisk() {
+    const qs = this.questions
+    const lines = []
+    lines.push('// ============================================================')
+    lines.push('// PREGUNTAS — ' + (AppState.title || 'Examen'))
+    lines.push('// ============================================================')
+    lines.push('// ID: ' + (AppState.examId || ''))
+    lines.push('')
+    lines.push('const questionBank = [')
+    qs.forEach((q, idx) => {
+      if (idx > 0) lines.push('')
+      lines.push('    {')
+      const keys = ['id', 'type', 'topic', 'question', 'image', 'options', 'answer', 'explanation']
+      keys.forEach(k => {
+        if (q[k] === undefined || q[k] === null) return
+        const v = q[k]
+        if (typeof v === 'string') {
+          const esc = v.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,'\\n')
+          lines.push(`        ${k}: "${esc}",`)
+        } else if (typeof v === 'boolean') {
+          lines.push(`        ${k}: ${v},`)
+        } else if (typeof v === 'number') {
+          lines.push(`        ${k}: ${v},`)
+        } else if (Array.isArray(v)) {
+          if (k === 'answer' && v.every(x => typeof x === 'number')) {
+            lines.push(`        ${k}: [${v.join(', ')}],`)
+          } else {
+            lines.push(`        ${k}: [${v.map(x => '"' + x.replace(/"/g,'\\"') + '"').join(', ')}],`)
+          }
+        }
+      })
+      lines.push('    },')
+    })
+    lines.push('];')
+    const blob = new Blob([lines.join('\n')], { type: 'text/javascript' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = 'preguntas.js'
+    a.click()
+    URL.revokeObjectURL(a.href)
+  },
+
+  previewImage() {
+    const url = document.getElementById('q-image').value
+    const img = document.getElementById('q-image-preview')
+    if (url) {
+      img.src = url
+      img.style.display = 'block'
+    } else {
+      img.style.display = 'none'
+    }
+  },
+
+  handleFile(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      document.getElementById('q-image').value = ev.target.result
+      this.previewImage()
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => Editor.init())
+</script>
+</body>
+</html>
