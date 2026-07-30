@@ -1,0 +1,80 @@
+const Lang = {
+    code: 'es',
+    name: 'Español',
+    nav: {
+        home: 'Inicio',
+        restart: 'Reiniciar',
+        settings: 'Configuracion'
+    },
+    menu: {
+        welcome: 'Bienvenido',
+        questions_loaded: 'Preguntas cargadas',
+        exam_mode: 'Modo Examen',
+        study_mode: 'Modo Estudio',
+        topic_study: 'Estudio por Temas',
+        adaptive_mode: 'Modo Adaptativo',
+        stats: 'Ver Estadisticas',
+        review_mistakes: 'Repasar fallos',
+        export_pdf: 'Exportar PDF',
+        minutes: 'min'
+    },
+    exam: {
+        question_of: 'Pregunta {n} de {t}',
+        topic: 'Tema',
+        answered: 'Respondidas',
+        pending: 'Pendientes',
+        flagged: 'Marcadas',
+        flag: 'Marcar',
+        unflag: 'Desmarcar',
+        previous: 'Anterior',
+        next: 'Siguiente',
+        finish: 'Finalizar',
+        finished: 'Examen Finalizado',
+        results: 'Resultados',
+        score: 'Puntaje',
+        correct: 'Correctas',
+        incorrect: 'Incorrectas',
+        review: 'Ver Fallos',
+        new_exam: 'Nuevo Examen',
+        select_topic: 'Selecciona un Tema',
+        cancel: 'Cancelar',
+        confirm_restart: 'Se ha encontrado un examen guardado. Deseas continuar?',
+        confirm_reset: 'Reiniciar examen? Se perdera tu progreso actual.',
+        no_questions: 'No hay preguntas disponibles.'
+    },
+    settings: {
+        title: 'Configuracion',
+        theme: 'Tema visual',
+        language: 'Idioma',
+        font_size: 'Tamano de letra',
+        font_small: 'Pequena',
+        font_normal: 'Normal',
+        font_large: 'Grande',
+        show_timer: 'Mostrar temporizador',
+        auto_save: 'Auto-guardar progreso',
+        save: 'Guardar',
+        saved: 'Configuracion guardada',
+        themes: {
+            dark: 'Oscuro',
+            light: 'Claro',
+            sepia: 'Sepia',
+            hc: 'Alto contraste'
+        }
+    },
+    pdf: {
+        title: 'Exportar a PDF',
+        practice: 'Modo Practica',
+        study: 'Modo Estudio',
+        official: 'Test Oficial',
+        select_topics: 'Seleccionar todos',
+        include_explanations: 'Incluir explicaciones',
+        include_ids: 'Mostrar IDs',
+        randomize: 'Orden aleatorio',
+        generate: 'Generar PDF',
+        cancel: 'Cancelar',
+        generating: 'Generando PDF...',
+        no_topics: 'Selecciona al menos un tema.',
+        no_questions: 'No hay preguntas para los temas seleccionados.',
+        error: 'Error al generar el PDF.'
+    }
+}

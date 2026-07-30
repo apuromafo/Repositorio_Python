@@ -1,0 +1,324 @@
+/* ==========================================
+   ESTILOS PARA EXPORTACIÓN PDF - DARK MODE
+   ========================================== */
+
+/* Modal Overlay */
+.pdf-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal Content */
+.pdf-modal-content {
+    background: var(--light, #1e293b);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.3s ease;
+    border: 1px solid var(--border, #475569);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Header */
+.pdf-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border, #475569);
+    background: var(--dark, #0f172a);
+    border-radius: 12px 12px 0 0;
+}
+
+.pdf-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text, #e2e8f0);
+}
+
+.pdf-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted, #94a3b8);
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.pdf-modal-close:hover {
+    background: var(--danger, #ef4444);
+    color: white;
+}
+
+/* Modal Body */
+.pdf-modal-body {
+    padding: 24px;
+    background: var(--light, #1e293b);
+}
+
+.pdf-section {
+    margin-bottom: 24px;
+}
+
+.pdf-section:last-child {
+    margin-bottom: 0;
+}
+
+.pdf-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted, #94a3b8);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Mode Grid */
+.pdf-mode-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.pdf-mode-option {
+    cursor: pointer;
+}
+
+.pdf-mode-option input {
+    display: none;
+}
+
+.pdf-mode-card {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 16px;
+    border: 2px solid var(--border, #475569);
+    border-radius: 8px;
+    transition: all 0.2s;
+    background: var(--surface, #334155);
+    color: var(--text, #e2e8f0);
+}
+
+.pdf-mode-option input:checked + .pdf-mode-card {
+    border-color: var(--primary, #3b82f6);
+    background: rgba(59, 130, 246, 0.15);
+}
+
+.pdf-mode-card:hover {
+    border-color: var(--primary, #3b82f6);
+}
+
+.pdf-mode-icon {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+}
+
+.pdf-mode-card strong {
+    color: var(--text, #e2e8f0);
+    margin-bottom: 4px;
+}
+
+.pdf-mode-card small {
+    color: var(--text-muted, #94a3b8);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+/* Topic Grid */
+.pdf-topic-header {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border, #475569);
+}
+
+.pdf-topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.pdf-topic-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pdf-topic-grid::-webkit-scrollbar-track {
+    background: var(--dark, #0f172a);
+    border-radius: 3px;
+}
+
+.pdf-topic-grid::-webkit-scrollbar-thumb {
+    background: var(--border, #475569);
+    border-radius: 3px;
+}
+
+.pdf-topic-grid::-webkit-scrollbar-thumb:hover {
+    background: var(--primary, #3b82f6);
+}
+
+.pdf-topic-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    color: var(--text, #e2e8f0);
+}
+
+.pdf-topic-checkbox:hover {
+    background: var(--surface, #334155);
+}
+
+.pdf-topic-checkbox small {
+    color: var(--text-muted, #94a3b8);
+    margin-left: auto;
+}
+
+/* Checkboxes */
+.pdf-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text, #e2e8f0);
+}
+
+.pdf-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary, #3b82f6);
+    cursor: pointer;
+}
+
+/* Options Grid */
+.pdf-options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Modal Footer */
+.pdf-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border, #475569);
+    background: var(--dark, #0f172a);
+    border-radius: 0 0 12px 12px;
+}
+
+.pdf-modal-footer .btn {
+    padding: 10px 20px;
+    font-weight: 500;
+}
+
+/* Botones específicos en footer PDF */
+.pdf-modal-footer .btn-primary {
+    background: var(--primary, #3b82f6);
+    color: white;
+}
+
+.pdf-modal-footer .btn-primary:hover {
+    background: #2563eb;
+}
+
+.pdf-modal-footer .btn-secondary {
+    background: var(--surface, #334155);
+    border-color: var(--border, #475569);
+    color: var(--text, #e2e8f0);
+}
+
+.pdf-modal-footer .btn-secondary:hover {
+    background: var(--border, #475569);
+}
+
+/* Loading Overlay */
+.pdf-loading-content {
+    background: var(--light, #1e293b);
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid var(--border, #475569);
+}
+
+.pdf-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border, #475569);
+    border-top-color: var(--primary, #3b82f6);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.pdf-loading-content p {
+    margin: 0;
+    color: var(--text, #e2e8f0);
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+@media (max-width: 640px) {
+    .pdf-modal-content {
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .pdf-modal-header,
+    .pdf-modal-body,
+    .pdf-modal-footer {
+        padding: 16px;
+    }
+
+    .pdf-topic-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pdf-mode-card {
+        padding: 12px;
+    }
+}

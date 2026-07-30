@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Test Final</title>
+    <link rel="stylesheet" href="css/exam.css">
+    <link rel="stylesheet" href="css/pdf-export.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <script src="js/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+    <div class="top-nav">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <a class='nav-btn' href='index.html'>Inicio</a>
+            <h1 id="page-title">Test Final</h1>
+        </div>
+        <div id="top-controls" style="display:none;">
+            <button class="nav-btn" onclick="app.resetExam()">Reiniciar</button>
+        </div>
+        <button class="nav-btn" onclick="Settings.showModal()" title="Configuracion">Config</button>
+    </div>
+
+    <div class="container">
+
+        <div class="sidebar" id="sidebar" style="display:none;">
+            <div class="sidebar-header">
+                <div class="timer" id="timer-display">90:00</div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-answered" style="color:var(--success)">0</span>
+                        <span>Respondidas</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-pending" style="color:var(--danger)">0</span>
+                        <span>Pendientes</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-flagged" style="color:var(--warning)">0</span>
+                        <span>Marcadas</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigator">
+                <div class="nav-grid" id="nav-grid"></div>
+            </div>
+        </div>
+
+        <div class="content-area" id="content-area">
+            <div id="menu-screen" style="text-align: center; margin-top: 50px;">
+                <h2>Bienvenido - Test Final</h2>
+                <p style="color:#64748b; margin-bottom:30px;">Preguntas cargadas: <span id="q-count">0</span></p>
+
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap: wrap; margin-bottom:15px;">
+                    <button class="btn btn-primary" style="font-size:1.1rem; padding:15px 30px;" onclick="app.startExam('exam')">
+                        Modo Examen (30 min)
+                    </button>
+                    <button class="btn btn-secondary" style="font-size:1.1rem; padding:15px 30px;" onclick="app.startExam('study')">
+                        Modo Estudio (Libre)
+                    </button>
+                    <button class="btn btn-secondary" style="font-size:1.1rem; padding:15px 30px;" onclick="app.showTopicSelector()">
+                        Estudio por Temas
+                    </button>
+                    <button class="btn btn-secondary" style="font-size:1.1rem; padding:15px 30px;" onclick="app.startAdaptiveExam()">
+                        Modo Adaptativo
+                    </button>
+                </div>
+
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap: wrap;">
+                    <button class="btn btn-outline" onclick="Profile.show()">
+                        Ver Estadisticas
+                    </button>
+                    <button class="btn btn-outline" onclick="MistakesHistory.review()">
+                        Repasar fallos
+                    </button>
+                    <button class="btn btn-outline" onclick="PDFExport.showModal()">
+                        Exportar PDF
+                    </button>
+                </div>
+
+                <div id="history-container" style="margin-top:40px; text-align:left; max-width:400px; margin-left:auto; margin-right:auto;">
+                    <h3>Historial</h3>
+                    <ul id="history-list" style="list-style:none; padding:0; font-size:0.9rem; color:#64748b;"></ul>
+                </div>
+            </div>
+
+            <div class="question-container" id="question-container" style="display:none;">
+                <div class="q-meta">
+                    <span id="q-counter">Pregunta 1 de {TOTAL}</span> | Tema: <span id="q-topic-display">General</span>
+                </div>
+                <div class="q-text" id="q-text"></div>
+                <img id="q-image" class="q-image" style="display:none;">
+
+                <div class="options-container" id="options-container"></div>
+
+                <div class="action-bar">
+                    <div>
+                        <button class="btn btn-secondary" onclick="app.prevQuestion()">Anterior</button>
+                        <button class="btn btn-primary" onclick="app.nextQuestion()">Siguiente</button>
+                    </div>
+                    <div>
+                        <button id="btn-flag" class="btn btn-warning" onclick="app.toggleFlag()">Marcar</button>
+                        <button class="btn btn-danger" onclick="app.finishExam()" style="margin-left:10px;">Finalizar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results-screen" style="display:none; text-align:center; margin-top:50px;">
+                <h2>Examen Finalizado</h2>
+                <div style="font-size:3rem; font-weight:bold; color:var(--primary); margin:20px;" id="score-display">0%</div>
+                <p id="score-details"></p>
+                <div style="margin-top:20px;">
+                    <button class="btn btn-primary" onclick="app.reviewMistakes()">Ver Fallos</button>
+                    <button class="btn btn-secondary" onclick="app.resetExam()" style="margin-left:10px;">Nuevo Examen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="topic-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Selecciona un Tema</h3>
+            <div id="topic-list" class="topic-grid"></div>
+            <button class="btn btn-secondary" onclick="app.hideTopicSelector()" style="margin-top:20px;">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+    var _examConfig = { tipo: 'quiz', passing_grade: 50, result_ranges: [] };
+    </script>
+    <script src="preguntas.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/shortcuts.js"></script>
+    <script src="js/solution.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/stats.js"></script>
+    <script src="js/exam.js"></script>
+    <script src="js/review.js"></script>
+    <script src="js/mistakesHistory.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/adaptive.js"></script>
+    <script src="js/visualization.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/pdf-export.js"></script>
+    <script src="js/lang-es.js"></script>
+    <script src="js/lang-en.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

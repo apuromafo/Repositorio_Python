@@ -1,0 +1,57 @@
+/* =========================================
+   TEMAS
+   ========================================= */
+[data-theme] {
+    --primary: #3b82f6;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+}
+
+/* DARK (default) */
+[data-theme="dark"], :root {
+    --dark: #0f172a;
+    --light: #1e293b;
+    --surface: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+}
+
+/* LIGHT */
+[data-theme="light"] {
+    --dark: #f8fafc;
+    --light: #ffffff;
+    --surface: #f1f5f9;
+    --border: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #64748b;
+}
+
+/* SEPIA */
+[data-theme="sepia"] {
+    --dark: #fbf3e8;
+    --light: #fef9f2;
+    --surface: #f5ead0;
+    --border: #d4c5a9;
+    --text: #3a2e1e;
+    --text-muted: #7a6e5e;
+    --primary: #8b5cf6;
+    --success: #65a30d;
+    --warning: #d97706;
+    --danger: #dc2626;
+}
+
+/* HIGH CONTRAST */
+[data-theme="hc"] {
+    --dark: #000000;
+    --light: #1a1a1a;
+    --surface: #2a2a2a;
+    --border: #ffffff;
+    --text: #ffffff;
+    --text-muted: #cccccc;
+    --primary: #ffff00;
+    --success: #00ff00;
+    --warning: #ffa500;
+    --danger: #ff0000;
+}

@@ -1,0 +1,80 @@
+const Lang = {
+    code: 'en',
+    name: 'English',
+    nav: {
+        home: 'Home',
+        restart: 'Restart',
+        settings: 'Settings'
+    },
+    menu: {
+        welcome: 'Welcome',
+        questions_loaded: 'Questions loaded',
+        exam_mode: 'Exam Mode',
+        study_mode: 'Study Mode',
+        topic_study: 'Study by Topic',
+        adaptive_mode: 'Adaptive Mode',
+        stats: 'View Statistics',
+        review_mistakes: 'Review Mistakes',
+        export_pdf: 'Export PDF',
+        minutes: 'min'
+    },
+    exam: {
+        question_of: 'Question {n} of {t}',
+        topic: 'Topic',
+        answered: 'Answered',
+        pending: 'Pending',
+        flagged: 'Flagged',
+        flag: 'Flag',
+        unflag: 'Unflag',
+        previous: 'Previous',
+        next: 'Next',
+        finish: 'Finish',
+        finished: 'Exam Finished',
+        results: 'Results',
+        score: 'Score',
+        correct: 'Correct',
+        incorrect: 'Incorrect',
+        review: 'Review Mistakes',
+        new_exam: 'New Exam',
+        select_topic: 'Select a Topic',
+        cancel: 'Cancel',
+        confirm_restart: 'A saved exam was found. Do you want to continue?',
+        confirm_reset: 'Restart exam? Your progress will be lost.',
+        no_questions: 'No questions available.'
+    },
+    settings: {
+        title: 'Settings',
+        theme: 'Theme',
+        language: 'Language',
+        font_size: 'Font size',
+        font_small: 'Small',
+        font_normal: 'Normal',
+        font_large: 'Large',
+        show_timer: 'Show timer',
+        auto_save: 'Auto-save progress',
+        save: 'Save',
+        saved: 'Settings saved',
+        themes: {
+            dark: 'Dark',
+            light: 'Light',
+            sepia: 'Sepia',
+            hc: 'High contrast'
+        }
+    },
+    pdf: {
+        title: 'Export to PDF',
+        practice: 'Practice Mode',
+        study: 'Study Mode',
+        official: 'Official Test',
+        select_topics: 'Select all',
+        include_explanations: 'Include explanations',
+        include_ids: 'Show IDs',
+        randomize: 'Random order',
+        generate: 'Generate PDF',
+        cancel: 'Cancel',
+        generating: 'Generating PDF...',
+        no_topics: 'Select at least one topic.',
+        no_questions: 'No questions for selected topics.',
+        error: 'Error generating PDF.'
+    }
+}

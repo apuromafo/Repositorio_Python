@@ -20,7 +20,11 @@
         "peso": 4
       }
     ],
-    "creado": "2026-07-29 20:59"
+    "creado": "2026-07-29 20:59",
+    "tipo": "quiz",
+    "passing_grade": 50,
+    "result_ranges": [],
+    "preguntas": 10
   },
   {
     "id": "test_exam",
@@ -38,25 +42,11 @@
         "peso": 2
       }
     ],
-    "creado": "2026-07-29 21:06"
-  },
-  {
-    "id": "test_exam",
-    "titulo": "Examen de Prueba",
-    "tiempo": 60,
-    "temas": [
-      {
-        "id": "tema1",
-        "nombre": "Tema Uno",
-        "peso": 3
-      },
-      {
-        "id": "tema2",
-        "nombre": "Tema Dos",
-        "peso": 2
-      }
-    ],
-    "creado": "2026-07-29 21:07"
+    "creado": "2026-07-29 21:07",
+    "tipo": "quiz",
+    "passing_grade": 50,
+    "result_ranges": [],
+    "preguntas": 5
   },
   {
     "id": "humo_test",
@@ -79,7 +69,11 @@
         "peso": 2
       }
     ],
-    "creado": "2026-07-29 21:59"
+    "creado": "2026-07-29 21:59",
+    "tipo": "quiz",
+    "passing_grade": 50,
+    "result_ranges": [],
+    "preguntas": 9
   },
   {
     "id": "demo",
@@ -97,7 +91,11 @@
         "peso": 2
       }
     ],
-    "creado": "2026-07-29 22:01"
+    "creado": "2026-07-29 22:01",
+    "tipo": "quiz",
+    "passing_grade": 50,
+    "result_ranges": [],
+    "preguntas": 5
   },
   {
     "id": "test_final",
@@ -115,7 +113,11 @@
         "peso": 1
       }
     ],
-    "creado": "2026-07-29 22:06"
+    "creado": "2026-07-29 22:06",
+    "tipo": "quiz",
+    "passing_grade": 50,
+    "result_ranges": [],
+    "preguntas": 3
   },
   {
     "id": "validation_test",
@@ -133,6 +135,10 @@
         "peso": 2
       }
     ],
-    "creado": "2026-07-29 22:22"
+    "creado": "2026-07-29 22:22",
+    "tipo": "quiz",
+    "passing_grade": 50,
+    "result_ranges": [],
+    "preguntas": 4
   }
 ]

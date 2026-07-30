@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Builder - Dashboard</title>
+<link rel="stylesheet" href="template/css/exam.css">
+<style>
+  body { padding: 0; }
+  .dashboard { max-width: 960px; margin: 0 auto; padding: 30px 20px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+  .header h1 { margin: 0; font-size: 1.8rem; }
+  .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .search-bar { width: 100%; margin-bottom: 20px; }
+  .search-bar input {
+    width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 10px;
+    background: var(--surface); color: var(--text); font-size: 1rem; box-sizing: border-box;
+    outline: none; transition: border-color .2s;
+  }
+  .search-bar input:focus { border-color: var(--primary); }
+  .stats-bar { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 6px 16px; font-size: .85rem; }
+  .exam-grid { display: grid; gap: 12px; }
+  .exam-card {
+    background: var(--light); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .exam-card:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+  .exam-card.hidden { display: none; }
+  .exam-card.assigned { border-left: 4px solid var(--primary); }
+  .exam-info h3 { margin: 0 0 4px 0; color: var(--primary); font-size: .95rem; }
+  .exam-info p { margin: 0; color: var(--text-muted); font-size: .8rem; }
+  .exam-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .empty-state h2 { font-size: 2rem; margin-bottom: 10px; }
+  .badge { background: var(--surface); padding: 2px 8px; border-radius: 4px; font-size: .75rem; white-space: nowrap; }
+  .config-panel {
+    background: var(--light); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; margin-top: 30px;
+  }
+  .config-panel h3 { margin-top: 0; }
+  .btn-danger { background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+  .btn-danger:hover { opacity: .8; }
+  .btn { cursor: pointer; }
+
+  .role-toggle { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .role-btn { padding: 6px 16px; border: none; cursor: pointer; background: transparent; color: var(--text-muted); font-size: .85rem; transition: all .2s; }
+  .role-btn.active { background: var(--primary); color: #fff; }
+  .role-btn:not(:last-child) { border-right: 1px solid var(--border); }
+
+  .ranking-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .ranking-table th { background: var(--surface); padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); color: var(--text-muted); font-weight: 600; }
+  .ranking-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .ranking-table tr:hover td { background: var(--surface); }
+  .rank-1 { color: gold; font-weight: bold; }
+  .rank-2 { color: silver; font-weight: bold; }
+  .rank-3 { color: #cd7f32; font-weight: bold; }
+  .score-pass { color: var(--success); font-weight: bold; }
+  .score-fail { color: var(--danger); }
+  .tab-bar { display: flex; gap: 4px; margin-bottom: 15px; flex-wrap: wrap; }
+  .tab-btn { padding: 6px 14px; border: 1px solid var(--border); background: transparent; border-radius: 6px; cursor: pointer; color: var(--text-muted); font-size: .85rem; }
+  .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+  .modal-content { background: var(--light); border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+  .modal-content h3 { margin-top: 0; }
+  .student-tag { display: inline-block; background: var(--surface); padding: 4px 10px; border-radius: 4px; margin: 2px; font-size: .8rem; }
+  .student-tag .remove { cursor: pointer; margin-left: 4px; color: var(--danger); }
+  .assign-exam-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .assign-exam-item:last-child { border-bottom: none; }
+  .btn-sm { padding: 4px 10px; font-size: .8rem; }
+  .toggle-wrap { position:relative; display:inline-block; width:40px; height:22px; }
+  .toggle-wrap input { opacity:0; width:0; height:0; }
+  .toggle-switch { position:absolute; cursor:pointer; inset:0; background:#555; border-radius:22px; transition:.3s; }
+  .toggle-knob { position:absolute; height:16px; width:16px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
+  .toggle-wrap input:checked + .toggle-switch { background: var(--primary); }
+  .toggle-wrap input:checked + .toggle-switch + .toggle-knob { transform: translateX(18px); }
+  .student-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .student-row:last-child { border-bottom: none; }
+  .inline-input { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+  .summary-card .num { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+  .summary-card .label { font-size: .75rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="dashboard">
+  <div class="header">
+    <h1>Quiz Builder</h1>
+    <div class="header-actions">
+      <div class="role-toggle">
+        <button class="role-btn active" data-role="student" onclick="setRole('student')">Alumno</button>
+        <button class="role-btn" data-role="teacher" onclick="setRole('teacher')">Profesor</button>
+      </div>
+      <span class="stat-chip" id="exam-count">0 examenes</span>
+      <button class="btn nav-btn" onclick="location.reload()">Actualizar</button>
+    </div>
+  </div>
+
+  <div id="teacher-panel" style="display:none;">
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="ranking" onclick="switchTab('ranking')">Ranking</button>
+      <button class="tab-btn" data-tab="students" onclick="switchTab('students')">Alumnos</button>
+      <button class="tab-btn" data-tab="assign" onclick="switchTab('assign')">Asignar</button>
+      <button class="tab-btn" data-tab="export" onclick="switchTab('export')">Exportar</button>
+    </div>
+
+    <div id="tab-ranking" class="tab-content active">
+      <div class="summary-grid" id="summary-cards"></div>
+      <div id="ranking-container"></div>
+    </div>
+
+    <div id="tab-students" class="tab-content">
+      <div style="display:flex; gap:8px; margin-bottom:15px;">
+        <input type="text" id="new-student-name" class="inline-input" placeholder="Nombre del alumno" style="flex:1;">
+        <button class="btn nav-btn" onclick="addStudent()">Anadir</button>
+      </div>
+      <div id="student-list"></div>
+    </div>
+
+    <div id="tab-assign" class="tab-content">
+      <p style="color:var(--text-muted); margin-bottom:15px;">Selecciona un alumno y marca los examenes que debe tomar:</p>
+      <select id="assign-student-select" class="inline-input" style="width:100%; margin-bottom:15px;" onchange="renderAssignExams()"></select>
+      <div id="assign-exam-list"></div>
+    </div>
+
+    <div id="tab-export" class="tab-content">
+      <p style="color:var(--text-muted); margin-bottom:15px;">Exporta las calificaciones de todos los alumnos para llevarlas a Excel:</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn nav-btn" onclick="exportCSV()">Exportar CSV</button>
+        <button class="btn nav-btn" onclick="exportRankingJSON()">Exportar JSON</button>
+      </div>
+      <div style="margin-top:20px;">
+        <h4>Previsualizacion</h4>
+        <div id="export-preview"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="student-panel">
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Buscar examen por nombre, tema... (ej: CCNA, Azure, Python)" oninput="filterExams()">
+    </div>
+    <div id="exam-list">
+      <div class="empty-state" id="empty-state">
+        <h2>Aun no hay examenes</h2>
+        <p>Usa <code>python ine_importer.py</code> o <code>python generar.py</code> para crear examenes.</p>
+      </div>
+      <div class="exam-grid" id="exam-grid"></div>
+    </div>
+  </div>
+
+  <div class="config-panel" id="config-panel">
+    <h3>Configuracion Global</h3>
+
+    <div style="margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+      <h4 style="margin:0 0 8px; font-size:.9rem; color:var(--text-muted);">Caracteristicas</h4>
+
+      <div class="settings-row">
+        <span>Roles (Profesor / Alumno)</span>
+        <label class="toggle-wrap"><input type="checkbox" class="feat-toggle" data-feat="roles" onchange="toggleFeature('roles',this.checked)"><span class="toggle-switch"></span><span class="toggle-knob"></span></label>
+      </div>
+      <div class="settings-row">
+        <span>Ranking por examen</span>
+        <label class="toggle-wrap"><input type="checkbox" class="feat-toggle" data-feat="ranking" onchange="toggleFeature('ranking',this.checked)"><span class="toggle-switch"></span><span class="toggle-knob"></span></label>
+      </div>
+      <div class="settings-row">
+        <span>Gestion de alumnos</span>
+        <label class="toggle-wrap"><input type="checkbox" class="feat-toggle" data-feat="students" onchange="toggleFeature('students',this.checked)"><span class="toggle-switch"></span><span class="toggle-knob"></span></label>
+      </div>
+      <div class="settings-row">
+        <span>Asignar examenes a alumnos</span>
+        <label class="toggle-wrap"><input type="checkbox" class="feat-toggle" data-feat="assign" onchange="toggleFeature('assign',this.checked)"><span class="toggle-switch"></span><span class="toggle-knob"></span></label>
+      </div>
+      <div class="settings-row">
+        <span>Exportacion CSV / JSON</span>
+        <label class="toggle-wrap"><input type="checkbox" class="feat-toggle" data-feat="export" onchange="toggleFeature('export',this.checked)"><span class="toggle-switch"></span><span class="toggle-knob"></span></label>
+      </div>
+      <div class="settings-row">
+        <span>Marcar examenes asignados (borde azul)</span>
+        <label class="toggle-wrap"><input type="checkbox" class="feat-toggle" data-feat="assignedBadge" onchange="toggleFeature('assignedBadge',this.checked)"><span class="toggle-switch"></span><span class="toggle-knob"></span></label>
+      </div>
+    </div>
+
+    <div class="settings-row">
+      <span>Borrar historial de todos los examenes</span>
+      <button class="btn-danger" onclick="clearAllHistory()">Borrar Todo</button>
+    </div>
+    <div class="settings-row">
+      <span>Restablecer configuracion</span>
+      <button class="btn nav-btn" onclick="resetConfig()">Restaurar</button>
+    </div>
+    <div class="settings-row">
+      <span>Exportar datos de progreso</span>
+      <button class="btn nav-btn" onclick="exportData()">Exportar JSON</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign exams modal -->
+<div class="modal" id="assign-modal">
+  <div class="modal-content">
+    <h3 id="assign-modal-title">Asignar Examenes</h3>
+    <div id="assign-modal-body"></div>
+    <button class="btn nav-btn" style="margin-top:15px;" onclick="closeAssignModal()">Cerrar</button>
+  </div>
+</div>
+
+<script>
+  let allExams = [];
+  let currentRole = 'student';
+  const EXAMS_JSON = 'examenes.json';
+
+  function getUsers() {
+    const raw = localStorage.getItem('_users');
+    return raw ? JSON.parse(raw) : ['default'];
+  }
+
+  function saveUsers(users) {
+    localStorage.setItem('_users', JSON.stringify(users));
+  }
+
+  function getAssignments() {
+    const raw = localStorage.getItem('_teacher_assignments');
+    return raw ? JSON.parse(raw) : {};
+  }
+
+  function saveAssignments(assignments) {
+    localStorage.setItem('_teacher_assignments', JSON.stringify(assignments));
+  }
+
+  function getStudentScores(examId) {
+    const users = getUsers().filter(u => u !== 'default');
+    const results = [];
+    users.forEach(user => {
+      const key = `${user}_${examId}_history`;
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const history = JSON.parse(raw);
+        history.forEach(h => {
+          results.push({ user, date: h.date, score: h.score });
+        });
+      }
+    });
+    return results.sort((a, b) => b.score - a.score || new Date(b.date) - new Date(a.date));
+  }
+
+  async function loadExams() {
+    try {
+      const r = await fetch(EXAMS_JSON);
+      allExams = await r.json();
+      const grid = document.getElementById('exam-grid');
+      const empty = document.getElementById('empty-state');
+      if (!allExams || allExams.length === 0) {
+        empty.style.display = 'block'; grid.style.display = 'none';
+        return;
+      }
+      empty.style.display = 'none';
+      document.getElementById('exam-count').textContent = allExams.length + ' examenes';
+      renderExams(allExams);
+      renderRanking();
+      renderStudents();
+      renderAssignStudentSelect();
+      renderAssignExams();
+    } catch(e) {
+      document.getElementById('empty-state').innerHTML = '<h2>Error cargando examenes</h2><p>Ejecuta <code>python ine_importer.py</code> primero.</p>';
+    }
+  }
+
+  function renderExams(exams) {
+    const grid = document.getElementById('exam-grid');
+    const assignments = getAssignments();
+    const currentUser = localStorage.getItem('_currentUser') || 'default';
+    const assigned = assignments[currentUser] || [];
+
+    grid.innerHTML = exams.map(ex => {
+      const temas = ex.temas ? ex.temas.map(t => `<span class="badge">${t.nombre || t.id}</span>`).join(' ') : '';
+      const isAssigned = assigned.includes(ex.id);
+      const cfg = getConfig();
+      const cls = (cfg.assignedBadge && isAssigned) ? 'exam-card assigned' : 'exam-card';
+      const tag = (cfg.assignedBadge && isAssigned) ? '<span class="badge" style="background:var(--primary);color:#fff;margin-left:6px;">Asignado</span>' : '';
+      return `
+        <div class="${cls}">
+          <div class="exam-info">
+            <h3>${ex.titulo}${tag}</h3>
+            <p>${ex.preguntas || '?'} preg | ${ex.tiempo} min | ${ex.temas ? ex.temas.length : 0} temas ${temas}</p>
+          </div>
+          <div class="exam-actions">
+            <a class="btn nav-btn" href="${ex.id}/index.html" target="_blank">Abrir</a>
+            <button class="btn nav-btn" onclick="clearExamHistory('${ex.id}')">Borrar datos</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function filterExams() {
+    const q = document.getElementById('search-input').value.toLowerCase().trim();
+    if (!q) {
+      renderExams(allExams);
+      document.getElementById('exam-count').textContent = allExams.length + ' examenes';
+      return;
+    }
+    const filtered = allExams.filter(ex => {
+      const matchTitle = ex.titulo.toLowerCase().includes(q);
+      const matchTopics = ex.temas ? ex.temas.some(t => (t.nombre || t.id).toLowerCase().includes(q)) : false;
+      return matchTitle || matchTopics;
+    });
+    renderExams(filtered);
+    document.getElementById('exam-count').textContent = filtered.length + '/' + allExams.length + ' examenes';
+  }
+
+  // ---- ROLE ----
+
+  function setRole(role) {
+    currentRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('active', b.dataset.role === role));
+    document.getElementById('teacher-panel').style.display = role === 'teacher' ? 'block' : 'none';
+    document.getElementById('student-panel').style.display = role === 'student' ? 'block' : 'none';
+    if (role === 'teacher') { renderRanking(); renderStudents(); renderAssignStudentSelect(); renderAssignExams(); }
+    if (role === 'teacher') applyConfig();
+  }
+
+  // ---- TABS ----
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.toggle('active', t.id === 'tab-' + tab));
+    if (tab === 'ranking') renderRanking();
+    if (tab === 'export') renderExportPreview();
+  }
+
+  // ---- RANKING ----
+
+  function renderRanking() {
+    const users = getUsers().filter(u => u !== 'default');
+    const container = document.getElementById('ranking-container');
+    const summary = document.getElementById('summary-cards');
+
+    if (users.length === 0 || allExams.length === 0) {
+      summary.innerHTML = '';
+      container.innerHTML = '<p style="color:var(--text-muted);">No hay datos de alumnos aun.</p>';
+      return;
+    }
+
+    let totalExams = 0, totalStudents = users.length, totalScores = 0, totalAttempts = 0;
+    const examStats = {};
+
+    allExams.forEach(ex => {
+      const scores = getStudentScores(ex.id);
+      if (scores.length > 0) {
+        examStats[ex.id] = scores;
+        totalExams++;
+        scores.forEach(s => { totalScores += s.score; totalAttempts++; });
+      }
+    });
+
+    const avg = totalAttempts > 0 ? (totalScores / totalAttempts).toFixed(1) : '-';
+
+    summary.innerHTML = `
+      <div class="summary-card"><div class="num">${totalStudents}</div><div class="label">Alumnos</div></div>
+      <div class="summary-card"><div class="num">${totalExams}</div><div class="label">Examenes con datos</div></div>
+      <div class="summary-card"><div class="num">${totalAttempts}</div><div class="label">Intentos totales</div></div>
+      <div class="summary-card"><div class="num">${avg}%</div><div class="label">Media global</div></div>
+    `;
+
+    let html = '';
+    allExams.forEach(ex => {
+      const scores = examStats[ex.id];
+      if (!scores) return;
+      const examAvg = (scores.reduce((a, s) => a + s.score, 0) / scores.length).toFixed(1);
+      html += `<h4 style="margin:20px 0 8px;">${ex.titulo} <span style="font-weight:normal;color:var(--text-muted);font-size:.8rem;">media: ${examAvg}%</span></h4>`;
+      html += '<table class="ranking-table"><thead><tr><th>#</th><th>Alumno</th><th>Nota</th><th>Fecha</th></tr></thead><tbody>';
+      scores.forEach((s, i) => {
+        const rank = i < 3 ? `rank-${i+1}` : '';
+        const pass = s.score >= 50 ? 'score-pass' : 'score-fail';
+        html += `<tr><td class="${rank}">${i+1}</td><td>${s.user}</td><td class="${pass}">${s.score}%</td><td style="color:var(--text-muted);font-size:.8rem;">${s.date}</td></tr>`;
+      });
+      html += '</tbody></table>';
+    });
+
+    container.innerHTML = html || '<p style="color:var(--text-muted);">Ningun alumno ha realizado examenes aun.</p>';
+  }
+
+  // ---- STUDENTS ----
+
+  function renderStudents() {
+    const users = getUsers().filter(u => u !== 'default');
+    const container = document.getElementById('student-list');
+    if (users.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted);">No hay alumnos registrados.</p>';
+      return;
+    }
+    container.innerHTML = users.map(u => {
+      let attempts = 0;
+      allExams.forEach(ex => {
+        const key = `${u}_${ex.id}_history`;
+        const raw = localStorage.getItem(key);
+        if (raw) attempts += JSON.parse(raw).length;
+      });
+      return `<div class="student-row">
+        <span><strong>${u}</strong> <span style="color:var(--text-muted);font-size:.8rem;">(${attempts} intentos)</span></span>
+        <button class="btn-danger btn-sm" onclick="removeStudent('${u}')">Eliminar</button>
+      </div>`;
+    }).join('');
+  }
+
+  function addStudent() {
+    const input = document.getElementById('new-student-name');
+    const name = input.value.trim();
+    if (!name) return alert('Escribe un nombre.');
+    const users = getUsers();
+    if (users.includes(name)) return alert('Ya existe ese alumno.');
+    if (name === 'default') return alert('Nombre no permitido.');
+    users.push(name);
+    saveUsers(users);
+    input.value = '';
+    renderStudents();
+    renderAssignStudentSelect();
+    renderRanking();
+  }
+
+  function removeStudent(name) {
+    if (!confirm(`Eliminar a "${name}" y todo su historial?`)) return;
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(name + '_'));
+    keys.forEach(k => localStorage.removeItem(k));
+    let users = getUsers().filter(u => u !== name);
+    saveUsers(users);
+    const assign = getAssignments();
+    delete assign[name];
+    saveAssignments(assign);
+    renderStudents();
+    renderAssignStudentSelect();
+    renderRanking();
+    renderAssignExams();
+  }
+
+  // ---- ASSIGN ----
+
+  function renderAssignStudentSelect() {
+    const users = getUsers().filter(u => u !== 'default');
+    const sel = document.getElementById('assign-student-select');
+    sel.innerHTML = users.map(u => `<option value="${u}">${u}</option>`).join('');
+    if (users.length > 0) renderAssignExams();
+  }
+
+  function renderAssignExams() {
+    const sel = document.getElementById('assign-student-select');
+    const student = sel.value;
+    if (!student) {
+      document.getElementById('assign-exam-list').innerHTML = '<p style="color:var(--text-muted);">Selecciona un alumno primero.</p>';
+      return;
+    }
+    const assignments = getAssignments();
+    const assigned = assignments[student] || [];
+    const container = document.getElementById('assign-exam-list');
+    container.innerHTML = allExams.map(ex => {
+      const isAssigned = assigned.includes(ex.id);
+      return `<div class="assign-exam-item">
+        <span>${ex.titulo}</span>
+        <button class="btn-sm ${isAssigned ? 'btn-danger' : 'nav-btn'}" onclick="toggleAssign('${student}','${ex.id}')">${isAssigned ? 'Quitar' : 'Asignar'}</button>
+      </div>`;
+    }).join('');
+  }
+
+  function toggleAssign(student, examId) {
+    const assignments = getAssignments();
+    if (!assignments[student]) assignments[student] = [];
+    const idx = assignments[student].indexOf(examId);
+    if (idx > -1) assignments[student].splice(idx, 1);
+    else assignments[student].push(examId);
+    saveAssignments(assignments);
+    renderAssignExams();
+    renderExams(allExams);
+  }
+
+  function closeAssignModal() {
+    document.getElementById('assign-modal').style.display = 'none';
+  }
+
+  // ---- EXPORT ----
+
+  function buildExportData() {
+    const users = getUsers().filter(u => u !== 'default');
+    const rows = [];
+    users.forEach(user => {
+      const row = { Alumno: user };
+      allExams.forEach(ex => {
+        const key = `${user}_${ex.id}_history`;
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const history = JSON.parse(raw);
+          const scores = history.map(h => h.score);
+          const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
+          row[ex.titulo + ' (mejor)'] = Math.max(...scores) + '%';
+          row[ex.titulo + ' (media)'] = avg + '%';
+          row[ex.titulo + ' (intentos)'] = scores.length;
+        } else {
+          row[ex.titulo + ' (mejor)'] = '-';
+          row[ex.titulo + ' (media)'] = '-';
+          row[ex.titulo + ' (intentos)'] = 0;
+        }
+      });
+      rows.push(row);
+    });
+    return rows;
+  }
+
+  function renderExportPreview() {
+    const data = buildExportData();
+    const container = document.getElementById('export-preview');
+    if (data.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted);">No hay datos para exportar.</p>';
+      return;
+    }
+    const headers = Object.keys(data[0]);
+    let html = '<table class="ranking-table" style="font-size:.75rem;"><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+    data.forEach(row => {
+      html += '<tr>' + headers.map(h => `<td>${row[h]}</td>`).join('') + '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  function exportCSV() {
+    const data = buildExportData();
+    if (data.length === 0) return alert('No hay datos para exportar.');
+    const headers = Object.keys(data[0]);
+    const csv = [headers.join(',')];
+    data.forEach(row => {
+      csv.push(headers.map(h => `"${(row[h] || '').toString()}"`).join(','));
+    });
+    const blob = new Blob(['\uFEFF' + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'calificaciones.csv'; a.click();
+  }
+
+  function exportRankingJSON() {
+    const data = buildExportData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'calificaciones.json'; a.click();
+  }
+
+  // ---- GLOBAL ----
+
+  function clearExamHistory(id) {
+    if (!confirm(`Borrar historial, estadisticas y fallos de "${id}"?`)) return;
+    const keys = Object.keys(localStorage).filter(k => k.includes(id));
+    keys.forEach(k => localStorage.removeItem(k));
+    alert(`Datos de "${id}" borrados.`);
+    renderRanking();
+    renderExportPreview();
+  }
+
+  function clearAllHistory() {
+    if (!confirm('Borrar TODO el historial de TODOS los examenes? No se puede deshacer.')) return;
+    const keys = Object.keys(localStorage).filter(k => k.endsWith('_history') || k.endsWith('_analytics_data') || k.endsWith('_mistakes_history') || k.endsWith('_progress'));
+    keys.forEach(k => localStorage.removeItem(k));
+    alert(`${keys.length} registros borrados.`);
+    location.reload();
+  }
+
+  function exportData() {
+    const allData = {};
+    const keys = Object.keys(localStorage);
+    keys.forEach(k => { try { allData[k] = JSON.parse(localStorage.getItem(k)); } catch(e) { allData[k] = localStorage.getItem(k); } });
+    const blob = new Blob([JSON.stringify(allData, null, 2)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'quiz-builder-backup.json'; a.click();
+  }
+
+  // ---- CONFIG ----
+
+  const DEFAULT_CONFIG = { roles:false, ranking:true, students:true, assign:true, export:true, assignedBadge:true };
+
+  function getConfig() {
+    const raw = localStorage.getItem('_dashboard_config');
+    return raw ? { ...DEFAULT_CONFIG, ...JSON.parse(raw) } : { ...DEFAULT_CONFIG };
+  }
+
+  function saveConfig(cfg) {
+    localStorage.setItem('_dashboard_config', JSON.stringify(cfg));
+  }
+
+  function applyConfig() {
+    const cfg = getConfig();
+    document.querySelectorAll('.feat-toggle').forEach(el => {
+      el.checked = !!cfg[el.dataset.feat];
+    });
+    const teacherPanel = document.getElementById('teacher-panel');
+    const roleToggle = document.querySelector('.role-toggle');
+    if (roleToggle) roleToggle.style.display = cfg.roles ? '' : 'none';
+    if (!cfg.roles && currentRole === 'teacher') { setRole('student'); }
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      const hide = (b.dataset.tab === 'students' && !cfg.students) ||
+                   (b.dataset.tab === 'assign' && !cfg.assign) ||
+                   (b.dataset.tab === 'export' && !cfg.export) ||
+                   (b.dataset.tab === 'ranking' && !cfg.ranking);
+      b.style.display = hide ? 'none' : '';
+    });
+    if (!cfg.ranking) { document.getElementById('tab-ranking').classList.remove('active'); }
+    if (!cfg.students) { document.getElementById('tab-students').classList.remove('active'); }
+    if (!cfg.assign) { document.getElementById('tab-assign').classList.remove('active'); }
+    if (!cfg.export) { document.getElementById('tab-export').classList.remove('active'); }
+    const activeTab = document.querySelector('.tab-btn:not([style*="none"])');
+    if (activeTab) { switchTab(activeTab.dataset.tab); }
+  }
+
+  function toggleFeature(feat, on) {
+    const cfg = getConfig();
+    cfg[feat] = on;
+    saveConfig(cfg);
+    applyConfig();
+    renderExams(allExams);
+    if (feat === 'roles' && !on && currentRole === 'teacher') setRole('student');
+  }
+
+  function resetConfig() {
+    localStorage.removeItem('_dashboard_config');
+    applyConfig();
+    renderExams(allExams);
+  }
+
+  // ---- INIT ----
+
+  loadExams();
+  setTimeout(applyConfig, 100);
+</script>
+</body>
+</html>

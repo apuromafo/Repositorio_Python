@@ -1,0 +1,434 @@
+/* =========================================
+   VARIABLES GLOBALES - TEMA OSCURO
+   ========================================= */
+:root {
+    --primary: #3b82f6;       /* Azul un poco más brillante para contraste */
+    --success: #22c55e;       /* Verde brillante */
+    --warning: #f59e0b;       /* Ámbar */
+    --danger: #ef4444;        /* Rojo brillante */
+    
+    /* Colores de superficie */
+    --dark: #0f172a;          /* Fondo más profundo */
+    --light: #1e293b;         /* Fondo de paneles (Sidebar, Main) */
+    --surface: #334155;       /* Fondo de inputs, tarjetas pequeñas */
+    
+    --border: #475569;        /* Bordes visibles pero sutiles */
+    --text: #e2e8f0;          /* Texto principal claro */
+    --text-muted: #94a3b8;    /* Texto secundario/apagado */
+}
+
+/* =========================================
+   ESTILOS BASE
+   ========================================= */
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--dark);   /* Fondo general oscuro */
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* =========================================
+   LAYOUT - NAVEGACIÓN SUPERIOR
+   ========================================= */
+.top-nav {
+    background: var(--dark);
+    color: white;
+    padding: 0 20px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+}
+
+.top-nav h1 {
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.nav-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--border);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.nav-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* =========================================
+   LAYOUT - CONTENEDOR PRINCIPAL
+   ========================================= */
+.container {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 50px);
+    overflow: hidden;
+}
+
+/* =========================================
+   COMPONENTES - SIDEBAR
+   ========================================= */
+.sidebar {
+    width: 280px;
+    background: var(--light);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Timer */
+.timer {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 10px;
+    font-variant-numeric: tabular-nums;
+}
+.timer.warning { color: var(--danger); animation: pulse 1s infinite; }
+
+/* Progress Bar */
+.progress-container {
+    width: 100%;
+    height: 6px;
+    background: var(--surface);
+    border-radius: 3px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+.progress-bar { height: 100%; background: var(--success); transition: width 0.3s; }
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    text-align: center;
+    font-size: 0.8rem;
+}
+.stat-box { background: var(--surface); padding: 5px; border-radius: 4px; color: var(--text); }
+.stat-num { display: block; font-size: 1.2rem; font-weight: bold; color: white; }
+
+/* Filter Buttons */
+#filter-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+    font-size: 0.75rem;
+    justify-content: center;
+}
+.filter-btn {
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    background: var(--surface);
+    color: var(--text);
+    transition: all 0.2s;
+}
+.filter-btn:hover { opacity: 0.8; }
+.filter-btn.active { background: var(--primary); color: white; }
+
+/* =========================================
+   COMPONENTES - NAVEGADOR DE PREGUNTAS
+   ========================================= */
+.navigator {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+}
+
+.q-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 1px solid var(--border);
+    background: var(--light);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: var(--text);
+}
+
+.q-btn:hover { background: var(--surface); }
+
+/* Estados de los botones de pregunta */
+.q-btn.current { border: 2px solid var(--primary); color: var(--primary); background: rgba(59, 130, 246, 0.15); }
+.q-btn.answered { background: var(--primary); color: white; border-color: var(--primary); opacity: 0.9; }
+.q-btn.flagged { background: var(--warning); color: white; border-color: var(--warning); }
+.q-btn.answered.flagged { background: linear-gradient(135deg, var(--primary) 50%, var(--warning) 50%); }
+
+/* Estados modo revisión */
+.q-btn.correct { background: var(--success); color: white; border-color: var(--success); }
+.q-btn.incorrect { background: var(--danger); color: white; border-color: var(--danger); }
+
+/* =========================================
+   COMPONENTES - ÁREA DE CONTENIDO
+   ========================================= */
+.content-area {
+    flex: 1;
+    background: var(--dark);  /* Fondo principal oscuro */
+    padding: 30px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.question-container {
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1;
+}
+
+.q-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    display: flex;
+    gap: 10px;
+}
+
+.q-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.q-image {
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 20px;
+    background: var(--light); /* Fondo para imágenes con transparencia */
+}
+
+/* =========================================
+   COMPONENTES - OPCIONES DE RESPUESTA
+   ========================================= */
+.options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.option-label {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 15px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    background: var(--light);
+    transition: all 0.2s;
+    color: var(--text);
+}
+
+.option-label:hover { border-color: var(--primary); background: var(--surface); }
+.option-label.selected { border-color: var(--primary); background: rgba(59, 130, 246, 0.2); }
+
+.option-marker {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: transparent;
+}
+
+.option-label.selected .option-marker {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+}
+
+.option-text { flex: 1; line-height: 1.4; }
+
+/* Estilos Modo Solución */
+/* Ajuste para leer mejor en fondo verde/rojo */
+.option-label.solution-correct { 
+    border-color: var(--success) !important; 
+    background: rgba(34, 197, 94, 0.15) !important; /* Verde transparente */
+    color: white;
+} 
+.option-label.solution-incorrect { 
+    border-color: var(--danger) !important; 
+    background: rgba(239, 68, 68, 0.15) !important; /* Rojo transparente */
+    color: white;
+    opacity: 0.8; 
+}
+
+.explanation-box {
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--light);
+    border-left: 4px solid var(--primary);
+    font-size: 0.9rem;
+    border-radius: 4px;
+    line-height: 1.5;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+}
+
+/* Estilos Input Type */
+.text-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 1rem;
+    background: var(--light);
+    color: var(--text);
+}
+.text-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+
+/* =========================================
+   COMPONENTES - BOTONES DE ACCIÓN
+   ========================================= */
+.action-bar {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    border: 1px solid transparent;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #2563eb; }
+
+.btn-secondary { background: var(--light); border-color: var(--border); color: var(--text); }
+.btn-secondary:hover { background: var(--surface); }
+
+.btn-warning { background: transparent; border-color: var(--warning); color: var(--warning); }
+.btn-warning.active { background: var(--warning); color: white; }
+
+.btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
+.btn-danger:hover { background: #dc2626; border-color: #dc2626; }
+
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: var(--light); border-color: var(--primary); }
+
+/* =========================================
+   COMPONENTES - MODAL
+   ========================================= */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.modal-content {
+    background: var(--light);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    border: 1px solid var(--border);
+}
+
+.modal-content h3 { margin-top: 0; margin-bottom: 20px; color: var(--text); }
+
+.topic-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.topic-btn {
+    padding: 15px;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    color: var(--text);
+}
+
+.topic-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* =========================================
+   UTILIDADES Y ANIMACIONES
+   ========================================= */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.navigator::-webkit-scrollbar { width: 6px; }
+.navigator::-webkit-scrollbar-track { background: var(--dark); }
+.navigator::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.navigator::-webkit-scrollbar-thumb:hover { background: var(--primary); }
