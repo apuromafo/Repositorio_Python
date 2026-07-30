@@ -89,6 +89,7 @@ Está organizado en **71 carpetas numeradas (001–071)**, cada una con su propi
 | **069** | **`SSL_Scan`** | **Auditor SSL/TLS con PQC, CVSS 4.0/3.1, tests (39)** |
 | 070 | `URL link` | Acortador y validador de URLs |
 | 071 | `DNS_CAA` | Auditoría de registros DNS CAA |
+| 072 | `quiz_builder` | Generador de exámenes interactivos HTML + CLI bilingüe con editor visual |
 
 ---
 
@@ -188,6 +189,7 @@ Scripts con fines de aprendizaje, ejercicios de programación, quizzes y herrami
 | 004 | `juego_adivinanza` | Juego educativo de adivinanza |
 | 048 | `test autismo` | Test de autismo (con disclaimer médico) |
 | 067 | `TryHackMe Career Quiz` | Quiz de carreras TryHackMe |
+| 072 | `quiz_builder` | Generador de exámenes interactivos HTML + CLI bilingüe con editor visual |
 
 ---
 
@@ -198,7 +200,7 @@ Scripts con fines de aprendizaje, ejercicios de programación, quizzes y herrami
 | README por script | ✅ 71/71 |
 | Disclaimer legal en script | ✅ 172/172 archivos .py |
 | Disclaimer legal en README | ✅ 71/71 |
-| Tests unitarios | ✅ 069 (39 tests), 071 (46 tests), root (3 tests) |
+| Tests unitarios | ✅ 069 (39 tests), 071 (46 tests), 072 (27 tests), root (3 tests) |
 | Documentación en español | ✅ 100% |
 
 ---
