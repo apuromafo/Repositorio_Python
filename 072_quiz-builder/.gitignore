@@ -1,6 +1,12 @@
+# Override root .gitignore — no ignorar archivos del proyecto
+!*.html
+!*.md
+!*.json
+!*.css
+!*.js
+
+# Python
 __pycache__/
 *.pyc
 .pytest_cache/
 *.egg-info/
-dist/
-build/
