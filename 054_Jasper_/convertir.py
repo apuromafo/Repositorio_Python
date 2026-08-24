@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ------------------------------------------------------------
+# DISCLAIMER: Este script es parte del repositorio de herramientas de pruebas de penetración.
+# Su uso está sujeto a los términos de la licencia MIT y al aviso legal presente en el README.
+# ------------------------------------------------------------
+
+import logging
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
 # -*- coding: utf-8 -*-
 
 # =============================================================================
@@ -28,11 +40,11 @@
 # --- HISTORIAL DE VERSIONES ---
 # ==============================================================================
 # v2.0.0 (2026-05-20) - [ESTANDARIZACIÓN]
-#   ✅ Alineación con Jasper CLI Suite v2.0.
-#   ✅ Mejorado: Manejo de rutas absolutas y relativas para evitar errores de escritura.
+#   OK Alineación con Jasper CLI Suite v2.0.
+#   OK Mejorado: Manejo de rutas absolutas y relativas para evitar errores de escritura.
 #
 # v1.0.0 (2025-09-15) - [LANZAMIENTO]
-#   ✅ Primera versión funcional con supresión de salida de consola.
+#   OK Primera versión funcional con supresión de salida de consola.
 # ==============================================================================
 
 import argparse
@@ -42,6 +54,15 @@ import time
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
+import logging
+
+# Forzar codificación UTF-8 para evitar errores con emojis en consola Windows
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 
 def resolve_output_path(output_arg, input_path):
     """Resuelve la ruta de salida correctamente"""
@@ -139,25 +160,25 @@ def convertir_jasper_a_pdf(archivo_jasper, archivo_salida_base):
         
         # Verificar resultado
         if output_path_final.exists():
-            result_msg = f"✅ {Path(archivo_jasper).name} → {output_path_final.name}"
+            result_msg = f"OK {Path(archivo_jasper).name} → {output_path_final.name}"
             if was_renamed:
                 result_msg += f" 🔄 (renombrado)"
             
             return True, result_msg, duration, was_renamed
         else:
-            return False, f"❌ Error: {Path(archivo_jasper).name} - archivo no creado", duration, False
+            return False, f"FAIL Error: {Path(archivo_jasper).name} - archivo no creado", duration, False
             
     except ImportError:
         end_time = time.time()
         duration = end_time - start_time
-        return False, "❌ Error: pyreportjasper no instalado", duration, False
+        return False, "FAIL Error: pyreportjasper no instalado", duration, False
     except Exception as e:
         end_time = time.time()
         duration = end_time - start_time
-        return False, f"❌ Error: {Path(archivo_jasper).name} - {str(e)[:60]}...", duration, False
+        return False, f"FAIL Error: {Path(archivo_jasper).name} - {str(e)[:60]}...", duration, False
 
 def main():
-    parser = argparse.ArgumentParser(
+    parser = argparse.ArgumentParser( 
         description="🔧 Convertidor Jasper a PDF - Herramienta para Pentesting",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
@@ -173,6 +194,7 @@ Características:
   - Medición de tiempo precisa
         """
     )
+    parser.add_argument("-l", "--lang", default="es", help="Idioma de salida (es por defecto)")
     
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-a", "--archivo", help="Archivo .jasper individual")
@@ -192,7 +214,7 @@ Características:
     # Configurar rutas
     input_path = Path(args.archivo or args.folder).resolve()
     if not input_path.exists():
-        print(f"❌ Error: '{input_path}' no existe")
+        print(f"FAIL Error: '{input_path}' no existe")
         sys.exit(1)
     
     output_path = resolve_output_path(args.output, input_path)
@@ -222,7 +244,7 @@ Características:
     if args.archivo:
         # Archivo individual
         if input_path.suffix.lower() != '.jasper':
-            print("❌ Error: El archivo debe tener extensión .jasper")
+            print("FAIL Error: El archivo debe tener extensión .jasper")
             sys.exit(1)
             
         nombre_base = input_path.stem
@@ -249,7 +271,7 @@ Características:
         archivos_totales = len(jasper_files)
         
         if archivos_totales == 0:
-            print(f"❌ No hay archivos .jasper en '{input_path}'")
+            print(f"FAIL No hay archivos .jasper en '{input_path}'")
             sys.exit(1)
         
         try:

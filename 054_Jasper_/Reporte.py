@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ------------------------------------------------------------
+# DISCLAIMER: Este script es parte del repositorio de herramientas de pruebas de penetración.
+# Su uso está sujeto a los términos de la licencia MIT y al aviso legal presente en el README.
+# ------------------------------------------------------------
+
+import logging
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
 # -*- coding: utf-8 -*-
 
 # =============================================================================
@@ -20,6 +32,7 @@ import argparse
 import sys
 from pathlib import Path
 from datetime import datetime
+import logging
 
 
 # ==============================================================================
@@ -125,7 +138,8 @@ def procesar_reporte(ruta_input, modo):
 
 print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser( )
+    parser.add_argument("-l", "--lang", default="es", help="Idioma de salida (es por defecto)")
     parser.add_argument("-i", "--input", help="Ruta del archivo JSON")
     args = parser.parse_args()
 
