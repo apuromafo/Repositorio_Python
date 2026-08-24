@@ -215,9 +215,8 @@ def generar_informe_md(ruta_json, ruta_md):
             f.write(f"| {sev} | {resumen[sev]} |\n")
         f.write("\n## Detalle de hallazgos\n\n")
         f.write("| Archivo | Severidad | Tipo | Detalle |\n| :--- | :--- | :--- | :--- |\n")
-        iconos = {"CRÍTICO": "🔴", "MEDIO": "🟠", "INFORMATIVO": "🔵", "LIMPIO": "✅"}
         for nombre, sev, tipo, detalle in filas:
-            f.write(f"| {nombre} | {iconos.get(sev, '')} {sev} | {tipo} | {detalle} |\n")
+            f.write(f"| {nombre} | {sev} | {tipo} | {detalle} |\n")
 
     print(f"[+] Informe generado: {ruta_md}")
     return True
@@ -347,7 +346,7 @@ def ejecutar_modulo(choice):
     modo = input("¿Modo (a)rchivo o (f)carpeta?: ").strip().lower()
     ruta = os.path.abspath(input("Ruta completa: "))
 
-    args = [sys.executable, script]
+    args = [python_exe(), script]
     if modo == 'a':
         args.extend(["-a", ruta])
     elif modo == 'f':

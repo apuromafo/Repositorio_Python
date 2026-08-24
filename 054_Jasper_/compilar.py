@@ -119,3 +119,8 @@ if __name__ == "__main__":
     else:
         for jrxml in glob.glob(os.path.join(args.analyze_folder, "*.jrxml")):
             compilar(jrxml, args.output)
+
+    # Limpieza del puente Java temporal
+    for f in ["JasperCompilerBridge.java", "JasperCompilerBridge.class"]:
+        if os.path.exists(f):
+            os.remove(f)

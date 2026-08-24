@@ -162,7 +162,7 @@ def convertir_jasper_a_pdf(archivo_jasper, archivo_salida_base):
         if output_path_final.exists():
             result_msg = f"OK {Path(archivo_jasper).name} → {output_path_final.name}"
             if was_renamed:
-                result_msg += f" 🔄 (renombrado)"
+                result_msg += f" (renombrado)"
             
             return True, result_msg, duration, was_renamed
         else:
@@ -179,7 +179,7 @@ def convertir_jasper_a_pdf(archivo_jasper, archivo_salida_base):
 
 def main():
     parser = argparse.ArgumentParser( 
-        description="🔧 Convertidor Jasper a PDF - Herramienta para Pentesting",
+        description="Convertidor Jasper a PDF - Herramienta para Pentesting",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
 Ejemplos de uso:
@@ -222,16 +222,16 @@ Características:
     
     # Mostrar información de ubicación clara y concisa
     current_dir = Path.cwd()
-    print(f"📍 Trabajando en: {current_dir.name}")
+    print(f"Trabajando en: {current_dir.name}")
     
     if output_path != current_dir:
         try:
             rel_output = output_path.relative_to(current_dir)
-            print(f"📂 Guardando PDFs en: {rel_output}")
+            print(f"Guardando PDFs en: {rel_output}")
         except ValueError:
-            print(f"📂 Guardando PDFs en: {output_path}")
+            print(f"Guardando PDFs en: {output_path}")
     else:
-        print(f"📂 Guardando PDFs en: directorio actual")
+        print(f"Guardando PDFs en: directorio actual")
     
     print("-" * 70)
     
@@ -250,7 +250,7 @@ Características:
         nombre_base = input_path.stem
         salida_pdf = output_path / nombre_base
         
-        print(f"🔄 Convirtiendo: {input_path.name}")
+        print(f"Convirtiendo: {input_path.name}")
         print()
         
         success, mensaje, duration, was_renamed = convertir_jasper_a_pdf(input_path, salida_pdf)
@@ -262,7 +262,7 @@ Características:
                 archivos_renombrados = 1
         
         print(f"   {mensaje}")
-        print(f"   ⏱️  Tiempo: {format_duration(duration)}")
+        print(f"   Tiempo: {format_duration(duration)}")
         archivos_totales = 1
         
     else:
@@ -276,9 +276,9 @@ Características:
         
         try:
             relative_input = input_path.relative_to(current_dir)
-            print(f"📁 Procesando {archivos_totales} archivo(s) desde: {relative_input}")
+            print(f"Procesando {archivos_totales} archivo(s) desde: {relative_input}")
         except ValueError:
-            print(f"📁 Procesando {archivos_totales} archivo(s) desde: {input_path.name}")
+            print(f"Procesando {archivos_totales} archivo(s) desde: {input_path.name}")
         
         print("=" * 70)
         
@@ -286,7 +286,7 @@ Características:
             nombre_base = jasper_file.stem
             salida_pdf = output_path / nombre_base
             
-            print(f"🔄 [{i}/{archivos_totales}] {jasper_file.name}")
+            print(f"[{i}/{archivos_totales}] {jasper_file.name}")
             print()
             
             success, mensaje, duration, was_renamed = convertir_jasper_a_pdf(jasper_file, salida_pdf)
@@ -298,7 +298,7 @@ Características:
                     archivos_renombrados += 1
             
             print(f"   {mensaje}")
-            print(f"   ⏱️  Tiempo: {format_duration(duration)}")
+            print(f"   Tiempo: {format_duration(duration)}")
     
     # Tiempo total
     end_total = time.time()
@@ -306,10 +306,10 @@ Características:
     
     # Resumen final
     print("=" * 70)
-    print(f"📊 Resumen: {archivos_convertidos}/{archivos_totales} archivos convertidos")
+    print(f"Resumen: {archivos_convertidos}/{archivos_totales} archivos convertidos")
     if archivos_renombrados > 0:
-        print(f"🔄 Archivos renombrados: {archivos_renombrados} (ya existían)")
-    print(f"⏱️  Tiempo total: {format_duration(duration_total)} (conversión: {format_duration(tiempo_total_conversion)})")
+        print(f"Archivos renombrados: {archivos_renombrados} (ya existían)")
+    print(f"Tiempo total: {format_duration(duration_total)} (conversión: {format_duration(tiempo_total_conversion)})")
 
 
 print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
