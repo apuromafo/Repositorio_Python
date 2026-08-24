@@ -39,7 +39,8 @@ import logging
 # CONFIGURACIÓN TÉCNICA (OWASP & RECOMENDACIONES)
 # ==============================================================================
 SEVERIDAD_MAP = {
-    "SQL Injection": "Crítico", "Riesgo LFI": "Crítico", "RCE CRÍTICO": "Crítico",
+    "SQL Injection": "Crítico", "Riesgo LFI": "Crítico", "Riesgo LFI/RFI": "Crítico",
+    "RCE CRÍTICO": "Crítico", "XXE POTENCIAL": "Crítico",
     "Debilidad de Tipado": "Medio", "XSS": "Medio", "Exposición de Datos": "Medio",
     "Obsolescencia": "Informativo"
 }
@@ -56,7 +57,9 @@ COLOR_MAP = {
 RECOMENDACIONES_MAP = {
     "SQL Injection": "Reemplazar query dinámico por Sentencias Preparadas (Prepared Statements).",
     "Riesgo LFI": "Implementar whitelisting en la ruta de archivos y validar parámetros.",
+    "Riesgo LFI/RFI": "Implementar whitelisting en la ruta de archivos y validar parámetros.",
     "RCE CRÍTICO": "Restringir la ejecución de comandos arbitrarios y sanear entradas.",
+    "XXE POTENCIAL": "Deshabilitar entidades externas del parser XML (DTD off).",
     "Debilidad de Tipado": "Forzar tipado estricto (ej. BigDecimal). Reemplazar tipo Object.",
     "XSS": "Sanitizar entradas de usuario antes de la renderización.",
     "Exposición de Datos": "Aplicar enmascaramiento de datos (PII) y cifrado en reposo.",
@@ -79,7 +82,7 @@ def generar_md_contenido(nombre_archivo, hallazgos):
     content += f"**Fecha de generación:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
     
 # Bloque Mermaid corregido para máxima compatibilidad
-    content += "## 📊 Distribución de Severidad\n"
+    content += "## Distribución de Severidad\n"
     content += "```mermaid\n"
     content += "xychart-beta\n"
     content += '    title "Hallazgos por Severidad"\n'
@@ -95,7 +98,7 @@ def generar_md_contenido(nombre_archivo, hallazgos):
     content += f'    bar [{valores_y}]\n'
     content += "```\n\n"
 
-    content += "## 🛠 Hallazgos Técnicos Identificados\n"
+    content += "## Hallazgos Técnicos Identificados\n"
     content += "| Severidad | Tipo de Vulnerabilidad | Detalle Técnico | Recomendación |\n"
     content += "| :--- | :--- | :--- | :--- |\n"
     
@@ -104,18 +107,27 @@ def generar_md_contenido(nombre_archivo, hallazgos):
         detalle = h.get('detalle', 'Sin detalle')
         sev = SEVERIDAD_MAP.get(tipo, "Informativo")
         rec = RECOMENDACIONES_MAP.get(tipo, "Revisar estándar OWASP.")
-        icon = "🔴" if sev == "Crítico" else "🟠" if sev == "Medio" else "🔵"
-        content += f"| {icon} **{sev}** | {tipo} | {detalle} | {rec} |\n"
+        content += f"| **{sev}** | {tipo} | {detalle} | {rec} |\n"
         
     return content
     
+def normalizar_data(data):
+    """Acepta tanto dict {archivo: [hallazgos]} como la lista de analizar.py."""
+    if isinstance(data, dict):
+        return data
+    if isinstance(data, list):
+        return {item.get("file_name", f"archivo_{i}"): item.get("security_findings", [])
+                for i, item in enumerate(data, 1)}
+    raise ValueError("Formato JSON no reconocido (se espera lista o diccionario).")
+
+
 def procesar_reporte(ruta_input, modo):
     if not os.path.exists(ruta_input):
         print(f"[-] Error: Archivo '{ruta_input}' no encontrado.")
         sys.exit(1)
 
     with open(ruta_input, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+        data = normalizar_data(json.load(f))
 
     output_dir = Path("Reportes_Finales")
     output_dir.mkdir(exist_ok=True)
