@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ------------------------------------------------------------
+# DISCLAIMER: Este script es parte del repositorio de herramientas de pruebas de penetración.
+# Su uso está sujeto a los términos de la licencia MIT y al aviso legal presente en el README.
+# ------------------------------------------------------------
+
+import logging
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
 # -*- coding: utf-8 -*-
 
 # =============================================================================
@@ -28,14 +40,14 @@
 # --- HISTORIAL DE VERSIONES ---
 # ==============================================================================
 # v3.0.0 (2026-05-20) - [INTEGRACIÓN SUITE]
-#   ✅ Alineación con Jasper CLI Suite v2.0.
-#   ✅ Añadido: Reporte automático de auditoría de seguridad en formato JSON y Markdown.
+#   OK Alineación con Jasper CLI Suite v2.0.
+#   OK Añadido: Reporte automático de auditoría de seguridad en formato JSON y Markdown.
 #
 # v2.0.0 (2025-09-20) - [ESTABLE]
-#   ✅ Lanzamiento del puente Java mejorado para evitar errores en versiones antiguas.
+#   OK Lanzamiento del puente Java mejorado para evitar errores en versiones antiguas.
 #
 # v1.0.0 (2025-09-14) - [INICIO]
-#   ✅ Primera versión de descompilador funcional.
+#   OK Primera versión de descompilador funcional.
 # ==============================================================================
 import os
 import sys
@@ -182,7 +194,8 @@ def main():
     start_time = datetime.datetime.now()
     print(f"[{start_time.strftime('%H:%M:%S')}] [HITO 0] Iniciando Auditoría...")
     
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser( )
+    parser.add_argument("-l", "--lang", default="es", help="Idioma de salida (es por defecto)")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-a", "--archivo"); group.add_argument("-f", "--folder")
     parser.add_argument("-o", "--output", required=True)
@@ -190,7 +203,7 @@ def main():
 
     print("[HITO 1] Configurando entorno...")
     cp = detectar_librerias()
-    if not cp: sys.exit("❌ Error: Librerías no detectadas.")
+    if not cp: sys.exit("FAIL Error: Librerías no detectadas.")
     os.makedirs(args.output, exist_ok=True)
     archivos = [args.archivo] if args.archivo else [os.path.join(r, fi) for r, _, fs in os.walk(args.folder) for fi in fs if fi.endswith(".jasper")]
     

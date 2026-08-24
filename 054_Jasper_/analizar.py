@@ -1,4 +1,17 @@
 #!/usr/bin/env python3
+# ------------------------------------------------------------
+# DISCLAIMER: Este script es parte del repositorio de herramientas de pruebas de penetración.
+# Su uso está sujeto a los términos de la licencia MIT y al aviso legal presente en el README.
+# ------------------------------------------------------------
+
+import logging
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+__version__ = "1.0.0"
 # -*- coding: utf-8 -*-
 
 # =============================================================================
@@ -31,19 +44,19 @@
 # --- HISTORIAL DE VERSIONES ---
 # ==============================================================================
 # v5.0.0 (2026-05-20) - [SEGURIDAD Y ANÁLISIS]
-#   ✅ Integrado: Motor de auditoría OWASP (SQLi, LFI, RCE, XXE, XSS).
-#   ✅ Estabilidad: Manejo correcto de archivos binarios (.jasper) sin decodificación.
-#   ✅ Referencia: Indicación de uso de script v3 para procesos de descompilación.
+#   OK Integrado: Motor de auditoría OWASP (SQLi, LFI, RCE, XXE, XSS).
+#   OK Estabilidad: Manejo correcto de archivos binarios (.jasper) sin decodificación.
+#   OK Referencia: Indicación de uso de script v3 para procesos de descompilación.
 #
 # v1.2.0 (2025-09-15) - [ESTABLE FINAL]
-#   ✅ Corregido: Función get_script_version() duplicada eliminada.
-#   ✅ Corregido: Hash SHA-256 correcto para archivos JRXML.
+#   OK Corregido: Función get_script_version() duplicada eliminada.
+#   OK Corregido: Hash SHA-256 correcto para archivos JRXML.
 #
 # v1.1.0 (2025-09-15) - [ESTABLE]
-#   ✅ Añadido: Detección recursiva de archivos .jrxml y .jasper.
+#   OK Añadido: Detección recursiva de archivos .jrxml y .jasper.
 #
 # v1.0.0 (2025-09-14) - [LANZAMIENTO]
-#   ✅ Primera versión funcional completa del analizador JRXML.
+#   OK Primera versión funcional completa del analizador JRXML.
 # ==============================================================================
 
 import argparse
@@ -54,6 +67,7 @@ import re
 import base64
 import hashlib
 import zipfile
+import logging
 
 
 def get_script_version():
@@ -258,7 +272,7 @@ def print_audit_report(results):
         findings = r.get('security_findings', [])
         
         if not findings:
-            print("  -> ✅ No se detectaron riesgos de seguridad.")
+            print("  -> OK No se detectaron riesgos de seguridad.")
         else:
             for h in findings:
                 # Ajustamos el formato según lo que muestra tu poc2.txt
@@ -426,7 +440,8 @@ def print_results(results, summary_mode=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Analizador de archivos JRXML y .jasper")
+    parser = argparse.ArgumentParser( description="Analizador de archivos JRXML y .jasper")
+    parser.add_argument("-l", "--lang", default="es", help="Idioma de salida (es por defecto)")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-a", "--analyze-file", help="Ruta archivo")
     group.add_argument("-f", "--analyze-folder", help="Ruta carpeta")

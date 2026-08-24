@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ------------------------------------------------------------
+# DISCLAIMER: Este script es parte del repositorio de herramientas de pruebas de penetración.
+# Su uso está sujeto a los términos de la licencia MIT y al aviso legal presente en el README.
+# ------------------------------------------------------------
+
+import logging
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
 # -*- coding: utf-8 -*-
 
 # =============================================================================
@@ -28,11 +40,11 @@
 # --- HISTORIAL DE VERSIONES ---
 # ==============================================================================
 # v2.0.0 (2026-05-20) - [ESTANDARIZACIÓN]
-#   ✅ Alineación con la Jasper CLI Suite v2.0.
-#   ✅ Corregido: Gestión de rutas y creación automática de directorios de salida.
+#   OK Alineación con la Jasper CLI Suite v2.0.
+#   OK Corregido: Gestión de rutas y creación automática de directorios de salida.
 #
 # v1.0.0 (2025-09-14) - [LANZAMIENTO]
-#   ✅ Primera versión funcional del compilador con puente Java.
+#   OK Primera versión funcional del compilador con puente Java.
 # ==============================================================================
 import os
 import sys
@@ -94,7 +106,8 @@ def compilar(input_path, output_dir):
 
 print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser( )
+    parser.add_argument("-l", "--lang", default="es", help="Idioma de salida (es por defecto)")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-a", "--analyze-file", help="Archivo .jrxml")
     group.add_argument("-f", "--analyze-folder", help="Carpeta con .jrxml")
