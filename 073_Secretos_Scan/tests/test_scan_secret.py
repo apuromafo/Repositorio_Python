@@ -4,6 +4,7 @@
 # ------------------------------------------------------------
 
 import unittest
+import unittest.mock
 import sys
 import os
 import platform
@@ -26,6 +27,8 @@ from scan_secret import (
     _seleccionar_asset_github,
     _HERRAMIENTAS_CONFIG,
     _DIR_TOOLS,
+    _leer_config_herramientas,
+    _guardar_config_herramientas,
 )
 
 
@@ -35,6 +38,16 @@ class TestScanSecret(unittest.TestCase):
         self.assertIn(".git", exclusiones)
         self.assertIn("node_modules", exclusiones)
         self.assertIn(".scannerwork", exclusiones)
+
+    def test_exclusion_residuos_sonarqube(self):
+        self.assertIn(".sonarqube", obtener_exclusiones_directorios())
+        self.assertIn(".sonar", obtener_exclusiones_directorios())
+
+    def test_debe_excluir_sonarqube(self):
+        self.assertTrue(debe_excluir("/proyecto/.sonarqube/report.json", [".sonarqube"]))
+
+    def test_debe_excluir_residuo_pytest(self):
+        self.assertTrue(debe_excluir("/proyecto/tests/.pytest_cache/v/cache/nodeids", [".pytest_cache"]))
 
     def test_debe_excluir_git(self):
         self.assertTrue(debe_excluir("/proyecto/.git/config", [".git"]))
@@ -79,6 +92,14 @@ class TestHerramientasConfig(unittest.TestCase):
                               f"{nombre} no tiene asset para {plataforma}")
                 self.assertIn(plataforma, cfg["binary_name"],
                               f"{nombre} no tiene binary_name para {plataforma}")
+
+    def test_asset_patterns_darwin_coinciden_assets_reales(self):
+        for nombre, cfg in _HERRAMIENTAS_CONFIG.items():
+            patron = cfg["asset_patterns"]["Darwin"]
+            self.assertNotIn("universal", patron.lower(),
+                             f"{nombre}: darwin_universal no existe en GitHub")
+            extencion_valida = patron.endswith(".tar.gz")
+            self.assertTrue(extencion_valida, f"{nombre}: Darwin debe ser .tar.gz")
 
     def test_dir_tools_es_subdirectorio_del_script(self):
         import scan_secret as ss
@@ -151,6 +172,48 @@ class TestSeleccionarAssetGithub(unittest.TestCase):
         ]
         result = _seleccionar_asset_github(assets, "gitleaks", "8.21.2")
         self.assertIsNotNone(result)
+
+
+class TestConfigHerramientas(unittest.TestCase):
+    def setUp(self):
+        self._dir_test_config = os.path.join(os.path.dirname(os.path.dirname(__file__)), "_test_config")
+        self._patch_dir = unittest.mock.patch("scan_secret._DIR_CONFIG", self._dir_test_config)
+        self._patch_dir.start()
+        self._patch_config = unittest.mock.patch("scan_secret.ARCHIVO_CONFIG", os.path.join(self._dir_test_config, "herramientas.json"))
+        self._patch_config.start()
+        self.addCleanup(self._patch_dir.stop)
+        self.addCleanup(self._patch_config.stop)
+
+    def test_leer_sin_archivo_retorna_none(self):
+        self.assertIsNone(_leer_config_herramientas())
+
+    def test_guardar_y_leer_devuelven_estructura(self):
+        versiones = {"gitleaks": "8.24.2", "trufflehog": "3.95.9"}
+        _guardar_config_herramientas("C:/bin/gitleaks.exe", "C:/bin/trufflehog.exe", versiones)
+        data = _leer_config_herramientas()
+        self.assertIsNotNone(data)
+        self.assertEqual(data["sistema_operativo"], platform.system())
+        self.assertEqual(data["herramientas"]["gitleaks"]["ruta"], "C:/bin/gitleaks.exe")
+        self.assertEqual(data["herramientas"]["gitleaks"]["version"], "8.24.2")
+        self.assertEqual(data["herramientas"]["trufflehog"]["version"], "3.95.9")
+
+    def test_guardar_con_binarios_none(self):
+        _guardar_config_herramientas(None, None, {"gitleaks": "8.24.2", "trufflehog": "3.95.9"})
+        data = _leer_config_herramientas()
+        self.assertIsNotNone(data)
+        self.assertIsNone(data["herramientas"]["gitleaks"]["ruta"])
+        self.assertIsNone(data["herramientas"]["trufflehog"]["ruta"])
+
+    def test_leer_so_distinto_retorna_none(self):
+        versiones = {"gitleaks": "8.24.2", "trufflehog": "3.95.9"}
+        _guardar_config_herramientas("C:/bin/gitleaks.exe", "C:/bin/trufflehog.exe", versiones)
+        with unittest.mock.patch("scan_secret.platform.system", return_value="Linux"):
+            self.assertIsNone(_leer_config_herramientas())
+
+    def tearDown(self):
+        if os.path.isdir(self._dir_test_config):
+            import shutil
+            shutil.rmtree(self._dir_test_config, ignore_errors=True)
 
 
 if __name__ == "__main__":

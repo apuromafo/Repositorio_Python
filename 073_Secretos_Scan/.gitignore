@@ -47,3 +47,6 @@ tmp_*/
 
 # Downloaded binaries (no versionar)
 tools/
+
+# Mini config de herramientas (rutas locales + versiones)
+config/
