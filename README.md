@@ -2,7 +2,7 @@
 
 **Soy pentester.** Este repositorio contiene scripts que uso en mi día a día para automatizar tareas, contrastar información, validar hallazgos y agilizar auditorías de seguridad. No todo es ofensivo — también hay utilidades personales, conversores, retos de programación y herramientas de productividad.
 
-Está organizado en **71 carpetas numeradas (001–071)**, cada una con su propio script, README y (cuando aplica) pruebas unitarias.
+Está organizado en **73 carpetas numeradas (001–073)**, cada una con su propio script, README y (cuando aplica) pruebas unitarias.
 
 ---
 
@@ -90,6 +90,7 @@ Está organizado en **71 carpetas numeradas (001–071)**, cada una con su propi
 | 070 | `URL link` | Acortador y validador de URLs |
 | 071 | `DNS_CAA` | Auditoría de registros DNS CAA |
 | 072 | `quiz_builder` | Generador de exámenes interactivos HTML + CLI bilingüe con editor visual |
+| 073 | `Secretos_Scan` | Escáner unificado de secretos (Gitleaks + TruffleHog) con auto-instalación |
 
 ---
 
@@ -131,6 +132,7 @@ Herramientas para pentesting, análisis de vulnerabilidades, hardening, OSINT, y
 | **069** | **`SSL_Scan`** | **Auditor SSL/TLS con PQC, CVSS 4.0/3.1, tests (39)** |
 | 070 | `URL link` | Acortador y validador de URLs |
 | 071 | `DNS_CAA` | Auditoría de registros DNS CAA |
+| 073 | `Secretos_Scan` | Escáner unificado de secretos (Gitleaks + TruffleHog) con auto-instalación |
 
 ### 📱 Móvil
 Toolkit para auditoría de seguridad en aplicaciones Android/iOS: descompilación, análisis dinámico, bypass de SSL, extracción de JWTs, y automatización con Frida y ADB.
@@ -197,10 +199,10 @@ Scripts con fines de aprendizaje, ejercicios de programación, quizzes y herrami
 
 | Indicador | Estado |
 |-----------|--------|
-| README por script | ✅ 71/71 |
-| Disclaimer legal en script | ✅ 172/172 archivos .py |
-| Disclaimer legal en README | ✅ 71/71 |
-| Tests unitarios | ✅ 069 (39 tests), 071 (46 tests), 072 (27 tests), root (3 tests) |
+| README por script | ✅ 73/73 |
+| Disclaimer legal en script | ✅ 173/173 archivos .py |
+| Disclaimer legal en README | ✅ 73/73 |
+| Tests unitarios | ✅ 069 (39 tests), 071 (46 tests), 072 (27 tests), 073 (22 tests), root (3 tests) |
 | Documentación en español | ✅ 100% |
 
 ---
