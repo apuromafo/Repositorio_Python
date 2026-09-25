@@ -27,7 +27,8 @@ casos de auditoria son cerrados y locales.
 Uso como libreria:
     import redaccion as rd
     res = rd.redactar_archivo("evidencia.png", regiones, out_dir="salida/",
-                              pdf=True, marca_agua="CONFIDENCIAL")
+                              pdf=True, marca_agua="copia autorizada a|correo@algo.com",
+                              marca_tamanio=34, marca_alpha=45, marca_color="#ffffff")
     print(res["hash_original"], res["hash_salida"], res.get("salida_pdf"))
 """
 
@@ -44,6 +45,12 @@ try:
     HAVE_PIL = True
 except Exception:  # pragma: no cover
     HAVE_PIL = False
+
+try:
+    from pypdf import PdfReader, PdfWriter
+    HAVE_PYPDF = True
+except Exception:  # pragma: no cover
+    HAVE_PYPDF = False
 
 MODOS = ("barra", "blur", "pixelado")
 HERRAMIENTA = "074_visor_redaccion/redaccion"
@@ -223,30 +230,69 @@ def aplicar_redaccion(imagen, regiones, filtro_byn=None):
     return copia
 
 
-def marca_de_agua(imagen, texto="CONFIDENCIAL", alpha=45):
+def marca_de_agua(imagen, texto="CONFIDENCIAL", alpha=45, tamanio=34, color="#ffffff",
+                  negrita=False, cantidad=3):
     """Devuelve una COPIA RGB con la marca de agua repetida (mosaico diagonal).
 
     Se usa al exportar PDF: la evidencia sale YA con marca de agua sobre la
     imagen redactada, para que no se pueda quitar de la copia publicada.
     100% local (Pillow), sin red. El mosaico rotado cubre toda la imagen.
+
+    texto: puede ser MULTILINEA — separa las lineas con "|" o con \n.
+    Ej: "copia autorizada a|correo@algo.com" dibuja dos lineas.
+    alpha: opacidad del texto (0-255). tamanio: tamano de fuente en px.
+    color: color del texto (nombre/hex/RGB).
+    negrita: True dibuja el texto en NEGRITA (grosor de trazo).
+    cantidad: densidad de la repeticion 1-5 (1 = espaciado amplio, 5 = muy
+    tupido, mas veces repetido).
     """
     if not HAVE_PIL:
         raise RuntimeError("Pillow no esta disponible")
+    lineas = [l.strip() for l in str(texto or "CONFIDENCIAL").replace("|", "\n").split("\n") if l.strip()]
+    if not lineas:
+        lineas = ["CONFIDENCIAL"]
     w, h = imagen.size
     try:
-        fuente = ImageFont.truetype("arial.ttf", 34)
+        if negrita:
+            fuente = ImageFont.truetype("arialbd.ttf", max(8, int(tamanio)))
+        else:
+            fuente = ImageFont.truetype("arial.ttf", max(8, int(tamanio)))
     except Exception:  # pragma: no cover
-        fuente = ImageFont.load_default()
-    # mosaico unico con el texto rotado
-    ancho_t = max(220, int(w * 0.5))
-    alto_t = 100
+        try:
+            fuente = ImageFont.truetype("arial.ttf", max(8, int(tamanio)))
+        except Exception:  # pragma: no cover
+            fuente = ImageFont.load_default()
+    try:
+        rgb = _parse_color(color)
+    except Exception:  # pragma: no cover
+        rgb = (255, 255, 255)
+    alfa = max(0, min(255, int(alpha)))
+    # medir el bloque multilinea: ancho maximo y alto total
+    med = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+    altos = []
+    anchos = []
+    for li in lineas:
+        bb = med.textbbox((0, 0), li, font=fuente)
+        anchos.append(bb[2] - bb[0])
+        altos.append(bb[3] - bb[1])
+    ancho_t = max(120, max(anchos) + 28)
+    alto_t = max(60, sum(altos) + 24 + (len(lineas) - 1) * 6)
     mosaico = Image.new("RGBA", (ancho_t, alto_t), (0, 0, 0, 0))
-    ImageDraw.Draw(mosaico).text((10, 12), texto, font=fuente, fill=(255, 255, 255, alpha))
+    dm = ImageDraw.Draw(mosaico)
+    y = 12
+    for li in lineas:
+        dm.text((14, y), li, font=fuente, fill=(rgb[0], rgb[1], rgb[2], alfa))
+        bb = med.textbbox((0, 0), li, font=fuente)
+        y += (bb[3] - bb[1]) + 6
     mosaico = mosaico.rotate(22, expand=True, resample=Image.BICUBIC)
     # teselado del mosaico sobre toda la imagen
     capa = Image.new("RGBA", imagen.size, (0, 0, 0, 0))
-    paso_x = max(1, int(mosaico.width * 0.72))
-    paso_y = max(1, int(mosaico.height * 0.65))
+    cant = max(1, min(5, int(cantidad or 3)))
+    # densidad: mas cantidad = mas repeticiones (menos espacio entre mosaicos)
+    sx = max(0.35, 1.1 - (cant - 1) * 0.1625)   # 1.1 -> 0.45 de 1 a 5
+    sy = max(0.35, 1.0 - (cant - 1) * 0.1375)   # 1.0 -> 0.45 de 1 a 5
+    paso_x = max(1, int(mosaico.width * sx))
+    paso_y = max(1, int(mosaico.height * sy))
     fila, y = 0, -mosaico.height
     while y < h:
         x = (0 if fila % 2 == 0 else -mosaico.width // 2)
@@ -279,8 +325,34 @@ def _metadata_base(entrada, regiones, comando, filtro_byn=None):
     return meta
 
 
+def proteger_pdf(ruta, clave):
+    """Cifra un PDF existente con contrasena (lo reescribe protegido).
+
+    Requiere pypdf (opcional, requirements.txt). Devuelve True si se cifro.
+    La contrasena NUNCA se guarda en el manifest ni en reporte.log: solo queda
+    el marcador pdf_protegido=True (privacidad de la contrasena).
+    """
+    if not clave:
+        return False
+    if not HAVE_PYPDF:
+        raise RuntimeError("pypdf no disponible: pip install -r requirements.txt")
+    lector = PdfReader(ruta)
+    escritor = PdfWriter()
+    for pagina in lector.pages:
+        escritor.add_page(pagina)
+    try:
+        escritor.encrypt(clave, algorithm="AES-256")
+    except Exception:  # pragma: no cover
+        escritor.encrypt(clave, use_128bit=True)
+    with open(ruta, "wb") as fh:
+        escritor.write(fh)
+    return True
+
+
 def redactar_archivo(entrada, regiones, out_dir, prefijo=None, comando="", filtro_byn=None,
-                     pdf=False, marca_agua="CONFIDENCIAL"):
+                     pdf=False, marca_agua="CONFIDENCIAL", marca_tamanio=34,
+                     marca_alpha=45, marca_color="#ffffff",
+                     marca_negrita=False, marca_cantidad=3, pdf_password=None):
     """Redacta `entrada` en una copia dentro de out_dir.
 
     Genera: <nombre>_redactada.png, <nombre>_manifest.json y reporte.log con la
@@ -289,7 +361,13 @@ def redactar_archivo(entrada, regiones, out_dir, prefijo=None, comando="", filtr
     gris, 2=binario) ANTES de aplicar las regiones.
     pdf: opcional, ademas genera <nombre>_redactada.pdf con la imagen YA
     redactada + marca de agua repetida (evidencia que no se puede quitar de la
-    copia publicada). marca_agua: texto de la marca (default CONFIDENCIAL).
+    copia publicada). marca_agua: texto (MULTILINEA con "|" o \\n).
+    marca_tamanio: tamano de fuente en px. marca_alpha: opacidad 0-255.
+    marca_color: color del texto (hex/nombre/RGB). marca_negrita: True = texto
+    en NEGRITA (grosor de trazo mayor). marca_cantidad: densidad de repeticion
+    1-5 (1 espaciado amplio, 5 muy tupido).
+    pdf_password: contrasena OPCIONAL para CIFRAR el PDF (requiere pypdf).
+    Nunca se guarda en claro: en manifest/log solo queda pdf_protegido=True.
     """
     if not os.path.isfile(entrada):
         raise FileNotFoundError("No existe la imagen: %s" % entrada)
@@ -306,7 +384,12 @@ def redactar_archivo(entrada, regiones, out_dir, prefijo=None, comando="", filtr
     salida_pdf = None
     if pdf:
         salida_pdf = os.path.join(out_dir, (prefijo or base) + "_redactada.pdf")
-        marca_de_agua(copia, texto=marca_agua or "CONFIDENCIAL").save(salida_pdf, "PDF", resolution=150)
+        marca_de_agua(copia, texto=marca_agua or "CONFIDENCIAL",
+                      alpha=marca_alpha, tamanio=marca_tamanio,
+                      color=marca_color or "#ffffff",
+                      negrita=marca_negrita, cantidad=marca_cantidad).save(salida_pdf, "PDF", resolution=150)
+        if pdf_password:
+            proteger_pdf(salida_pdf, pdf_password)
 
     hash_orig = hash_sha256(entrada)
     hash_sal = hash_sha256(salida)
@@ -325,9 +408,17 @@ def redactar_archivo(entrada, regiones, out_dir, prefijo=None, comando="", filtr
     })
     if salida_pdf:
         manifest["salida_pdf"] = os.path.basename(salida_pdf)
+        manifest["pdf_protegido"] = bool(pdf_password)
         manifest["marca_agua"] = {
             "texto": marca_agua or "CONFIDENCIAL",
-            "nota": "El PDF lleva la marca de agua repetida sobre la imagen "
+            "tamanio": int(marca_tamanio),
+            "alpha": int(marca_alpha),
+            "color": marca_color or "#ffffff",
+            "negrita": bool(marca_negrita),
+            "cantidad": int(marca_cantidad),
+            "nota": "Marca multilinea (separador '|' o \\n), tamano en px, "
+                    "opacidad 0-255, color, negrita (grosor) y cantidad (1-5). "
+                    "El PDF lleva la marca de agua repetida sobre la imagen "
                     "redactada (la PNG es la copia limpia censurada).",
         }
     manifest_path = os.path.join(out_dir, (prefijo or base) + "_manifest.json")

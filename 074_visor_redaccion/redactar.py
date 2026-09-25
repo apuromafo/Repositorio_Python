@@ -32,7 +32,12 @@ barra: color = relleno, color_borde = contorno (opcional), grosor_borde = ancho 
 Ejecutar:
     python redactar.py -i evidencia.png -r reglas.json -o salida/
     python redactar.py -i evidencia.png -r reglas.json -o salida/ --pdf --marca-agua "CONFIDENCIAL - no divulgar"
+    python redactar.py -i evidencia.png -r reglas.json -o salida/ --pdf ^
+      --marca-agua "copia autorizada a|correo@algo.com" --marca-tam 34 --marca-alpha 45 ^
+      --marca-color "#ffffff" --marca-negrita --marca-cantidad 4
     python redactar.py -i evidencia.png -r reglas.json -o salida/ -l en
+
+La marca de agua es MULTILINEA: separa las lineas con "|" o con \n.
 
 Privacidad: local (Pillow), sin red, sin GPU. La salida siempre es una copia
 redactada con su hash; el original queda intacto. Nada se publica.
@@ -87,7 +92,21 @@ def main(argv=None):
                              "redactada + MARCA DE AGUA repetida (evidencia que no se "
                              "puede quitar de la copia publicada)")
     parser.add_argument("--marca-agua", dest="marca_agua", default="CONFIDENCIAL",
-                        help="Texto de la marca de agua del PDF (default: CONFIDENCIAL)")
+                        help="Texto de la marca de agua del PDF (default: CONFIDENCIAL). "
+                             "MULTILINEA: separa las lineas con '|' o con \\n")
+    parser.add_argument("--marca-tam", dest="marca_tam", type=int, default=34,
+                        help="Tamano (grosor) de la fuente de la marca en px (default: 34)")
+    parser.add_argument("--marca-alpha", dest="marca_alpha", type=int, default=45,
+                        help="Opacidad de la marca 0-255 (default: 45)")
+    parser.add_argument("--marca-color", dest="marca_color", default="#ffffff",
+                        help="Color de la marca (hex/nombre/RGB, default: #ffffff)")
+    parser.add_argument("--marca-negrita", dest="marca_negrita", action="store_true",
+                        help="Texto de la marca en NEGRITA (grosor de trazo mayor)")
+    parser.add_argument("--marca-cantidad", dest="marca_cantidad", type=int, default=3,
+                        help="Densidad de repeticion de la marca 1-5 (default: 3; 5 = muy tupida)")
+    parser.add_argument("--pdf-clave", dest="pdf_clave", default=None,
+                        help="Contrasena OPCIONAL para CIFRAR el PDF (pypdf). "
+                             "Nunca se guarda en claro: solo pdf_protegido=True en el manifest")
     parser.add_argument("-l", "--lang", choices=("es", "en"), default="es",
                         help="Idioma de salida en consola (es/en)")
     args = parser.parse_args(argv)
@@ -102,6 +121,9 @@ def main(argv=None):
             args.entrada, reglas,
             out_dir=args.salida, prefijo=args.prefijo,
             filtro_byn=args.byn, pdf=args.pdf, marca_agua=args.marca_agua,
+            marca_tamanio=args.marca_tam, marca_alpha=args.marca_alpha,
+            marca_color=args.marca_color, marca_negrita=args.marca_negrita,
+            marca_cantidad=args.marca_cantidad, pdf_password=args.pdf_clave,
             comando="python redactar.py -i %s -r %s -o %s"
                     % (os.path.basename(args.entrada), args.reglas, args.salida),
         )

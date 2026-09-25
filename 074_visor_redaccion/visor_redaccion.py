@@ -45,11 +45,17 @@ Controles extra:
   - "B/N puro": convierte la vista (y la copia exportada, si esta activado) a
     blanco y negro con niveles de gris seleccionables (2/4/8/16/32/64/128/256).
     Util para evidencias a color sin tonos de piel; se registra en el manifest.
-  - "Marca PDF:" (campo en la barra, persistente): texto de la marca de agua
-    para el export PDF (default CONFIDENCIAL; editable). "Vista previa": la
-    muestra en pantalla para verla antes de exportar (opcional, solo visual).
-    "Exportar PDF": genera la copia redactada como PDF con la marca repetida
-    incrustada (no se puede quitar de la copia publicada). Sin dialogo previo.
+  - "Marca PDF:" caja MULTILINEA (una linea por renglon; escribe o pega varias,
+    ej. "copia autorizada a" + "correo@algo.com") + estilo completo en la barra:
+    Tamaño (px), Opacidad %, Color, Negrita (grosor de trazo) y Cantidad
+    (densidad 1-5) + "Vista previa" (muestra EXACTAMENTE lo que saldra en el
+    PDF: texto, tamano, opacidad, color, negrita y cantidad) + "Clave PDF"
+    opcional (cifra el PDF con contrasena AES-256 via pypdf; la clave NUNCA se
+    guarda en claro, solo pdf_protegido=True en el manifest). "Exportar PDF":
+    genera la copia redactada como PDF con la marca repetida incrustada (no se
+    puede quitar de la copia publicada). Sin dialogo previo.
+  - Menu "Ayuda" -> "Acerca de...": informacion de la herramienta (version,
+    autor, herramienta y nota de uso autorizado).
   - Tras exportar (PNG o PDF) pregunta si abre la carpeta de salida.
 
 Ejecutar:  python visor_redaccion.py
@@ -94,6 +100,8 @@ PASOS = [
     "3. Ajustar: doble clic en la region (panel)",
     "   para metodo, COLOR, intensidad y motivo",
     "4. Exportar censurado (boton Exportar)",
+    "5. Opcional: marca PDF multilinea +",
+    "   Exportar PDF (tamano/opacidad/color)",
 ]
 
 
@@ -112,7 +120,12 @@ class VisorRedaccion:
         self.filtro_byn = tk.BooleanVar(value=False)          # B/N puro
         self.niv_byn = tk.StringVar(value="256")
         self.modo_mano = tk.BooleanVar(value=False)          # herramienta MANO (mover vista)
-        self.marca_agua = tk.StringVar(value="CONFIDENCIAL") # texto marca PDF (opcion en barra)
+        self.marca_tam = tk.StringVar(value="34")            # tamano fuente de la marca en px
+        self.marca_alpha = tk.StringVar(value="18")          # opacidad de la marca en PORCENTAJE (18% ~ alpha 46)
+        self.marca_color = tk.StringVar(value="#ffffff")     # color de la marca de agua
+        self.marca_negrita = tk.BooleanVar(value=False)     # texto NEGRITA (grosor de trazo)
+        self.marca_cantidad = tk.StringVar(value="3")       # densidad de repeticion 1-5
+        self.marca_clave = tk.StringVar(value="")           # contrasena OPCIONAL del PDF
         self.vista_previa_marca = tk.BooleanVar(value=False) # vista previa de la marca en canvas
         self.escala = 1.0
         self.offset = (0, 0)
@@ -122,10 +135,82 @@ class VisorRedaccion:
         self._pan_ini = None         # ultimo punto del pan (boton derecho o MANO)
         self._mano_pan = False       # pan activo con boton izquierdo (modo MANO)
 
+        self._build_menu()
         self._build_topbar()
         self._build_main()
 
     # ---------------------------------------------------------- UI
+    def _build_menu(self):
+        """Menu de aplicacion (Ayuda -> Acerca de...)."""
+        barra = tk.Menu(self.root)
+        ayuda = tk.Menu(barra, tearoff=0)
+        ayuda.add_command(label="Acerca de...", command=self._acerca_de)
+        barra.add_cascade(label="Ayuda", menu=ayuda)
+        self.root.config(menu=barra)
+
+    def _texto_marca(self):
+        """Texto de la marca de agua (campo multilinea de la barra)."""
+        try:
+            return self.marca_txt.get("1.0", "end-1c").strip()
+        except Exception:
+            return ""
+
+    def _marca_tam(self):
+        """Tamano (grosor) de la fuente de la marca en px (seguro)."""
+        try:
+            return max(8, int(self.marca_tam.get()))
+        except Exception:
+            return 34
+
+    def _marca_alpha(self):
+        """Opacidad en porcentaje -> alpha 0-255 (lo que usa el core)."""
+        try:
+            return max(0, min(255, int(round(float(self.marca_alpha.get()) * 255 / 100))))
+        except Exception:
+            return 45
+
+    def _marca_cantidad(self):
+        """Densidad de repeticion de la marca 1-5 (segura)."""
+        try:
+            return max(1, min(5, int(self.marca_cantidad.get())))
+        except Exception:
+            return 3
+
+    def _alternar_ver_clave(self):
+        """Muestra/oculta la contrasena del PDF (boton Ver)."""
+        try:
+            actual = self.marca_clave_entry.cget("show")
+            self.marca_clave_entry.config(show="" if actual else "\u2022")
+        except Exception:
+            pass
+
+    def _elegir_color_marca(self):
+        _, hexc = colorchooser.askcolor(color=self.marca_color.get(), parent=self.root)
+        if hexc:
+            self.marca_color.set(hexc)
+            try:
+                self.swatch_marca.config(bg=hexc)
+            except Exception:
+                pass
+            self.actualizar_vista()
+
+    def _acerca_de(self):
+        info = (
+            "Visor de evidencias - mostrar pero censurar (redaccion PII)\n\n"
+            "Version: %s (GUI %s)\n"
+            "Autor: %s\n"
+            "Herramienta: %s\n\n"
+            "100%% local (tkinter + Pillow): sin red, sin GPU, sin tokens.\n"
+            "El original nunca se modifica; la salida es SIEMPRE una copia\n"
+            "redactada con manifest + hash SHA-256 (cadena de custodia).\n\n"
+            "Exportar PDF: copia censurada con MARCA DE AGUA incrustada\n"
+            "multilinea (una linea por renglon), con tamano (grosor),\n"
+            "opacidad %% y color ajustables y vista previa.\n\n"
+            "Uso solo con autorizacion. No publicar evidencias."
+            % (rd.__version__, __version__, rd.AUTOR, rd.HERRAMIENTA)
+        )
+        messagebox.showinfo("Acerca de", info, parent=self.root)
+
     def _build_topbar(self):
         caja = ttk.Frame(self.root, padding=(4, 4, 4, 0))
         caja.pack(side="top", fill="x")
@@ -134,17 +219,19 @@ class VisorRedaccion:
         fila1 = ttk.Frame(caja)
         fila1.pack(side="top", fill="x")
         ttk.Button(fila1, text="Abrir evidencia...", command=self.abrir_imagen).pack(side="left")
-        ttk.Button(fila1, text="📷 Exportar PNG", width=13,
+        ttk.Button(fila1, text="Exportar PNG", width=14,
                    command=self.exportar).pack(side="left", padx=(6, 0))
-        ttk.Button(fila1, text="📄 Exportar PDF", width=13,
+        ttk.Button(fila1, text="Exportar PDF", width=14,
                    command=self.exportar_pdf).pack(side="left", padx=(6, 0))
 
         ttk.Separator(fila1, orient="vertical").pack(side="left", fill="y", padx=8)
 
-        ttk.Label(fila1, text="Marca PDF:").pack(side="left")
-        ttk.Entry(fila1, textvariable=self.marca_agua, width=18).pack(side="left", padx=(4, 0))
-        ttk.Checkbutton(fila1, text="Vista previa", variable=self.vista_previa_marca,
-                        command=self.actualizar_vista).pack(side="left", padx=(6, 0))
+        ttk.Label(fila1, text="Marca PDF (multilinea):").pack(side="left")
+        self.marca_txt = tk.Text(fila1, width=36, height=2, wrap="word",
+                                 font=("Segoe UI", 9), undo=True)
+        self.marca_txt.pack(side="left", padx=(4, 0))
+        self.marca_txt.insert("1.0", "CONFIDENCIAL")
+        self.marca_txt.bind("<KeyRelease>", lambda e: self.actualizar_vista())
 
         # fila 2: herramientas de edicion/vista
         fila2 = ttk.Frame(caja)
@@ -190,6 +277,45 @@ class VisorRedaccion:
         # aviso a la derecha de la fila 2 (nunca se corta ni empuja los botones)
         self.lbl_aviso = ttk.Label(fila2, text="")
         self.lbl_aviso.pack(side="right")
+
+        # fila 3: estilo de la marca de agua (tamano / opacidad / color) + vista previa
+        fila3 = ttk.Frame(caja)
+        fila3.pack(side="top", fill="x", pady=(4, 0))
+
+        ttk.Label(fila3, text="Marca:").pack(side="left")
+
+        ttk.Label(fila3, text="Tamaño (px):").pack(side="left", padx=(10, 2))
+        ttk.Spinbox(fila3, from_=12, to=120, increment=2, width=5,
+                    textvariable=self.marca_tam).pack(side="left")
+        self.marca_tam.trace_add("write", lambda *a: self.actualizar_vista())
+
+        ttk.Label(fila3, text="Opacidad %:").pack(side="left", padx=(10, 2))
+        ttk.Spinbox(fila3, from_=5, to=100, increment=5, width=4,
+                    textvariable=self.marca_alpha).pack(side="left")
+        self.marca_alpha.trace_add("write", lambda *a: self.actualizar_vista())
+
+        ttk.Button(fila3, text="Color...", width=8,
+                   command=self._elegir_color_marca).pack(side="left", padx=(10, 0))
+        self.swatch_marca = tk.Label(fila3, width=3, relief="ridge",
+                                     bg=self.marca_color.get())
+        self.swatch_marca.pack(side="left", padx=(4, 0))
+
+        ttk.Checkbutton(fila3, text="Negrita", variable=self.marca_negrita,
+                        command=self.actualizar_vista).pack(side="left", padx=(10, 0))
+
+        ttk.Label(fila3, text="Cantidad (1-5):").pack(side="left", padx=(10, 2))
+        ttk.Spinbox(fila3, from_=1, to=5, increment=1, width=3,
+                    textvariable=self.marca_cantidad).pack(side="left")
+        self.marca_cantidad.trace_add("write", lambda *a: self.actualizar_vista())
+
+        ttk.Label(fila3, text="Clave PDF:").pack(side="left", padx=(10, 2))
+        self.marca_clave_entry = ttk.Entry(fila3, textvariable=self.marca_clave,
+                                           width=10, show="\u2022")
+        self.marca_clave_entry.pack(side="left")
+        ttk.Button(fila3, text="Ver", width=4, command=self._alternar_ver_clave).pack(side="left", padx=(2, 0))
+
+        ttk.Checkbutton(fila3, text="Vista previa", variable=self.vista_previa_marca,
+                        command=self.actualizar_vista).pack(side="left", padx=(12, 0))
 
     def _build_main(self):
         marco = ttk.PanedWindow(self.root, orient="horizontal")
@@ -253,7 +379,8 @@ class VisorRedaccion:
     def abrir_imagen(self):
         path = filedialog.askopenfilename(
             title="Abrir evidencia",
-            filetypes=[("Imagenes", "*.png *.jpg *.jpeg *.tif *.tiff *.bmp"), ("Todos", "*.*")])
+            filetypes=[("Imagenes", "*.png *.jpg *.jpeg *.webp *.tif *.tiff *.bmp"),
+                       ("Todos", "*.*")])
         if not path:
             return
         try:
@@ -337,9 +464,13 @@ class VisorRedaccion:
         nh = max(1, int(h * self.escala))
         img = base.resize((nw, nh), __import__("PIL.Image", fromlist=["Image"]).LANCZOS)
 
-        # vista previa opcional de la marca de agua (solo en pantalla, no exporta)
-        if self.vista_previa_marca.get() and self.marca_agua.get().strip():
-            img = rd.marca_de_agua(img, texto=self.marca_agua.get().strip(), alpha=50)
+        # vista previa opcional de la marca de agua (mismo estilo que el PDF)
+        if self.vista_previa_marca.get() and self._texto_marca():
+            img = rd.marca_de_agua(img, texto=self._texto_marca(),
+                                   alpha=self._marca_alpha(), tamanio=self._marca_tam(),
+                                   color=self.marca_color.get().strip() or "#ffffff",
+                                   negrita=self.marca_negrita.get(),
+                                   cantidad=self._marca_cantidad())
 
         from PIL import ImageTk
         self._photo = ImageTk.PhotoImage(img)
@@ -735,23 +866,30 @@ class VisorRedaccion:
         out_dir = filedialog.askdirectory(title="Carpeta de salida (PDF redactado con marca de agua)")
         if not out_dir:
             return
-        texto = (self.marca_agua.get() or "").strip() or "CONFIDENCIAL"
+        texto = self._texto_marca() or "CONFIDENCIAL"
+        clave = self.marca_clave.get().strip()
         try:
             byn = int(self.niv_byn.get()) if self.filtro_byn.get() else None
             res = rd.redactar_archivo(
                 self._open_path, self.regiones, out_dir=out_dir,
-                filtro_byn=byn, pdf=True, marca_agua=texto.strip() or "CONFIDENCIAL",
+                filtro_byn=byn, pdf=True, marca_agua=texto,
+                marca_tamanio=self._marca_tam(), marca_alpha=self._marca_alpha(),
+                marca_color=self.marca_color.get().strip() or "#ffffff",
+                marca_negrita=self.marca_negrita.get(),
+                marca_cantidad=self._marca_cantidad(),
+                pdf_password=clave or None,
                 comando="visor_redaccion.py (GUI) - PDF marca de agua",
             )
         except Exception as exc:
             messagebox.showerror("Error", "No se pudo exportar el PDF:\n%s" % exc)
             return
+        proteccion = " y CONTRASENA (cifrado)" if clave else ""
         messagebox.showinfo("PDF OK",
-                            "PDF redactado con marca de agua:\n%s\n\n"
+                            "PDF redactado con marca de agua%s:\n%s\n\n"
                             "manifest: %s\n\n"
                             "SHA-256 salida:  %s\n\n"
                             "El original NO fue modificado." %
-                            (res["salida_pdf"], res["manifest"], res["hash_salida"]))
+                            (proteccion, res["salida_pdf"], res["manifest"], res["hash_salida"]))
         if messagebox.askyesno("Abrir carpeta", "¿Abrir la carpeta de salida?"):
             self._abrir_carpeta(out_dir)
 

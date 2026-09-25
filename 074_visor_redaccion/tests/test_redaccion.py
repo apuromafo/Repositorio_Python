@@ -178,11 +178,45 @@ class TestRedaccion(unittest.TestCase):
         # respecto de la imagen solida original, la marca modifica pixeles
         self.assertNotEqual(list(out.getdata()), list(img.getdata()))
 
+    def test_marca_de_agua_multilinea(self):
+        img = Image.open(self.entrada)
+        mono = rd.marca_de_agua(img, texto="copia autorizada a", alpha=40, tamanio=20)
+        multi = rd.marca_de_agua(img, texto="copia autorizada a|correo@algo.com",
+                                 alpha=40, tamanio=20)
+        self.assertNotEqual(list(mono.getdata()), list(multi.getdata()))
+
+    def test_marca_de_agua_tamanio(self):
+        img = Image.open(self.entrada)
+        a = rd.marca_de_agua(img, texto="CONF", alpha=40, tamanio=20)
+        b = rd.marca_de_agua(img, texto="CONF", alpha=40, tamanio=80)
+        self.assertNotEqual(list(a.getdata()), list(b.getdata()))
+
+    def test_marca_de_agua_color(self):
+        img = Image.open(self.entrada)
+        a = rd.marca_de_agua(img, texto="CONF", alpha=120, tamanio=30, color="#ffffff")
+        b = rd.marca_de_agua(img, texto="CONF", alpha=120, tamanio=30, color="#ff0000")
+        self.assertNotEqual(list(a.getdata()), list(b.getdata()))
+
+    def test_marca_de_agua_negrita(self):
+        img = Image.open(self.entrada)
+        a = rd.marca_de_agua(img, texto="CONF", alpha=90, tamanio=40, negrita=False)
+        b = rd.marca_de_agua(img, texto="CONF", alpha=90, tamanio=40, negrita=True)
+        self.assertNotEqual(list(a.getdata()), list(b.getdata()))
+
+    def test_marca_de_agua_cantidad(self):
+        img = Image.open(self.entrada)
+        a = rd.marca_de_agua(img, texto="CONF", alpha=90, tamanio=40, cantidad=1)
+        b = rd.marca_de_agua(img, texto="CONF", alpha=90, tamanio=40, cantidad=5)
+        self.assertNotEqual(list(a.getdata()), list(b.getdata()))
+
     def test_pdf_con_marca_de_agua(self):
         out = os.path.join(TMP, "salida_pdf")
         regiones = [{"region": [10, 10, 40, 40], "modo": "barra", "motivo": "z"}]
         res = rd.redactar_archivo(self.entrada, regiones, out_dir=out,
-                                  pdf=True, marca_agua="TEST-CONF", comando="test pdf")
+                                  pdf=True, marca_agua="TEST-CONF",
+                                  marca_tamanio=48, marca_alpha=80,
+                                  marca_color="#ff0000", marca_negrita=True,
+                                  marca_cantidad=5, comando="test pdf")
         self.assertTrue(os.path.isfile(res["salida"]))
         self.assertTrue(res["salida_pdf"] and os.path.isfile(res["salida_pdf"]))
         with open(res["salida_pdf"], "rb") as fh:
@@ -190,12 +224,37 @@ class TestRedaccion(unittest.TestCase):
         with open(res["manifest"], encoding="utf-8") as fh:
             m = json.load(fh)
         self.assertEqual(m["marca_agua"]["texto"], "TEST-CONF")
+        self.assertEqual(m["marca_agua"]["tamanio"], 48)
+        self.assertEqual(m["marca_agua"]["alpha"], 80)
+        self.assertEqual(m["marca_agua"]["color"], "#ff0000")
+        self.assertTrue(m["marca_agua"]["negrita"])
+        self.assertEqual(m["marca_agua"]["cantidad"], 5)
+        self.assertFalse(m["pdf_protegido"])
         self.assertTrue(m["salida_pdf"].endswith(".pdf"))
         # sin --pdf no se genera el PDF
         res2 = rd.redactar_archivo(self.entrada, regiones,
                                    out_dir=os.path.join(TMP, "salida_sin_pdf"),
                                    comando="test")
         self.assertIsNone(res2.get("salida_pdf"))
+
+    @unittest.skipUnless(rd.HAVE_PYPDF, "pypdf no disponible")
+    def test_pdf_con_contrasena(self):
+        out = os.path.join(TMP, "salida_clave")
+        regiones = [{"region": [10, 10, 40, 40], "modo": "barra", "motivo": "z"}]
+        res = rd.redactar_archivo(self.entrada, regiones, out_dir=out,
+                                  pdf=True, marca_agua="CONF",
+                                  pdf_password="clave123", comando="test clave")
+        self.assertTrue(res["salida_pdf"] and os.path.isfile(res["salida_pdf"]))
+        from pypdf import PdfReader
+        r = PdfReader(res["salida_pdf"])
+        self.assertTrue(r.is_encrypted)
+        r.decrypt("clave123")
+        self.assertEqual(len(r.pages), 1)
+        with open(res["manifest"], encoding="utf-8") as fh:
+            m = json.load(fh)
+        self.assertTrue(m["pdf_protegido"])
+        # la contrasena NUNCA queda en claro en el manifest
+        self.assertNotIn("clave123", json.dumps(m))
 
     def test_redactar_archivo_genera_copia_manifest_y_hashes(self):
         out = os.path.join(TMP, "salida1")
