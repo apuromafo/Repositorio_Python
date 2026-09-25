@@ -127,60 +127,69 @@ class VisorRedaccion:
 
     # ---------------------------------------------------------- UI
     def _build_topbar(self):
-        bar = ttk.Frame(self.root, padding=4)
-        bar.pack(side="top", fill="x")
+        caja = ttk.Frame(self.root, padding=(4, 4, 4, 0))
+        caja.pack(side="top", fill="x")
 
-        ttk.Button(bar, text="Abrir evidencia...", command=self.abrir_imagen).pack(side="left")
-        ttk.Button(bar, text="Exportar censurado", command=self.exportar).pack(side="left", padx=(6, 0))
+        # fila 1: archivo + exportar (PNG y PDF juntos, siempre visibles)
+        fila1 = ttk.Frame(caja)
+        fila1.pack(side="top", fill="x")
+        ttk.Button(fila1, text="Abrir evidencia...", command=self.abrir_imagen).pack(side="left")
+        ttk.Button(fila1, text="📷 Exportar PNG", width=13,
+                   command=self.exportar).pack(side="left", padx=(6, 0))
+        ttk.Button(fila1, text="📄 Exportar PDF", width=13,
+                   command=self.exportar_pdf).pack(side="left", padx=(6, 0))
 
-        ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
+        ttk.Separator(fila1, orient="vertical").pack(side="left", fill="y", padx=8)
 
-        ttk.Label(bar, text="Rotar:").pack(side="left")
-        ttk.Button(bar, text="90° ⟲", width=5, command=lambda: self.rotar(90)).pack(side="left", padx=(2, 0))
-        ttk.Button(bar, text="180°", width=5, command=lambda: self.rotar(180)).pack(side="left", padx=(2, 0))
-        ttk.Button(bar, text="90° ⟳", width=5, command=lambda: self.rotar(270)).pack(side="left", padx=(2, 0))
+        ttk.Label(fila1, text="Marca PDF:").pack(side="left")
+        ttk.Entry(fila1, textvariable=self.marca_agua, width=18).pack(side="left", padx=(4, 0))
+        ttk.Checkbutton(fila1, text="Vista previa", variable=self.vista_previa_marca,
+                        command=self.actualizar_vista).pack(side="left", padx=(6, 0))
 
-        ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
+        # fila 2: herramientas de edicion/vista
+        fila2 = ttk.Frame(caja)
+        fila2.pack(side="top", fill="x")
 
-        ttk.Checkbutton(bar, text="B/N puro", variable=self.filtro_byn,
+        ttk.Label(fila2, text="Rotar:").pack(side="left")
+        ttk.Button(fila2, text="90° ⟲", width=5, command=lambda: self.rotar(90)).pack(side="left", padx=(2, 0))
+        ttk.Button(fila2, text="180°", width=5, command=lambda: self.rotar(180)).pack(side="left", padx=(2, 0))
+        ttk.Button(fila2, text="90° ⟳", width=5, command=lambda: self.rotar(270)).pack(side="left", padx=(2, 0))
+
+        ttk.Separator(fila2, orient="vertical").pack(side="left", fill="y", padx=8)
+
+        ttk.Checkbutton(fila2, text="B/N puro", variable=self.filtro_byn,
                         command=self.actualizar_vista).pack(side="left")
-        ttk.Label(bar, text="niveles:").pack(side="left", padx=(4, 2))
-        self.combo_byn = ttk.Combobox(bar, textvariable=self.niv_byn,
+        ttk.Label(fila2, text="niveles:").pack(side="left", padx=(4, 2))
+        self.combo_byn = ttk.Combobox(fila2, textvariable=self.niv_byn,
                                       values=[str(n) for n in rd.NIVELES_BYN],
                                       state="readonly", width=4)
         self.combo_byn.pack(side="left")
         self.combo_byn.bind("<<ComboboxSelected>>", lambda e: self.actualizar_vista())
         self.combo_byn.set("256")
 
-        ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
+        ttk.Separator(fila2, orient="vertical").pack(side="left", fill="y", padx=8)
 
-        ttk.Checkbutton(bar, text="Ver ORIGINAL (sin redactar)", variable=self.mostrar_original,
+        ttk.Checkbutton(fila2, text="Ver ORIGINAL (sin redactar)", variable=self.mostrar_original,
                         command=self.actualizar_vista).pack(side="left")
-        ttk.Checkbutton(bar, text="Guias", variable=self.mostrar_guias,
+        ttk.Checkbutton(fila2, text="Guias", variable=self.mostrar_guias,
                         command=self.actualizar_vista).pack(side="left", padx=(8, 0))
 
-        ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
+        ttk.Separator(fila2, orient="vertical").pack(side="left", fill="y", padx=8)
 
-        ttk.Label(bar, text="Zoom:").pack(side="left")
-        ttk.Button(bar, text="＋", width=3, command=self._zoom_in).pack(side="left", padx=(2, 0))
-        ttk.Button(bar, text="－", width=3, command=self._zoom_out).pack(side="left", padx=(2, 0))
-        ttk.Button(bar, text="100%", width=5, command=self._zoom_100).pack(side="left", padx=(2, 0))
-        ttk.Button(bar, text="Ajustar", width=7, command=self._zoom_ajustar).pack(side="left", padx=(2, 0))
+        ttk.Label(fila2, text="Zoom:").pack(side="left")
+        ttk.Button(fila2, text="＋", width=3, command=self._zoom_in).pack(side="left", padx=(2, 0))
+        ttk.Button(fila2, text="－", width=3, command=self._zoom_out).pack(side="left", padx=(2, 0))
+        ttk.Button(fila2, text="100%", width=5, command=self._zoom_100).pack(side="left", padx=(2, 0))
+        ttk.Button(fila2, text="Ajustar", width=7, command=self._zoom_ajustar).pack(side="left", padx=(2, 0))
 
-        ttk.Checkbutton(bar, text="✋ Mano (mover vista)", variable=self.modo_mano,
-                        command=self._toggle_mano).pack(side="left", padx=(10, 0))
+        ttk.Separator(fila2, orient="vertical").pack(side="left", fill="y", padx=8)
 
-        ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
+        ttk.Checkbutton(fila2, text="✋ Mano (mover vista)", variable=self.modo_mano,
+                        command=self._toggle_mano).pack(side="left")
 
-        ttk.Label(bar, text="Marca PDF:").pack(side="left")
-        ttk.Entry(bar, textvariable=self.marca_agua, width=18).pack(side="left", padx=(4, 0))
-        ttk.Checkbutton(bar, text="Vista previa", variable=self.vista_previa_marca,
-                        command=self.actualizar_vista).pack(side="left", padx=(6, 0))
-        ttk.Button(bar, text="Exportar PDF", width=13,
-                   command=self.exportar_pdf).pack(side="left", padx=(8, 0))
-
-        self.lbl_aviso = ttk.Label(bar, text="")
-        self.lbl_aviso.pack(side="left", padx=(10, 0))
+        # aviso a la derecha de la fila 2 (nunca se corta ni empuja los botones)
+        self.lbl_aviso = ttk.Label(fila2, text="")
+        self.lbl_aviso.pack(side="right")
 
     def _build_main(self):
         marco = ttk.PanedWindow(self.root, orient="horizontal")
