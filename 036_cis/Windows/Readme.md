@@ -1,6 +1,16 @@
-# Auditoría de Seguridad del Sistema
+# Auditoría de Seguridad del Sistema (Windows)
 
-Este script realiza una auditoría básica de seguridad del sistema, verificando varios controles clave relacionados con la defensa contra malware, la gestión de cuentas y la seguridad de la red.  El objetivo es proporcionar una visión general rápida del estado de seguridad del sistema.
+Este script (`win.py`) realiza una auditoría básica de seguridad del sistema, verificando varios controles clave relacionados con la defensa contra malware, la gestión de cuentas y la seguridad de la red.  El objetivo es proporcionar una visión general rápida del estado de seguridad del sistema. Referencia: CIS Controls v8.1.
+
+## Ejecución del Script
+
+```powershell
+# Como administrador
+cd 036_cis\Windows
+python win.py
+```
+
+Se recomienda ejecutarlo con privilegios de administrador para garantizar el acceso a todos los datos necesarios.
 
 ## Funcionalidades Principales
 
@@ -10,10 +20,6 @@ Este script realiza una auditoría básica de seguridad del sistema, verificando
 *   **Control de Acceso:** Evalúa los mecanismos de control de acceso implementados.
 *   **Auditoría de Registros:** Examina los registros del sistema en busca de eventos relevantes.
 *   **Defensa contra Malware:**  Verifica el estado y la configuración de Windows Defender y otras soluciones antivirus detectadas.
-
-## Ejecución del Script
-
-El script se ejecuta mediante el comando `invoke_cis_controls_audit()`.  Se recomienda ejecutarlo con privilegios de administrador para garantizar el acceso a todos los datos necesarios.
 
 ## Dependencias
 

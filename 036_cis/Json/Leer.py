@@ -62,6 +62,8 @@ def display_unified_controls(file_path):
                 print(f"\n--- Salvaguardas ({len(safeguards)}) ---")
                 for s in safeguards:
                     print(f"  ID: {s.get('id', 'N/A')}")
+                    if s.get('title'):
+                        print(f"  Título: {s.get('title')}")
                     print(f"  Descripción: {s.get('description', 'N/A')}")
                     print(f"  Tipo de Activo: {s.get('asset_type', 'N/A')}")
                     print(f"  Función de Seguridad: {s.get('security_function', 'N/A')}")

@@ -18,27 +18,33 @@ Este script de Python permite leer y visualizar los Controles de Seguridad Crít
 
 Este script asume que ya has generado los archivos JSON unificados (`all_cis_controls_es.json` y `all_cis_controls_en.json`) utilizando un script previo (como el que unifica los controles individuales).
 
-Asegúrate de que estos archivos estén ubicados en el **mismo directorio** que el script `cis_reader_menu.py`.
+Asegúrate de que estos archivos estén ubicados en el **mismo directorio** que el script `Leer.py`.
 
 ## Uso
 
-1.  **Guarda el script:** Guarda el código proporcionado anteriormente como `cis_reader_menu.py` (o el nombre que prefieras) en tu máquina.
+1.  **Ubica los archivos JSON:** Coloca los archivos `all_cis_controls_es.json` y `all_cis_controls_en.json` en el **mismo directorio** donde está `Leer.py`.
 
-2.  **Ubica los archivos JSON:** Coloca los archivos `all_cis_controls_es.json` y `all_cis_controls_en.json` en el **mismo directorio** donde guardaste `cis_reader_menu.py`.
-
-3.  **Ejecuta el script:** Abre tu terminal o línea de comandos, navega hasta el directorio donde guardaste el script y ejecútalo con Python:
+2.  **Ejecuta el script:** Abre tu terminal o línea de comandos, navega hasta el directorio `Json` y ejecútalo con Python:
 
     ```bash
-    python cis_reader_menu.py
+    python Leer.py
     ```
 
-4.  **Sigue el menú:** El script te presentará un menú de opciones. Simplemente ingresa el número de la opción deseada y presiona `Enter`. Para avanzar entre controles, presiona `Enter` cuando se te indique.
+3.  **Sigue el menú:** El script te presentará un menú de opciones. Simplemente ingresa el número de la opción deseada y presiona `Enter`. Para avanzar entre controles, presiona `Enter` cuando se te indique.
 
 ## Estructura de Directorios Esperada
 
 ```
-/tu_directorio_de_proyecto/
-├── cis_reader_menu.py
+/036_cis/Json/
+├── Leer.py
 ├── all_cis_controls_es.json
 └── all_cis_controls_en.json
 ```
+
+## Contenido de los JSON (CIS v8.1.2, marzo 2025)
+
+* 18 controles, 153 salvaguardas en cada idioma.
+* Cada salvaguarda incluye: `id`, `title`, `description`, `asset_type`,
+  `security_function` e `igs` (IG1/IG2/IG3).
+* Fuente oficial: `documentos/CIS_Controls_Version_8.1.2___March_2025.csv`
+  (más guía PDF y XLSX en el mismo directorio).

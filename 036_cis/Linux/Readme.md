@@ -1,7 +1,7 @@
 
-# Script de Evaluación y Inventario del Sistema
+# Script de Evaluación y Inventario del Sistema (Linux)
 
-Este script realiza una evaluación básica del sistema operativo y genera un inventario de software instalado. Está diseñado para proporcionar información útil sobre el estado actual del sistema, lo que puede ser valioso para la seguridad, el mantenimiento y la resolución de problemas.
+Este script (`linux.py`) realiza una evaluación básica del sistema operativo y genera un inventario de software instalado. Está diseñado para proporcionar información útil sobre el estado actual del sistema, lo que puede ser valioso para la seguridad, el mantenimiento y la resolución de problemas. Referencia: CIS Controls v8.1.
 
 ## Funcionalidades Principales
 
@@ -17,9 +17,10 @@ Este script realiza una evaluación básica del sistema operativo y genera un in
 
 ## Instalación y Ejecución
 
-1.  Guarda el script como un archivo, por ejemplo, `evaluacion_sistema.sh`.
-2.  Haz que el script sea ejecutable: `chmod +x evaluacion_sistema.sh`
-3.  Ejecuta el script: `./evaluacion_sistema.sh`
+```bash
+cd 036_cis/Linux
+python3 linux.py
+```
 
 ## Salida del Script
 
