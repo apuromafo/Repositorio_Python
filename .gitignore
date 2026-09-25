@@ -64,6 +64,7 @@ desktop.ini
 
 # Documentation
 *.md
+!064_Regulaciones/CHANGELOG.md
 *.md_
 *.md/
 
@@ -79,6 +80,7 @@ desktop.ini
 *.tsv
 *.xlsx
 *.json
+!064_Regulaciones/datos_catalogo.json
 *.xml
 *.yaml
 *.yml

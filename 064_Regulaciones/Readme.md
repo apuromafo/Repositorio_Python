@@ -1,67 +1,39 @@
-# Catálogo de Regulaciones, Estándares y Marcos de Ciberseguridad
+# Catálogo de Ciberseguridad — Red, Blue y Purple Team
 
-Este proyecto es una herramienta de terminal escrita en Python que proporciona un catálogo organizado y categorizado de **49 normativas clave** en el mundo de la ciberseguridad, la privacidad de datos y la auditoría de TI.
+Herramienta de terminal en Python (sin dependencias externas) con **104 referencias** de ciberseguridad, privacidad y regulación financiera, con corte documental al **25-09-2026**. Cubre Chile, América Latina, banca y seguros, y referencias globales.
 
-El script clasifica cada entrada por su naturaleza (Legal, Técnica, Gestión o Auditoría) y facilita la consulta de descripciones rápidas y enlaces oficiales.
+Los datos viven en `datos_catalogo.json` (editable). La entrada principal es `catalogo_ciberseguridad.py`. El archivo con el nombre anterior se conserva como wrapper compatible y ya no imprime al importarse.
 
-## 🚀 Características
+## Cobertura
 
-* **Clasificación por Colores:** Interfaz de línea de comandos (CLI) que utiliza códigos ANSI para diferenciar visualmente las categorías.
-* **Organización Inteligente:** Los datos se presentan ordenados alfabéticamente dentro de cada categoría.
-* **Información Detallada:** Incluye acrónimo, nombre completo, alcance geográfico/sectorial, descripción técnica y URL de referencia.
-* **Amplia Cobertura:** Desde normativas clásicas como **PCI DSS** y **GDPR** hasta marcos modernos como **DORA**, **SLSA** y **TIBER-EU**.
+- **Chile (15):** Ley 21.719 (vigencia 01-12-2026), Ley 19.628 en transición, Ley 21.459 vigente, Ley 19.223 derogada, Ley 21.663, reglamento de incidentes, Ley 20.285, Estrategia Nacional y normativa CMF (RAN 20-10, 20-9, 20-8, 20-7, 1-7, NCG 454 y FAQ).
+- **América Latina (29):** Argentina, Brasil, Colombia, Costa Rica, Ecuador, México, Perú y Uruguay (privacidad, ciberdelito y banca).
+- **Banca y seguros (19):** CMF, BCRA, BCB/CMN, Superfinanciera, CNBV, SBS, DORA, GLBA, SOX, APRA CPS 234 y TIBER-EU, distinguiendo obligación de guía.
+- **Global:** GDPR, NIS2, DORA, CRA, CCPA/CPRA, HIPAA, FISMA, FedRAMP, CMMC, PIPEDA, APRA, APPI, PDPA, DPDP Act, PCI DSS v4.0.1, familia ISO 27000, NIST (CSF 2.0, SP 800-53 Rev. 5.2.0, SP 800-61 Rev. 3, RMF, 800-115, ZTA, SSDF), MITRE ATT&CK/D3FEND, OWASP (Top 10, API, ASVS 5.0.0, WSTG, MASVS, SAMM), CIS Controls v8.1, PTES, OSSTMM 3, FIRST, SLSA, CSA CCM, SOC 2, COBIT 2019, ITIL 4 y MAGERIT v3.
 
-## 📊 Categorías Incluidas
+## Uso
 
-El catálogo divide las normativas en cuatro pilares fundamentales:
-
-| Código | Categoría | Ejemplo |
-| --- | --- | --- |
-| **R** | Regulación Legal/Contractual | GDPR, HIPAA, DORA |
-| **E** | Estándar Técnico/Seguridad | ISO 27001, OWASP ASVS, NIST 800-53 |
-| **A** | Auditoría y Metodología Pentest | PTES, OSSTMM, SOC2 |
-| **M** | Marco de Gestión y Gobierno | COBIT, ITIL, NIST RMF |
-
-## 🛠️ Requisitos e Instalación
-
-1. **Requisitos:** Tener instalado Python 3.x.
-2  **Ejecución:** No requiere librerías externas. Solo ejecuta:
 ```bash
-python "Catalogo de Regulaciones, Estándares y Marcos de Ciberseguridad .py"
-
+python catalogo_ciberseguridad.py resumen
+python catalogo_ciberseguridad.py banca --rol blue-team
+python catalogo_ciberseguridad.py buscar incidentes --region "América Latina"
+python catalogo_ciberseguridad.py ver CL-PRV-001
+python catalogo_ciberseguridad.py mapa
+python catalogo_ciberseguridad.py paises
+python catalogo_ciberseguridad.py roles
+python catalogo_ciberseguridad.py exportar --formato csv --salida reporte.csv --forzar
+python -m unittest
 ```
 
+Filtros combinables: `--pais`, `--region`, `--categoria`, `--sector`, `--rol`, `--estado`, `--obligatoriedad`. Los históricos (derogadas/retiradas) se excluyen por defecto; se muestran con `--incluir-historicos` o `--estado`.
 
+## Criterio legal
 
-## 📝 Ejemplo de Salida
+- Se distingue **ley/regulación** (obligatoria) de **estándar, marco, metodología, guía, evaluación y base de conocimiento** (voluntarios, contractuales o de referencia).
+- ISO, NIST, OWASP y MITRE **no** se presentan como obligaciones legales globales.
+- Las fechas no verificadas en fuente oficial se omiten ("No consignada") en lugar de inventarse.
+- Corte documental 25-09-2026: guía técnica, **no asesoramiento legal**. Verifique vigencia, alcance territorial y texto oficial antes de decidir.
 
-```text
->>> R - Regulación Legal/Contractual (20 Entradas)
-====================================================================================================
-01. [CCPA] California Consumer Privacy Act
-  Alcance: US (California) | Categoría: R
-  Descripción: Otorga a los consumidores derechos sobre sus datos personales.
-  URL: https://oag.ca.gov/privacy/ccpa
---------------------------------------------------
+## Pruebas autorizadas
 
-```
-
-## 📄 Contenido del Catálogo
-
-El script incluye información sobre:
-
-* **Privacidad:** GDPR, LGPD, CCPA, PIPEDA.
-* **Finanzas:** PCI DSS v4.0, DORA, GLBA.
-* **Ciberseguridad Ofensiva:** PTES, MITRE ATT&CK, TIBER-EU.
-* **Desarrollo Seguro:** NIST SSDF, SLSA, OWASP Top 10.
-* **Gestión de Riesgos:** NIST RMF (SP 800-37), MAGERIT, ISO 31000.
-
----
-
- 
-
-## ⚠️ Aviso Legal / Legal Notice
-
-Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
-
-This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.
+Solo para fines educativos y auditoría de seguridad **autorizada**. El uso no autorizado contra sistemas sin consentimiento explícito del propietario es ilegal.
