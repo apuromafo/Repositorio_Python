@@ -13,6 +13,9 @@
 # =============================================================================
 
 import os
+import shlex
+import argparse
+import json
 import subprocess
 import platform
 import datetime
@@ -31,6 +34,19 @@ class Colors:
 # Cada hallazgo será un diccionario con detalles como:
 # {'control': 'CIS 1.1', 'description': 'Descripción del hallazgo', 'severity': 'warning/critical', 'recommendation_key': 'un_id_unico_de_recomendacion'}
 SECURITY_FINDINGS = []
+
+def print_preflight():
+    """Buenas prácticas, disclaimer y autoría. Se muestra antes de auditar."""
+    print(f"{Colors.CYAN}--- Antes de ejecutar ---{Colors.NC}")
+    print("Buenas prácticas:")
+    print("  1. Ejecute SOLO en sistemas propios o con autorización escrita del propietario.")
+    print("  2. Use los privilegios mínimos necesarios (root/sudo solo si el chequeo lo requiere).")
+    print("  3. Pruebe primero en un entorno no productivo (VM/Vagrant).")
+    print("  4. Esta herramienta es de SOLO LECTURA: no modifica el sistema; revise cada")
+    print("     recomendación con su equipo antes de aplicar cambios.")
+    print("Autores: apuromafo (https://github.com/apuromafo) - Sugerencias y reportes:")
+    print("  https://github.com/apuromafo/Repositorio_Python/issues")
+    print(f"{Colors.YELLOW}AVISO LEGAL: uso educativo y auditoría autorizada únicamente.{Colors.NC}")
 
 # Funciones de logging
 def log_info(message):
@@ -84,14 +100,14 @@ def run_command(command, shell=False, capture_output=True, text=True):
     Retorna None si el comando falla o no produce salida.
     """
     try:
-        result = subprocess.run(command, shell=shell, capture_output=capture_output, text=text, check=True, encoding='utf-8', errors='ignore')
+        result = subprocess.run(command, shell=shell, capture_output=capture_output, text=text, check=True, encoding='utf-8', errors='ignore', timeout=30)
         return result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
         return None
 
 def check_command_exists(command):
     """Verifica si un comando existe en el PATH del sistema."""
-    return run_command(f"command -v {command}", shell=True) is not None
+    return run_command(f"command -v {shlex.quote(command)}", shell=True) is not None
 
 def get_linux_distribution_name():
     """
@@ -372,7 +388,7 @@ def check_account_management():
                 if len(parts) >= 7 and parts[6] in ["/bin/bash", "/bin/sh", "/bin/zsh", "/bin/fish"]:
                     username = parts[0]
                     uid = parts[2]
-                    last_login_raw = run_command(f"last -1 {username}", shell=True)
+                    last_login_raw = run_command(f"last -1 {shlex.quote(username)}", shell=True)
                     last_login_info = "Nunca accedió o no disponible"
                     if last_login_raw:
                         last_login_parts = last_login_raw.split()
@@ -510,7 +526,7 @@ def check_access_control():
     critical_files = ["/etc/passwd", "/etc/shadow", "/etc/group", "/etc/sudoers"]
     for file in critical_files:
         if os.path.exists(file):
-            perms = run_command(f"ls -l {file} | awk '{{print $1, $3, $4}}'", shell=True)
+            perms = run_command(f"ls -l {shlex.quote(file)} | awk '{{print $1, $3, $4}}'", shell=True)
             if perms:
                 print(f"  - {file}: {perms}")
                 # Verificaciones específicas de permisos
@@ -535,7 +551,7 @@ def check_audit_logs():
     active_loggers = []
     if check_command_exists("systemctl"):
         for service in logging_services:
-            status = run_command(f"systemctl is-active {service}", shell=True)
+            status = run_command(f"systemctl is-active {shlex.quote(service)}", shell=True)
             print(f"  - {service}: {status if status else 'inactive'}")
             if status == "active":
                 active_loggers.append(service)
@@ -552,7 +568,7 @@ def check_audit_logs():
     log_info("Tamaño de logs principales en /var/log (top 10):")
     log_dirs = "/var/log"
     if os.path.isdir(log_dirs):
-        du_output = run_command(f"du -sh {log_dirs}/* 2>/dev/null | sort -hr | head -10", shell=True)
+        du_output = run_command(f"du -sh {shlex.quote(log_dirs)}/* 2>/dev/null | sort -hr | head -10", shell=True)
         if du_output:
             for line in du_output.splitlines():
                 print(f"  - {line}")
@@ -590,7 +606,7 @@ def check_secure_configuration_management():
     found_world_writable = False
     for path in search_paths:
         if os.path.isdir(path):
-            world_writable_dirs = run_command(f"find {path} -xdev -type d -perm 0777 2>/dev/null", shell=True)
+            world_writable_dirs = run_command(f"find {shlex.quote(path)} -xdev -type d -perm 0777 2>/dev/null", shell=True)
             if world_writable_dirs:
                 for d in world_writable_dirs.splitlines():
                     log_warning(f"  - Directorio con permisos 777: {d}. Cambie permisos a 755 o 700 si no es necesario.", control="CIS 11", safeguard="11.2", recommendation_key="config_world_writable_dir")
@@ -608,7 +624,7 @@ def check_secure_configuration_management():
 
     for user in common_default_users:
         # Verificar si el usuario existe
-        if run_command(f"id -u {user}", shell=True):
+        if run_command(f"id -u {shlex.quote(user)}", shell=True):
             log_warning(f"  - Posible cuenta por defecto activa: {user}. Considere deshabilitarla o eliminarla si no es necesaria, o cambiar la contraseña fuerte.", control="CIS 11", safeguard="11.6", recommendation_key="config_default_user_active")
             found_default_user_issue = True
     
@@ -720,7 +736,7 @@ def check_system_integrity():
     suid_sgid_files = run_command("find /usr /bin /sbin -type f -perm /6000 2>/dev/null | head -20", shell=True)
     if suid_sgid_files:
         for file in suid_sgid_files.splitlines():
-            perms = run_command(f"ls -l '{file}' | awk '{{print $1}}'", shell=True)
+            perms = run_command(f"ls -l {shlex.quote(file)} | awk '{{print $1}}'", shell=True)
             log_warning(f"  - Archivo SUID/SGID: {file} ({perms if perms else 'permisos no obtenidos'}). Revise estos archivos cuidadosamente.", control="CIS Adicional", safeguard="Integridad", recommendation_key="integrity_suid_sgid_file")
     else:
         log_info("No se encontraron archivos SUID/SGID en los directorios comunes o el comando falló.")
@@ -728,7 +744,7 @@ def check_system_integrity():
     log_info("Trabajos cron del sistema (/etc/cron.d/ y crontab de usuarios):")
     cron_d_path = "/etc/cron.d"
     if os.path.isdir(cron_d_path):
-        cron_files = run_command(f"ls -la {cron_d_path}/ 2>/dev/null | grep -v '^total'", shell=True)
+        cron_files = run_command(f"ls -la {shlex.quote(cron_d_path)}/ 2>/dev/null | grep -v '^total'", shell=True)
         if cron_files:
             log_info(f"  Archivos en {cron_d_path}:")
             for line in cron_files.splitlines():
@@ -744,7 +760,7 @@ def check_system_integrity():
         if users:
             found_user_crontabs = False
             for user in users.splitlines():
-                user_crontab = run_command(f"sudo crontab -l -u {user} 2>/dev/null", shell=True)
+                user_crontab = run_command(f"sudo crontab -l -u {shlex.quote(user)} 2>/dev/null", shell=True)
                 if user_crontab and "no crontab for" not in user_crontab.lower():
                     log_warning(f"    - Crontab para usuario '{user}':\n{user_crontab.strip()}. Revise las tareas programadas de usuarios.", control="CIS Adicional", safeguard="Integridad", recommendation_key="integrity_user_crontab_found")
                     found_user_crontabs = True
@@ -773,6 +789,404 @@ def check_system_integrity():
                 pass
     else:
         log_info("No se pudieron obtener los procesos con alta utilización de CPU.")
+
+
+def _parse_config_last_wins(path):
+    """
+    Parsea un archivo de configuración estilo clave-valor (sshd_config,
+    login.defs): ignora líneas vacías y comentarios (#) y devuelve un dict
+    {clave_en_minusculas: valor} donde la última directiva gana.
+    Soporta separadores por espacio y 'clave = valor'. Solo lectura.
+    Retorna None si el archivo no se puede leer.
+    """
+    values = {}
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                code = line.split("#", 1)[0].strip()
+                if not code:
+                    continue
+                tokens = code.replace("=", " ").split()
+                if len(tokens) >= 2:
+                    values[tokens[0].lower()] = tokens[1]
+    except OSError:
+        return None
+    return values
+
+
+def check_ssh_hardening_scap():
+    """
+    Endurecimiento SSH inspirado en SCAP/ComplianceAsCode (solo lectura).
+    Parsea /etc/ssh/sshd_config ignorando comentarios; la última directiva
+    gana. Nota: los bloques 'Match' e 'Include' pueden alterar la
+    configuración efectiva; verifíquela con 'sudo sshd -T'.
+    """
+    log_section("Endurecimiento SSH (SCAP/CCA, solo lectura)")
+    sshd_path = "/etc/ssh/sshd_config"
+    if not os.path.exists(sshd_path):
+        log_warning(f"{sshd_path} no encontrado. No se puede auditar el endurecimiento SSH.", control="CIS 6", safeguard="6.1", recommendation_key="scap_ssh_config_missing")
+        return
+    config = _parse_config_last_wins(sshd_path)
+    if config is None:
+        log_warning(f"No se pudo leer {sshd_path} (¿permisos? reejecute con sudo).", control="CIS 6", safeguard="6.1", recommendation_key="scap_ssh_config_missing")
+        return
+    log_info("Nota: auditoría sobre el archivo; la configuración efectiva puede variar por bloques Match/Include (verifique con 'sudo sshd -T').")
+
+    permit_root = config.get("permitrootlogin")
+    if permit_root is None:
+        log_info("PermitRootLogin no definido en sshd_config (por defecto 'prohibit-password'). Se recomienda 'no'.")
+    elif permit_root.lower() != "no":
+        log_warning(f"SSH PermitRootLogin es '{permit_root}'. El login directo como root por SSH no es recomendado.", control="CIS 6", safeguard="6.1", recommendation_key="scap_ssh_permit_root")
+    else:
+        log_info("SSH PermitRootLogin: no (correcto).")
+
+    password_auth = config.get("passwordauthentication")
+    if password_auth is None:
+        log_warning("SSH PasswordAuthentication no definido (por defecto 'yes'). Considere usar solo claves SSH.", control="CIS 6", safeguard="6.2", recommendation_key="scap_ssh_password_auth")
+    elif password_auth.lower() != "no":
+        log_warning(f"SSH PasswordAuthentication es '{password_auth}'. Considere usar autenticación por claves SSH.", control="CIS 6", safeguard="6.2", recommendation_key="scap_ssh_password_auth")
+    else:
+        log_info("SSH PasswordAuthentication: no (correcto).")
+
+    x11 = config.get("x11forwarding")
+    if x11 is None:
+        log_info("X11Forwarding no definido (por defecto 'no').")
+    elif x11.lower() != "no":
+        log_warning(f"SSH X11Forwarding es '{x11}'. Desactívelo si no necesita reenvío gráfico.", control="CIS 4", safeguard="4.8", recommendation_key="scap_ssh_x11_forward")
+    else:
+        log_info("SSH X11Forwarding: no (correcto).")
+
+    max_tries = config.get("maxauthtries")
+    if max_tries is None:
+        log_warning("SSH MaxAuthTries no definido (por defecto 6). Se recomienda 4 o menos.", control="CIS 6", safeguard="6.2", recommendation_key="scap_ssh_max_auth_tries")
+    else:
+        try:
+            if int(max_tries) > 4:
+                log_warning(f"SSH MaxAuthTries es {max_tries}. Se recomienda 4 o menos para limitar ataques de fuerza bruta.", control="CIS 6", safeguard="6.2", recommendation_key="scap_ssh_max_auth_tries")
+            else:
+                log_info(f"SSH MaxAuthTries: {max_tries} (correcto).")
+        except ValueError:
+            log_warning(f"SSH MaxAuthTries tiene un valor no numérico: '{max_tries}'. Revise sshd_config.", control="CIS 6", safeguard="6.2", recommendation_key="scap_ssh_max_auth_tries")
+
+    empty_pw = config.get("permitemptypasswords")
+    if empty_pw is None:
+        log_info("PermitEmptyPasswords no definido (por defecto 'no').")
+    elif empty_pw.lower() != "no":
+        log_warning(f"SSH PermitEmptyPasswords es '{empty_pw}'. Nunca permita cuentas sin contraseña por SSH.", control="CIS 6", safeguard="6.1", recommendation_key="scap_ssh_empty_passwords")
+    else:
+        log_info("SSH PermitEmptyPasswords: no (correcto).")
+
+
+def check_kernel_sysctl_hardening():
+    """
+    Parámetros sysctl de kernel/red inspirados en SCAP/CCA (solo lectura).
+    Usa 'sysctl -n <clave>' sin modificar nada.
+    """
+    log_section("Parámetros sysctl de kernel/red (SCAP/CCA, solo lectura)")
+
+    aslr = run_command("sysctl -n kernel.randomize_va_space", shell=True)
+    if aslr is None:
+        log_warning("No se pudo leer kernel.randomize_va_space (¿permisos? reejecute con sudo).", control="CIS 4", safeguard="4.8", recommendation_key="scap_sysctl_read_failed")
+    elif aslr.strip() != "2":
+        log_warning(f"kernel.randomize_va_space es '{aslr.strip()}' (ASLR incompleto). Se recomienda 2 (aleatorización completa).", control="CIS 4", safeguard="4.8", recommendation_key="scap_sysctl_aslr")
+    else:
+        log_info("kernel.randomize_va_space = 2 (ASLR completo, correcto).")
+
+    kptr = run_command("sysctl -n kernel.kptr_restrict", shell=True)
+    if kptr is None:
+        log_warning("No se pudo leer kernel.kptr_restrict.", control="CIS 4", safeguard="4.8", recommendation_key="scap_sysctl_read_failed")
+    else:
+        try:
+            if int(kptr.strip()) < 1:
+                log_warning(f"kernel.kptr_restrict es {kptr.strip()}. Se recomienda >= 1 para ocultar punteros del kernel.", control="CIS 4", safeguard="4.8", recommendation_key="scap_sysctl_kptr_restrict")
+            else:
+                log_info(f"kernel.kptr_restrict = {kptr.strip()} (correcto).")
+        except ValueError:
+            log_warning(f"kernel.kptr_restrict tiene un valor inesperado: '{kptr.strip()}'.", control="CIS 4", safeguard="4.8", recommendation_key="scap_sysctl_read_failed")
+
+    dmesg = run_command("sysctl -n kernel.dmesg_restrict", shell=True)
+    if dmesg is None:
+        log_warning("No se pudo leer kernel.dmesg_restrict.", control="CIS 4", safeguard="4.8", recommendation_key="scap_sysctl_read_failed")
+    elif dmesg.strip() != "1":
+        log_warning(f"kernel.dmesg_restrict es '{dmesg.strip()}'. Se recomienda 1 para que solo root lea el buffer del kernel.", control="CIS 4", safeguard="4.8", recommendation_key="scap_sysctl_dmesg_restrict")
+    else:
+        log_info("kernel.dmesg_restrict = 1 (correcto).")
+
+    ptrace = run_command("sysctl -n kernel.yama.ptrace_scope", shell=True)
+    if ptrace is None:
+        log_info("No se pudo leer kernel.yama.ptrace_scope (YAMA puede no estar disponible en este kernel).")
+    else:
+        try:
+            if int(ptrace.strip()) < 1:
+                log_warning(f"kernel.yama.ptrace_scope es {ptrace.strip()}. Se recomienda >= 1 para restringir ptrace.", control="CIS 4", safeguard="4.8", recommendation_key="scap_sysctl_ptrace_scope")
+            else:
+                log_info(f"kernel.yama.ptrace_scope = {ptrace.strip()} (correcto).")
+        except ValueError:
+            log_warning(f"kernel.yama.ptrace_scope tiene un valor inesperado: '{ptrace.strip()}'.", control="CIS 4", safeguard="4.8", recommendation_key="scap_sysctl_read_failed")
+
+    ip_forward = run_command("sysctl -n net.ipv4.ip_forward", shell=True)
+    if ip_forward is None:
+        log_warning("No se pudo leer net.ipv4.ip_forward.", control="CIS 4", safeguard="4.4", recommendation_key="scap_sysctl_read_failed")
+    elif ip_forward.strip() != "0":
+        # Excepción router: con >1 interfaz con IP global, solo informativo.
+        global_count_raw = run_command("ip -4 a show scope global | grep -c inet", shell=True)
+        try:
+            n_ifaces = int(global_count_raw.strip()) if global_count_raw else 0
+        except (ValueError, AttributeError):
+            n_ifaces = 0
+        if n_ifaces > 1:
+            log_info(f"net.ipv4.ip_forward = {ip_forward.strip()} con {n_ifaces} interfaces con IP global: posible router, solo informativo.")
+        else:
+            log_warning(f"net.ipv4.ip_forward es {ip_forward.strip()}. Desactívelo (= 0) si el sistema no es un router.", control="CIS 4", safeguard="4.4", recommendation_key="scap_sysctl_ip_forward")
+    else:
+        log_info("net.ipv4.ip_forward = 0 (correcto).")
+
+    rp_filter = run_command("sysctl -n net.ipv4.conf.all.rp_filter", shell=True)
+    if rp_filter is None:
+        log_warning("No se pudo leer net.ipv4.conf.all.rp_filter.", control="CIS 4", safeguard="4.4", recommendation_key="scap_sysctl_read_failed")
+    elif rp_filter.strip() != "1":
+        log_warning(f"net.ipv4.conf.all.rp_filter es '{rp_filter.strip()}'. Se recomienda 1 (filtrado de ruta inversa).", control="CIS 4", safeguard="4.4", recommendation_key="scap_sysctl_rp_filter")
+    else:
+        log_info("net.ipv4.conf.all.rp_filter = 1 (correcto).")
+
+
+def check_suid_sgid_scap():
+    """
+    Binarios SUID/SGID en el sistema de archivos (solo lectura).
+    Cuenta el total por separado y advierte por binarios fuera de una lista
+    base conocida de utilidades legítimas.
+    """
+    log_section("Binarios SUID/SGID (SCAP/CCA, solo lectura)")
+    known_suid = {
+        "/usr/bin/sudo", "/usr/bin/su", "/usr/bin/mount", "/usr/bin/umount",
+        "/usr/bin/passwd", "/usr/bin/chsh", "/usr/bin/chfn", "/usr/bin/newgrp",
+        "/usr/bin/gpasswd", "/usr/bin/pkexec", "/usr/bin/sudoedit",
+    }
+    total_raw = run_command("find / -xdev \\( -perm -4000 -o -perm -2000 \\) -type f 2>/dev/null | wc -l", shell=True)
+    if total_raw is None:
+        log_warning("No se pudo contar los binarios SUID/SGID (reejecute con sudo).", control="CIS 4", safeguard="4.8", recommendation_key="scap_suid_scan_failed")
+        return
+    try:
+        total = int(total_raw.strip())
+    except ValueError:
+        log_warning(f"Salida inesperada al contar binarios SUID/SGID: '{total_raw.strip()}'.", control="CIS 4", safeguard="4.8", recommendation_key="scap_suid_scan_failed")
+        return
+    log_info(f"Total de archivos SUID/SGID en / (mismo sistema de archivos): {total}.")
+
+    listing = run_command("find / -xdev \\( -perm -4000 -o -perm -2000 \\) -type f 2>/dev/null | head -30", shell=True)
+    if listing is None:
+        log_warning("No se pudo listar los binarios SUID/SGID (reejecute con sudo).", control="CIS 4", safeguard="4.8", recommendation_key="scap_suid_scan_failed")
+        return
+    listed = [p.strip() for p in listing.splitlines() if p.strip()]
+    unexpected = [p for p in listed if p not in known_suid]
+    if unexpected:
+        log_info(f"Primeros {len(listed)} resultados (lista truncada a 30):")
+        for path in unexpected:
+            log_warning(f"Binario SUID/SGID fuera de la lista base conocida: {path}. Verifique si es legítimo.", control="CIS 4", safeguard="4.8", recommendation_key="scap_suid_unexpected")
+    else:
+        log_info("Todos los binarios SUID/SGID listados pertenecen a la lista base conocida.")
+    if total > 30:
+        log_info(f"La lista se truncó a 30 de {total} resultados; audite el resto con: find / -xdev ( -perm -4000 -o -perm -2000 ) -type f 2>/dev/null")
+
+
+def check_login_defs_scap():
+    """
+    Política de contraseñas y UMASK en /etc/login.defs (solo lectura).
+    """
+    log_section("Política login.defs (SCAP/CCA, solo lectura)")
+    login_defs_path = "/etc/login.defs"
+    if not os.path.exists(login_defs_path):
+        log_warning(f"{login_defs_path} no encontrado. No se puede auditar la política de contraseñas.", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_missing")
+        return
+    config = _parse_config_last_wins(login_defs_path)
+    if config is None:
+        log_warning(f"No se pudo leer {login_defs_path} (¿permisos? reejecute con sudo).", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_missing")
+        return
+
+    max_days_raw = config.get("pass_max_days")
+    if max_days_raw is None:
+        log_info("PASS_MAX_DAYS no definido en /etc/login.defs.")
+    else:
+        try:
+            max_days = int(max_days_raw)
+            if max_days <= 0:
+                log_warning("PASS_MAX_DAYS <= 0: las contraseñas nunca caducan. Se recomienda 90 (máx. 365).", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_max_days")
+            elif max_days > 365:
+                log_warning(f"PASS_MAX_DAYS es {max_days} (> 365). Se recomienda 90 (máx. 365).", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_max_days")
+            else:
+                log_info(f"PASS_MAX_DAYS = {max_days} (correcto, <= 365).")
+        except ValueError:
+            log_warning(f"PASS_MAX_DAYS tiene un valor no numérico: '{max_days_raw}'.", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_max_days")
+
+    min_days_raw = config.get("pass_min_days")
+    if min_days_raw is None:
+        log_warning("PASS_MIN_DAYS no definido (por defecto 0: se permite cambiar la contraseña de inmediato). Se recomienda >= 1.", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_min_days")
+    else:
+        try:
+            if int(min_days_raw) < 1:
+                log_warning(f"PASS_MIN_DAYS es {min_days_raw}. Se recomienda >= 1 para evitar cambios cíclicos inmediatos.", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_min_days")
+            else:
+                log_info(f"PASS_MIN_DAYS = {min_days_raw} (correcto).")
+        except ValueError:
+            log_warning(f"PASS_MIN_DAYS tiene un valor no numérico: '{min_days_raw}'.", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_min_days")
+
+    warn_age_raw = config.get("pass_warn_age")
+    if warn_age_raw is None:
+        log_info("PASS_WARN_AGE no definido en /etc/login.defs.")
+    else:
+        try:
+            if int(warn_age_raw) < 7:
+                log_warning(f"PASS_WARN_AGE es {warn_age_raw}. Se recomienda >= 7 días de aviso.", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_warn_age")
+            else:
+                log_info(f"PASS_WARN_AGE = {warn_age_raw} (correcto).")
+        except ValueError:
+            log_warning(f"PASS_WARN_AGE tiene un valor no numérico: '{warn_age_raw}'.", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_warn_age")
+
+    umask = config.get("umask")
+    if umask is None:
+        log_info("UMASK no definido en /etc/login.defs.")
+    elif umask.strip() in ("027", "077"):
+        log_info(f"UMASK = {umask.strip()} (correcto).")
+    else:
+        log_warning(f"UMASK es '{umask.strip()}'. Se recomienda 027 o 077 para evitar archivos legibles por otros.", control="CIS 5", safeguard="5.4", recommendation_key="scap_logindefs_umask")
+
+
+def check_sudo_nopasswd_scap():
+    """
+    Entradas NOPASSWD en sudoers (solo lectura). Ignora líneas comentadas.
+    """
+    log_section("sudo NOPASSWD (SCAP/CCA, solo lectura)")
+    output = run_command("grep -r NOPASSWD /etc/sudoers /etc/sudoers.d/ 2>/dev/null", shell=True)
+    if output is None:
+        if not os.path.exists("/etc/sudoers") and not os.path.isdir("/etc/sudoers.d"):
+            log_info("No existe /etc/sudoers ni /etc/sudoers.d (sudo podría no estar instalado).")
+        else:
+            log_info("Sin coincidencias de NOPASSWD o sin permiso de lectura (reejecute con sudo para confirmar).")
+        return
+    if not output.strip():
+        log_info("No se encontraron entradas NOPASSWD en sudoers (correcto).")
+        return
+    found = False
+    for line in output.splitlines():
+        content = line.split(":", 1)[1] if ":" in line else line
+        stripped = content.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        code = stripped.split("#", 1)[0]
+        if "NOPASSWD" in code:
+            found = True
+            log_warning(f"Entrada NOPASSWD en sudoers: {line.strip()}. Exija contraseña salvo excepciones justificadas.", control="CIS 5", safeguard="5.4", recommendation_key="scap_sudo_nopasswd")
+    if not found:
+        log_info("Las menciones de NOPASSWD encontradas estaban comentadas (sin efecto).")
+
+
+def check_pam_pwquality_faillock():
+    """
+    Calidad de contraseñas (pwquality minlen >= 12) y bloqueo por intentos
+    fallidos (pam_faillock) (solo lectura, solo informativo).
+    """
+    log_section("PAM pwquality/faillock (SCAP/CCA, solo lectura)")
+    pwquality_path = "/etc/security/pwquality.conf"
+    if os.path.exists(pwquality_path):
+        minlen = None
+        try:
+            with open(pwquality_path, "r", encoding="utf-8", errors="ignore") as f:
+                for raw_line in f:
+                    line = raw_line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    code = line.split("#", 1)[0].replace("=", " ").split()
+                    for i, token in enumerate(code):
+                        if token.lower() == "minlen" and i + 1 < len(code):
+                            try:
+                                minlen = int(code[i + 1])
+                            except ValueError:
+                                pass
+            if minlen is None:
+                log_info("pwquality.conf existe pero no define minlen. Se recomienda minlen >= 12.")
+            elif minlen >= 12:
+                log_info(f"pwquality minlen = {minlen} (correcto, >= 12).")
+            else:
+                log_info(f"pwquality minlen = {minlen}. Se recomienda minlen >= 12 para contraseñas robustas.")
+        except OSError:
+            log_info(f"No se pudo leer {pwquality_path} (¿permisos? reejecute con sudo).")
+    else:
+        log_info(f"{pwquality_path} no existe. Considere instalar libpam-pwquality y fijar minlen >= 12.")
+
+    faillock_found = False
+    for pam_file in ("/etc/pam.d/common-auth", "/etc/pam.d/system-auth"):
+        if os.path.exists(pam_file):
+            try:
+                with open(pam_file, "r", encoding="utf-8", errors="ignore") as f:
+                    for raw_line in f:
+                        line = raw_line.strip()
+                        if not line or line.startswith("#"):
+                            continue
+                        if "pam_faillock.so" in line.split("#", 1)[0]:
+                            faillock_found = True
+                            log_info(f"pam_faillock configurado en {pam_file} (correcto).")
+                            break
+            except OSError:
+                log_info(f"No se pudo leer {pam_file} (¿permisos? reejecute con sudo).")
+    if not faillock_found:
+        log_info("No se detectó pam_faillock en /etc/pam.d/common-auth ni system-auth. Considere habilitarlo para bloquear cuentas tras intentos fallidos.")
+
+
+def check_unattended_upgrades_scap():
+    """
+    Actualizaciones desatendidas: APT (20auto-upgrades con Unattended-Upgrade
+    "1") o dnf-automatic.timer (solo lectura, aviso leve).
+    """
+    log_section("Actualizaciones desatendidas (SCAP/CCA, solo lectura)")
+    apt_conf = "/etc/apt/apt.conf.d/20auto-upgrades"
+    if os.path.exists(apt_conf):
+        try:
+            with open(apt_conf, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            enabled = any(
+                "unattended-upgrade" in line.split("#", 1)[0].lower() and '"1"' in line
+                for line in content.splitlines()
+            )
+            if enabled:
+                log_info("Actualizaciones desatendidas APT activas (Unattended-Upgrade \"1\", correcto).")
+            else:
+                log_warning(f"{apt_conf} no activa Unattended-Upgrade \"1\". Active los parches de seguridad automáticos.", control="CIS 7", safeguard="7.3", recommendation_key="scap_patch_apt_unattended")
+        except OSError:
+            log_info(f"No se pudo leer {apt_conf} (¿permisos? reejecute con sudo).")
+    elif check_command_exists("dnf") or check_command_exists("yum"):
+        timer = run_command("systemctl is-enabled dnf-automatic.timer", shell=True)
+        if timer and timer.strip() == "enabled":
+            log_info("dnf-automatic.timer habilitado (correcto).")
+        else:
+            log_warning("dnf-automatic.timer no está habilitado. Active los parches automáticos.", control="CIS 7", safeguard="7.3", recommendation_key="scap_patch_dnf_automatic")
+    else:
+        log_info("Sistema sin APT ni DNF/YUM detectables; verifique manualmente la política de parches automáticos.")
+
+
+def check_core_dumps_scap():
+    """
+    Volcados de memoria (core dumps): kernel.core_pattern y fs.suid_dumpable
+    (solo lectura). fs.suid_dumpable = 0 correcto, = 2 advertencia.
+    """
+    log_section("Volcados core (SCAP/CCA, solo lectura)")
+    pattern = run_command("sysctl -n kernel.core_pattern", shell=True)
+    if pattern is None:
+        log_info("No se pudo leer kernel.core_pattern (¿permisos? reejecute con sudo).")
+    else:
+        log_info(f"kernel.core_pattern = {(pattern.strip() or '(vacío)')}. Restrinja los volcados si contienen datos sensibles.")
+
+    dumpable = run_command("sysctl -n fs.suid_dumpable", shell=True)
+    if dumpable is None:
+        log_info("No se pudo leer fs.suid_dumpable (¿permisos? reejecute con sudo).")
+    elif dumpable.strip() == "0":
+        log_info("fs.suid_dumpable = 0 (correcto: los binarios setuid no generan core).")
+    elif dumpable.strip() == "2":
+        log_warning("fs.suid_dumpable = 2: los binarios setuid generan volcados. Fije fs.suid_dumpable = 0.", control="CIS 4", safeguard="4.8", recommendation_key="scap_core_suid_dumpable")
+    else:
+        log_warning(f"fs.suid_dumpable = {dumpable.strip()}. Se recomienda 0.", control="CIS 4", safeguard="4.8", recommendation_key="scap_core_suid_dumpable")
 
 
 def check_dependencies():
@@ -870,7 +1284,32 @@ RECOMMENDATIONS_MAP = {
     "integrity_user_crontab_found": "Revise los crontabs de los usuarios para detectar tareas programadas maliciosas o no autorizadas.",
     "integrity_getent_missing_for_crontab": "Instale 'getent' para obtener la lista de usuarios y auditar sus crontabs.",
     "integrity_crontab_tools_missing": "Asegúrese de que 'crontab' y 'getent' estén instalados para una auditoría completa de los trabajos programados.",
-    "integrity_high_cpu_process": "Investigue los procesos que consumen alta CPU para identificar malware, scripts maliciosos o problemas de rendimiento."
+    "integrity_high_cpu_process": "Investigue los procesos que consumen alta CPU para identificar malware, scripts maliciosos o problemas de rendimiento.",
+
+    "scap_ssh_permit_root": "Fije 'PermitRootLogin no' en /etc/ssh/sshd_config (edite con sudo) y reinicie SSH: sudo systemctl restart ssh (o sshd). Administre con un usuario no privilegiado + sudo.",
+    "scap_ssh_password_auth": "Deshabilite la autenticación por contraseña con 'PasswordAuthentication no' en /etc/ssh/sshd_config, distribuya claves SSH (ssh-copy-id) y reinicie: sudo systemctl restart ssh.",
+    "scap_ssh_x11_forward": "Deshabilite el reenvío X11 con 'X11Forwarding no' en /etc/ssh/sshd_config y reinicie: sudo systemctl restart ssh.",
+    "scap_ssh_max_auth_tries": "Limite los intentos con 'MaxAuthTries 4' (o menos) en /etc/ssh/sshd_config y reinicie: sudo systemctl restart ssh.",
+    "scap_ssh_empty_passwords": "Fije 'PermitEmptyPasswords no' en /etc/ssh/sshd_config y reinicie: sudo systemctl restart ssh. Además, asigne o bloquee contraseñas vacías (sudo passwd -l <usuario>).",
+    "scap_ssh_config_missing": "Instale OpenSSH Server (sudo apt install openssh-server / sudo dnf install openssh-server) y asegúrese de que /etc/ssh/sshd_config exista con permisos 600.",
+    "scap_sysctl_aslr": "Active ASLR completo: sudo sysctl -w kernel.randomize_va_space=2 y fíjelo con: echo 'kernel.randomize_va_space = 2' | sudo tee /etc/sysctl.d/99-seguridad.conf.",
+    "scap_sysctl_kptr_restrict": "Oculte punteros del kernel: sudo sysctl -w kernel.kptr_restrict=1 (o 2) y fíjelo en /etc/sysctl.d/99-seguridad.conf.",
+    "scap_sysctl_dmesg_restrict": "Restrinja dmesg a root: sudo sysctl -w kernel.dmesg_restrict=1 y fíjelo en /etc/sysctl.d/99-seguridad.conf.",
+    "scap_sysctl_ptrace_scope": "Restrinja ptrace: sudo sysctl -w kernel.yama.ptrace_scope=1 (o mayor) y fíjelo en /etc/sysctl.d/99-seguridad.conf.",
+    "scap_sysctl_ip_forward": "Desactive el reenvío IP si no es router: sudo sysctl -w net.ipv4.ip_forward=0 y fíjelo con: echo 'net.ipv4.ip_forward = 0' | sudo tee /etc/sysctl.d/99-seguridad.conf.",
+    "scap_sysctl_rp_filter": "Active el filtrado de ruta inversa: sudo sysctl -w net.ipv4.conf.all.rp_filter=1 (y default.rp_filter=1) y fíjelo en /etc/sysctl.d/99-seguridad.conf.",
+    "scap_sysctl_read_failed": "Reejecute con sudo y verifique la clave con: sysctl -n <clave>. Si la clave no existe, el kernel podría no soportarla.",
+    "scap_suid_unexpected": "Audite el binario señalado; si no necesita privilegios elevados, quite el bit: sudo chmod u-s,g-s <ruta>. Nunca deje SUID en editores/intérpretes (vim, less, python, find).",
+    "scap_suid_scan_failed": "Reejecute con sudo: sudo find / -xdev ( -perm -4000 -o -perm -2000 ) -type f 2>/dev/null | sort.",
+    "scap_logindefs_max_days": "Fije 'PASS_MAX_DAYS 90' (máximo 365) en /etc/login.defs y aplíquelo a usuarios existentes con: sudo chage -M 90 <usuario>.",
+    "scap_logindefs_min_days": "Fije 'PASS_MIN_DAYS 1' (o mayor) en /etc/login.defs para impedir cambios cíclicos inmediatos.",
+    "scap_logindefs_warn_age": "Fije 'PASS_WARN_AGE 7' (o mayor) en /etc/login.defs para avisar antes de la caducidad.",
+    "scap_logindefs_umask": "Fije 'UMASK 027' (o 077 en sistemas estrictos) en /etc/login.defs.",
+    "scap_logindefs_missing": "Restaure /etc/login.defs reinstalando el paquete login (sudo apt install --reinstall login) y revise la integridad del sistema.",
+    "scap_sudo_nopasswd": "Elimine 'NOPASSWD' de /etc/sudoers y /etc/sudoers.d/ editando solo con 'sudo visudo'. Si alguna tarea lo requiere, limítelo a un comando exacto y un usuario concreto.",
+    "scap_patch_apt_unattended": "Instale unattended-upgrades (sudo apt install unattended-upgrades) y active: APT::Periodic::Unattended-Upgrade \"1\"; en /etc/apt/apt.conf.d/20auto-upgrades.",
+    "scap_patch_dnf_automatic": "Active parches automáticos con: sudo systemctl enable --now dnf-automatic.timer.",
+    "scap_core_suid_dumpable": "Desactive volcados setuid: sudo sysctl -w fs.suid_dumpable=0 y fíjelo con: echo 'fs.suid_dumpable = 0' | sudo tee /etc/sysctl.d/99-suid-dumpable.conf."
 }
 
 def generate_dynamic_recommendations():
@@ -903,7 +1342,7 @@ def generate_dynamic_recommendations():
     else:
         log_info("No se generaron recomendaciones específicas basadas en los hallazgos.")
 
-def main():
+def main(json_output=None):
     """Función principal que orquesta la ejecución de todos los controles."""
     print(f"{Colors.CYAN}Iniciando auditoría de Controles CIS v8.1 para Linux{Colors.NC}")
     print(f"{Colors.CYAN}Fecha: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}{Colors.NC}")
@@ -917,6 +1356,8 @@ def main():
             current_user = "Desconocido"
     
     print(f"{Colors.CYAN}Usuario: {current_user}{Colors.NC}")
+    print("==================================================")
+    print_preflight()
     print("==================================================")
     
     if os.geteuid() != 0:
@@ -933,15 +1374,30 @@ def main():
     check_malware_defense()
     check_network_vulnerabilities()
     check_system_integrity()
+    check_ssh_hardening_scap()
+    check_kernel_sysctl_hardening()
+    check_suid_sgid_scap()
+    check_login_defs_scap()
+    check_sudo_nopasswd_scap()
+    check_pam_pwquality_faillock()
+    check_unattended_upgrades_scap()
+    check_core_dumps_scap()
     
     print("\n==================================================")
     log_info("Auditoría completada exitosamente.")
     
     generate_dynamic_recommendations() # Llamada a la nueva función de recomendaciones dinámicas
 
+    if json_output:
+        with open(json_output, "w", encoding="utf-8") as f:
+            json.dump(SECURITY_FINDINGS, f, indent=2, ensure_ascii=False)
+
 # Punto de entrada del script
 
 print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Auditoría de Controles CIS v8.1 para Linux")
+    parser.add_argument("--json", dest="json_output", metavar="RUTA", default=None, help="Vuelca la lista SECURITY_FINDINGS a RUTA en formato JSON")
+    args = parser.parse_args()
     check_dependencies()
-    main()
+    main(json_output=args.json_output)

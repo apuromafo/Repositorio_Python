@@ -13,15 +13,38 @@
 # =============================================================================
 
 import platform
-import wmi
-import psutil
+try:
+    import wmi
+    HAS_WMI = True
+except ImportError:
+    wmi = None
+    HAS_WMI = False
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    psutil = None
+    HAS_PSUTIL = False
 import winreg
 import subprocess
 import datetime
 import math
 import ctypes
 import sys
+import os
 import socket # Required for net_if_addrs family check
+
+# Alias seguros: si wmi no está instalado, estos except nunca coinciden
+# (antes, el propio `except wmi.X` lanzaba NameError/AttributeError).
+class _WmiUnavailable(Exception):
+    pass
+_WMI_CONN_ERR = wmi.WMIConnectionError if HAS_WMI else _WmiUnavailable
+_WMI_ERR = wmi.WMIError if HAS_WMI else _WmiUnavailable
+
+if not HAS_WMI:
+    print("[!] Módulo 'wmi' no instalado: las verificaciones WMI se omitirán. Instale con: pip install wmi")
+if not HAS_PSUTIL:
+    print("[!] Módulo 'psutil' no instalado: inventario de procesos/puertos limitado. Instale con: pip install psutil")
 
 # --- Utilidades y Configuración Global ---
 
@@ -35,6 +58,11 @@ class Colors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+# Sin colores si la salida no es terminal, NO_COLOR activo o --no-color
+if (not sys.stdout.isatty()) or os.environ.get("NO_COLOR") or ("--no-color" in sys.argv):
+    for _attr in ("HEADER", "OKBLUE", "OKGREEN", "WARNING", "FAIL", "ENDC", "BOLD", "UNDERLINE"):
+        setattr(Colors, _attr, '')
 
 def print_section_header(title):
     """Prints a formatted section header."""
@@ -50,10 +78,12 @@ def is_admin():
 # Initialize WMI connection (can be reused across functions)
 # This handles potential connection errors more gracefully
 c = None
-if is_admin():
+if not HAS_WMI:
+    print(f"{Colors.WARNING}Advertencia: módulo 'wmi' no disponible. Las verificaciones WMI se omitirán.{Colors.ENDC}")
+elif is_admin():
     try:
         c = wmi.WMI()
-    except wmi.WMIConnectionError as e:
+    except _WMI_CONN_ERR as e:
         print(f"{Colors.FAIL}Error al conectar con WMI: {e}. Asegúrese de que el servicio WMI esté en ejecución y tenga permisos suficientes.{Colors.ENDC}")
     except Exception as e:
         print(f"{Colors.FAIL}Error inesperado al inicializar WMI: {e}{Colors.ENDC}")
@@ -65,11 +95,191 @@ else:
 RECOMMENDATIONS = []
 
 def add_recommendation(control_id, description):
-    """Adds a recommendation to the global list."""
-    RECOMMENDATIONS.append(f"Control {control_id}: {description}")
+    """Adds a recommendation to the global list (sin duplicados)."""
+    rec = f"Control {control_id}: {description}"
+    if rec not in RECOMMENDATIONS:
+        RECOMMENDATIONS.append(rec)
 
 
 # --- Implementación de Controles CIS v8.1 ---
+
+def _reg_value(hive, path, name):
+    """Lee un valor del registro. Devuelve (existe, valor). Solo lectura."""
+    try:
+        with winreg.OpenKey(hive, path, 0, winreg.KEY_READ) as k:
+            v, _ = winreg.QueryValueEx(k, name)
+            return True, v
+    except (FileNotFoundError, OSError):
+        return False, None
+
+
+def _run_text(cmd, timeout=60):
+    """Ejecuta un comando y devuelve su salida como texto.
+    La consola Windows usa OEM (cp850/cp437); se intenta utf-8, OEM y ANSI."""
+    try:
+        r = subprocess.run(cmd, capture_output=True, check=False, timeout=timeout)
+    except (subprocess.TimeoutExpired, OSError):
+        return ""
+    out = (r.stdout or b"")
+    for enc in ("utf-8", "cp850", "cp437", "cp1252"):
+        try:
+            return out.decode(enc)
+        except (UnicodeDecodeError, LookupError):
+            continue
+    return out.decode("utf-8", errors="replace")
+
+
+def test_secure_baseline():
+    """
+    Línea Base Segura (Controles 4/5/6/7/8/10/13).
+    Verificaciones de solo lectura sobre registro y comandos del sistema,
+    inspiradas en reglas SCAP/ComplianceAsCode y listas CIS Benchmark.
+    """
+    print_section_header("Línea Base Segura (UAC, LSA, RDP, SMB, Autorun, Updates)")
+
+    # UAC (Salvaguardas 5.x/6.x)
+    try:
+        ok, lua = _reg_value(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "EnableLUA")
+        ok2, consent = _reg_value(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "ConsentPromptBehaviorAdmin")
+        if ok and lua == 1:
+            print(f"- UAC (EnableLUA): {Colors.OKGREEN}Habilitado{Colors.ENDC}")
+        else:
+            print(f"- UAC (EnableLUA): {Colors.FAIL}Deshabilitado o ilegible{Colors.ENDC}")
+            add_recommendation("5.4, 6.x", "Habilite UAC (EnableLUA=1) y use modo de aprobación (ConsentPromptBehaviorAdmin=2 o 5).")
+        if ok2 and consent == 0:
+            print(f"- UAC (ConsentPromptBehaviorAdmin=0): {Colors.FAIL}Elevar sin pedir credenciales{Colors.ENDC}")
+            add_recommendation("5.4", "No permita elevación silenciosa: ConsentPromptBehaviorAdmin=2 (pedir credenciales) o 5 (pedir consentimiento).")
+    except Exception as e:
+        print(f"{Colors.FAIL}Error verificando UAC: {e}{Colors.ENDC}")
+
+    # Protección LSA (Salvaguardas 4.x/10.x)
+    try:
+        ok, ppl = _reg_value(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Lsa", "RunAsPPL")
+        if ok and ppl in (1, 2):
+            print(f"- Protección LSA (RunAsPPL={ppl}): {Colors.OKGREEN}Activa{Colors.ENDC}")
+        else:
+            print(f"- Protección LSA (RunAsPPL): {Colors.WARNING}No activa (valor: {ppl}){Colors.ENDC}")
+            add_recommendation("4.x, 10.x", "Active la protección LSA (RunAsPPL=1, o 2 con bloqueo UEFI) contra robo de credenciales en memoria.")
+    except Exception as e:
+        print(f"{Colors.FAIL}Error verificando LSA: {e}{Colors.ENDC}")
+
+    # RDP + NLA (Salvaguardas 4.x/13.x)
+    try:
+        ok, deny = _reg_value(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Terminal Server", "fDenyTSConnections")
+        if ok and deny == 1:
+            print(f"- Escritorio remoto: {Colors.OKGREEN}Deshabilitado{Colors.ENDC}")
+        else:
+            ok2, nla = _reg_value(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp", "UserAuthentication")
+            if ok2 and nla == 1:
+                print(f"- Escritorio remoto: habilitado con {Colors.OKGREEN}NLA{Colors.ENDC}")
+            else:
+                print(f"- Escritorio remoto: habilitado {Colors.WARNING}sin NLA verificado{Colors.ENDC}")
+                add_recommendation("4.x, 13.x", "Si RDP es necesario, exija NLA (UserAuthentication=1), restrinja por firewall y use MFA/Cuenta dedicada.")
+    except Exception as e:
+        print(f"{Colors.FAIL}Error verificando RDP: {e}{Colors.ENDC}")
+
+    # Auto-logon (Salvaguarda 5.4) - crítico si hay contraseña almacenada
+    try:
+        ok, auto = _reg_value(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "AutoAdminLogon")
+        ok2, _pwd = _reg_value(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "DefaultPassword")
+        if ok and str(auto) == "1":
+            print(f"- Auto-logon: {Colors.FAIL}HABILITADO{Colors.ENDC}")
+            add_recommendation("5.4", "Deshabilite el inicio de sesión automático (AutoAdminLogon=0).")
+            if ok2:
+                print(f"- Contraseña almacenada en registro (DefaultPassword): {Colors.FAIL}PRESENTE - RIESGO CRÍTICO{Colors.ENDC}")
+                add_recommendation("5.4", "CRÍTICO: elimine DefaultPassword del registro; la contraseña está en texto legible (LSA Secrets).")
+        else:
+            print(f"- Auto-logon: {Colors.OKGREEN}Deshabilitado{Colors.ENDC}")
+    except Exception as e:
+        print(f"{Colors.FAIL}Error verificando auto-logon: {e}{Colors.ENDC}")
+
+    # Firma SMB requerida (Salvaguardas 4.x/13.x)
+    try:
+        for lado, path in (("cliente (Workstation)", r"SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"),
+                           ("servidor (Server)", r"SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters")):
+            ok, v = _reg_value(winreg.HKEY_LOCAL_MACHINE, path, "RequireSecuritySignature")
+            if ok and v == 1:
+                print(f"- Firma SMB {lado}: {Colors.OKGREEN}Requerida{Colors.ENDC}")
+            else:
+                print(f"- Firma SMB {lado}: {Colors.WARNING}No requerida (valor: {v}){Colors.ENDC}")
+                add_recommendation("4.x, 13.x", "Exija firma SMB (RequireSecuritySignature=1) en cliente y servidor contra relay/intercepción.")
+    except Exception as e:
+        print(f"{Colors.FAIL}Error verificando firma SMB: {e}{Colors.ENDC}")
+
+    # Autorun/Autoplay (Salvaguarda 10.x)
+    try:
+        ok, v = _reg_value(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer", "NoDriveTypeAutoRun")
+        if ok and v == 255:
+            print(f"- Autorun (NoDriveTypeAutoRun=255): {Colors.OKGREEN}Deshabilitado en todas las unidades{Colors.ENDC}")
+        else:
+            print(f"- Autorun (NoDriveTypeAutoRun={v}): {Colors.WARNING}No totalmente deshabilitado{Colors.ENDC}")
+            add_recommendation("10.x", "Deshabilite Autorun/Autoplay (NoDriveTypeAutoRun=255/0xFF) contra malware por USB.")
+    except Exception as e:
+        print(f"{Colors.FAIL}Error verificando Autorun: {e}{Colors.ENDC}")
+
+    # LLMNR (Salvaguardas 4.x/13.x)
+    try:
+        ok, v = _reg_value(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Policies\Microsoft\Windows NT\DNSClient", "EnableMulticast")
+        if ok and v == 0:
+            print(f"- LLMNR: {Colors.OKGREEN}Deshabilitado por política{Colors.ENDC}")
+        else:
+            print(f"- LLMNR: {Colors.WARNING}Habilitado por defecto (sin política){Colors.ENDC}")
+            add_recommendation("4.x, 13.x", "Deshabilite LLMNR y NetBIOS (EnableMulticast=0) contra envenenamiento de resolución de nombres.")
+    except Exception as e:
+        print(f"{Colors.FAIL}Error verificando LLMNR: {e}{Colors.ENDC}")
+
+    # Última actualización instalada (Salvaguarda 7.x)
+    try:
+        out = _run_text(["powershell", "-NoProfile", "-Command",
+                         "Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 1 HotFixID,InstalledOn | Format-Table -HideTableHeaders"]).strip()
+        if out:
+            print(f"- Último parche instalado: {out}")
+            add_recommendation("7.x", "Mantenga el sistema al día: verifique Windows Update y ventanas de parcheo mensuales.")
+        else:
+            print("- Último parche instalado: no se pudo determinar.")
+    except Exception as e:
+        print(f"{Colors.WARNING}No se pudo consultar parches: {e}{Colors.ENDC}")
+
+    # Política de contraseñas y bloqueo - net accounts (Salvaguarda 5.x, ES/EN)
+    try:
+        out = _run_text(["net", "accounts"])
+        import re as _re
+        def _num(pats):
+            for line in out.splitlines():
+                low = line.lower()
+                if any(p in low for p in pats):
+                    m = _re.search(r"(\d+)", line)
+                    if m:
+                        return int(m.group(1))
+            return None
+        lockout = _num(["lockout threshold", "umbral de bloqueo"])
+        maxage = _num(["maximum password age", "duración máx", "max password age"])
+        minlen = _num(["minimum password length", "longitud mín", "min password length"])
+        print(f"- Bloqueo por intentos (umbral): {lockout if lockout is not None else 'N/D'}")
+        print(f"- Vigencia máxima contraseña (días): {maxage if maxage is not None else 'N/D'}")
+        print(f"- Longitud mínima: {minlen if minlen is not None else 'N/D'}")
+        if lockout == 0:
+            add_recommendation("5.x", "Configure umbral de bloqueo (net accounts /lockoutthreshold:5) contra fuerza bruta.")
+        if minlen is not None and minlen < 12:
+            add_recommendation("5.x", "Exija longitud mínima ≥12 (net accounts /minpwlen:12) y MFA donde sea posible.")
+    except Exception as e:
+        print(f"{Colors.WARNING}No se pudo consultar net accounts: {e}{Colors.ENDC}")
+
+    # Política de auditoría resumida - auditpol (Salvaguarda 8.x)
+    try:
+        out = _run_text(["auditpol", "/get", "/category:*"])
+        low = out.lower()
+        sin_aud = sum(1 for l in out.splitlines() if "sin auditor" in l.lower() or "no auditing" in l.lower())
+        if "auditpol" in low or "directiva" in low or "policy" in low:
+            print(f"- Subcategorías sin auditoría: {sin_aud}")
+            if sin_aud > 0:
+                add_recommendation("8.x", f"Hay {sin_aud} subcategorías sin auditoría: habilite éxito/fracaso en inicio de sesión, uso de privilegios y acceso a objetos (auditpol).")
+            else:
+                print(f"  {Colors.OKGREEN}✓ Cobertura de auditoría configurada.{Colors.ENDC}")
+        else:
+            print("- auditpol: sin datos (requiere privilegios).")
+    except Exception as e:
+        print(f"{Colors.WARNING}No se pudo consultar auditpol: {e}{Colors.ENDC}")
 
 def get_hardware_inventory():
     """
@@ -90,8 +300,11 @@ def get_hardware_inventory():
             print(f"Último Arranque: {datetime.datetime.strptime(os_info.LastBootUpTime.split('.')[0], '%Y%m%d%H%M%S')}")
             break
 
-        total_ram_gb = round(psutil.virtual_memory().total / (1024**3), 2)
-        print(f"RAM Total: {total_ram_gb} GB")
+        if HAS_PSUTIL:
+            total_ram_gb = round(psutil.virtual_memory().total / (1024**3), 2)
+            print(f"RAM Total: {total_ram_gb} GB")
+        else:
+            print("RAM Total: N/A (psutil no instalado)")
 
         # Processors
         for cpu in c.Win32_Processor():
@@ -129,7 +342,7 @@ def get_hardware_inventory():
             print("- No se detectaron dispositivos USB no-Root Hub.")
             add_recommendation("1.2", "Revise periódicamente los activos no autorizados. Considere implementar el control de puertos USB (USB Device Control).")
 
-    except wmi.WMIConnectionError:
+    except _WMI_CONN_ERR:
         print(f"{Colors.FAIL}Error WMI. Asegúrese de tener permisos de administrador.{Colors.ENDC}")
     except Exception as e:
         print(f"{Colors.FAIL}Error durante el inventario de hardware: {e}{Colors.ENDC}")
@@ -190,41 +403,44 @@ def get_software_inventory():
         #     print(f"  - {app['Name']} v{app['Version']} ({app['Publisher']})")
 
 
-        # Running Services
-        running_services_count = 0
-        for service in psutil.win_service_iter():
-            if service.status() == 'running':
-                running_services_count += 1
-        print(f"\nServicios en ejecución: {running_services_count}")
-
-        # Suspicious Processes (basic example for Salvaguarda 2.2, 2.7)
-        suspicious_processes = []
-        current_pid = psutil.Process().pid
-        common_scripting_executables = ["cmd.exe", "powershell.exe", "wscript.exe", "cscript.exe", "pwsh.exe"]
-        
-        for proc in psutil.process_iter(['pid', 'name', 'exe', 'username']):
-            try:
-                process_name = proc.info['name'].lower()
-                process_exe_path = proc.info['exe']
-                
-                # Flag common scripting shells if they are not the current process
-                if process_name in common_scripting_executables and proc.info['pid'] != current_pid:
-                    suspicious_processes.append(f"{proc.info['name']} (PID: {proc.info['pid']}, Usuario: {proc.info['username']}, Ruta: {process_exe_path})")
-                
-                # Basic check for unsigned executables in suspicious paths (requires admin to get exe path for many processes)
-                if process_exe_path and "temp" in process_exe_path.lower():
-                    # More advanced check would involve verifying digital signature
-                    pass # Not implemented for brevity and complexity
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                continue # Process no longer exists or access denied
-
-        if suspicious_processes:
-            print(f"\n{Colors.WARNING}Procesos que requieren revisión (posibles scripts o ejecutables no autorizados):{Colors.ENDC}")
-            for sp in suspicious_processes:
-                print(f"- {sp}")
-            add_recommendation("2.5, 2.7", "Considere implementar políticas de Allowlisting (AppLocker/WDAC) para ejecutar solo software y scripts autorizados.")
+        # Running Services (requiere psutil)
+        if not HAS_PSUTIL:
+            print(f"\n{Colors.WARNING}psutil no instalado: se omiten servicios en ejecución y procesos sospechosos.{Colors.ENDC}")
         else:
-            print("No se encontraron procesos sospechosos básicos.")
+            running_services_count = 0
+            for service in psutil.win_service_iter():
+                if service.status() == 'running':
+                    running_services_count += 1
+            print(f"\nServicios en ejecución: {running_services_count}")
+
+            # Suspicious Processes (basic example for Salvaguarda 2.2, 2.7)
+            suspicious_processes = []
+            current_pid = psutil.Process().pid
+            common_scripting_executables = ["cmd.exe", "powershell.exe", "wscript.exe", "cscript.exe", "pwsh.exe"]
+
+            for proc in psutil.process_iter(['pid', 'name', 'exe', 'username']):
+                try:
+                    process_name = proc.info['name'].lower()
+                    process_exe_path = proc.info['exe']
+
+                    # Flag common scripting shells if they are not the current process
+                    if process_name in common_scripting_executables and proc.info['pid'] != current_pid:
+                        suspicious_processes.append(f"{proc.info['name']} (PID: {proc.info['pid']}, Usuario: {proc.info['username']}, Ruta: {process_exe_path})")
+
+                    # Basic check for unsigned executables in suspicious paths (requires admin to get exe path for many processes)
+                    if process_exe_path and "temp" in process_exe_path.lower():
+                        # More advanced check would involve verifying digital signature
+                        pass # Not implemented for brevity and complexity
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    continue # Process no longer exists or access denied
+
+            if suspicious_processes:
+                print(f"\n{Colors.WARNING}Procesos que requieren revisión (posibles scripts o ejecutables no autorizados):{Colors.ENDC}")
+                for sp in suspicious_processes:
+                    print(f"- {sp}")
+                add_recommendation("2.5, 2.7", "Considere implementar políticas de Allowlisting (AppLocker/WDAC) para ejecutar solo software y scripts autorizados.")
+            else:
+                print("No se encontraron procesos sospechosos básicos.")
 
     except Exception as e:
         print(f"{Colors.FAIL}Error durante el inventario de software: {e}{Colors.ENDC}")
@@ -237,21 +453,24 @@ def test_network_security():
     print_section_header("Control 4: Configuración Segura de Activos y Software")
 
     try:
-        # Open Ports (Salvaguarda 4.7 - Least Functionality)
+        # Open Ports (Salvaguarda 4.7 - Least Functionality, requiere psutil)
         print("Puertos TCP en escucha:")
         open_ports_info = []
-        for conn in psutil.net_connections(kind='tcp'):
-            if conn.status == psutil.CONN_LISTEN:
-                try:
-                    process_name = "N/A"
-                    if conn.pid:
-                        process = psutil.Process(conn.pid)
-                        process_name = process.name()
-                    open_ports_info.append(f"- Puerto {conn.laddr.port} ({conn.laddr.ip}) - Proceso: {process_name}")
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    open_ports_info.append(f"- Puerto {conn.laddr.port} ({conn.laddr.ip}) - Proceso: Acceso Denegado/No Existe")
-                except Exception as e:
-                    open_ports_info.append(f"- Puerto {conn.laddr.port} ({conn.laddr.ip}) - Error: {e}")
+        if not HAS_PSUTIL:
+            print(f"{Colors.WARNING}psutil no instalado: no se pudieron enumerar puertos.{Colors.ENDC}")
+        else:
+            for conn in psutil.net_connections(kind='tcp'):
+                if conn.status == psutil.CONN_LISTEN:
+                    try:
+                        process_name = "N/A"
+                        if conn.pid:
+                            process = psutil.Process(conn.pid)
+                            process_name = process.name()
+                        open_ports_info.append(f"- Puerto {conn.laddr.port} ({conn.laddr.ip}) - Proceso: {process_name}")
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        open_ports_info.append(f"- Puerto {conn.laddr.port} ({conn.laddr.ip}) - Proceso: Acceso Denegado/No Existe")
+                    except Exception as e:
+                        open_ports_info.append(f"- Puerto {conn.laddr.port} ({conn.laddr.ip}) - Error: {e}")
 
         if open_ports_info:
             for port_info in sorted(open_ports_info):
@@ -268,7 +487,7 @@ def test_network_security():
             firewall_status_ok = True
             for profile_name in profiles:
                 cmd = f'netsh advfirewall show {profile_name} state'
-                result = subprocess.run(cmd, capture_output=True, text=True, shell=True, check=True, encoding='utf-8', errors='ignore')
+                result = subprocess.run(cmd, capture_output=True, text=True, shell=True, check=True, encoding='utf-8', errors='ignore', timeout=60)
                 output = result.stdout.strip()
                 status = "Desconocido"
                 if "State                            ON" in output:
@@ -377,7 +596,7 @@ def test_network_security():
                 else:
                     print(f"{Colors.OKGREEN}✓ BitLocker está activo en todas las unidades cifrables detectadas.{Colors.ENDC}")
 
-            except wmi.WMIError as e:
+            except _WMI_ERR as e:
                 print(f"{Colors.FAIL}Error WMI al verificar BitLocker: {e}. Asegúrese de ejecutar como administrador.{Colors.ENDC}")
                 add_recommendation("4.11", "Verifique el estado del cifrado de disco completo (BitLocker).")
             except Exception as e:
@@ -488,7 +707,7 @@ def test_account_management():
         try:
             # Using 'net accounts' is often the easiest for local policy
             cmd = ['net', 'accounts']
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True, encoding='utf-8', errors='ignore')
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True, encoding='utf-8', errors='ignore', timeout=60)
             output = result.stdout.strip()
 
             password_policy_details = {}
@@ -579,7 +798,7 @@ def test_access_control():
         try:
             # Use wevtutil to query the Security log for Event ID 4624 (Successful Logon)
             cmd = ['wevtutil', 'query-events', 'Security', '/rd:true', '/q:*[System[(EventID=4624)]]', '/c:10', '/f:text']
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True, encoding='utf-8', errors='ignore')
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True, encoding='utf-8', errors='ignore', timeout=60)
             log_output = result.stdout.strip()
 
             logons_found = False
@@ -654,7 +873,7 @@ def test_audit_logs():
         for log_name in log_names:
             try:
                 cmd = ['wevtutil', 'get-log', log_name]
-                result = subprocess.run(cmd, capture_output=True, text=True, check=True, encoding='utf-8', errors='ignore')
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True, encoding='utf-8', errors='ignore', timeout=60)
                 output = result.stdout.strip()
 
                 file_size_mb = "N/A"
@@ -687,7 +906,7 @@ def test_audit_logs():
         try:
             # Check if Windows Time service is running and configured for external source
             cmd = ['w32tm', '/query', '/status']
-            result = subprocess.run(cmd, capture_output=True, text=True, shell=True, check=True, encoding='utf-8', errors='ignore')
+            result = subprocess.run(cmd, capture_output=True, text=True, shell=True, check=True, encoding='utf-8', errors='ignore', timeout=60)
             output = result.stdout.strip()
             
             source_problem = False
@@ -723,7 +942,7 @@ def test_audit_logs():
         try:
             # Check for Process Creation auditing
             cmd_proc_creation = ['auditpol', '/get', '/subcategory:"Process Creation"']
-            result_proc_creation = subprocess.run(cmd_proc_creation, capture_output=True, text=True, check=True, encoding='utf-8', errors='ignore')
+            result_proc_creation = subprocess.run(cmd_proc_creation, capture_output=True, text=True, check=True, encoding='utf-8', errors='ignore', timeout=60)
             if "Success and Failure" in result_proc_creation.stdout:
                 print(f"- Auditoría de Creación de Procesos: {Colors.OKGREEN}Habilitada (Éxito y Fallo){Colors.ENDC}")
             else:
@@ -809,7 +1028,7 @@ def test_malware_defense():
                     print(f"{Colors.FAIL}⚠️ Windows Defender no está completamente activo.{Colors.ENDC}")
                     defender_problem = True
                 break
-        except wmi.WMIError as e:
+        except _WMI_ERR as e:
             print(f"- {Colors.FAIL}No se pudo obtener el estado de Windows Defender (WMI error: {e}). Puede que requiera permisos de administrador o que el servicio esté detenido.{Colors.ENDC}")
             defender_problem = True
         except Exception as e:
@@ -846,7 +1065,7 @@ def test_malware_defense():
                     antivirus_product_problem = True
 
                 print(f"- {av_product.displayName} (Estado: {product_status})")
-        except wmi.WMIError as e:
+        except _WMI_ERR as e:
             print(f"- {Colors.FAIL}No se pudo consultar otras soluciones antivirus (WMI error: {e}). Puede que SecurityCenter2 no esté disponible o se requieran permisos.{Colors.ENDC}")
             antivirus_product_problem = True
         except Exception as e:
@@ -915,7 +1134,7 @@ def test_network_vulnerabilities():
             winreg.CloseKey(server_key)
 
             # Check LanmanWorkstation (client component) for MrxSmb10 service
-            result = subprocess.run(['sc', 'query', 'mrxsmb10'], capture_output=True, text=True, check=False, encoding='utf-8', errors='ignore')
+            result = subprocess.run(['sc', 'query', 'mrxsmb10'], capture_output=True, text=True, check=False, encoding='utf-8', errors='ignore', timeout=60)
             if "RUNNING" in result.stdout:
                 print(f"  Componente de cliente (mrxsmb10): {Colors.FAIL}Habilitado (Servicio en ejecución){Colors.ENDC}")
                 smbv1_enabled_problem = True
@@ -932,21 +1151,24 @@ def test_network_vulnerabilities():
             print(f"  {Colors.OKGREEN}✓ SMBv1 deshabilitado.{Colors.ENDC}")
 
 
-        # Network Adapters (Salvaguarda 12.1 - for basic inventory)
+        # Network Adapters (Salvaguarda 12.1 - for basic inventory, requiere psutil)
         print("\nAdaptadores de red activos:")
         network_adapters_found = False
-        for iface in psutil.net_if_stats():
-            stats = psutil.net_if_stats()[iface]
-            addrs = psutil.net_if_addrs().get(iface)
-            ip_addresses = []
-            if addrs:
-                for addr in addrs:
-                    if addr.family == socket.AF_INET: # IPv4
-                        ip_addresses.append(addr.address)
-            
-            if stats.isup:
-                network_adapters_found = True
-                print(f"- {iface}: Estado {Colors.OKGREEN}Activo{Colors.ENDC}, Velocidad: {stats.speed} Mbps, IPs: {', '.join(ip_addresses) if ip_addresses else 'N/A'}")
+        if not HAS_PSUTIL:
+            print(f"{Colors.WARNING}psutil no instalado: no se pudieron enumerar adaptadores.{Colors.ENDC}")
+        else:
+            for iface in psutil.net_if_stats():
+                stats = psutil.net_if_stats()[iface]
+                addrs = psutil.net_if_addrs().get(iface)
+                ip_addresses = []
+                if addrs:
+                    for addr in addrs:
+                        if addr.family == socket.AF_INET: # IPv4
+                            ip_addresses.append(addr.address)
+
+                if stats.isup:
+                    network_adapters_found = True
+                    print(f"- {iface}: Estado {Colors.OKGREEN}Activo{Colors.ENDC}, Velocidad: {stats.speed} Mbps, IPs: {', '.join(ip_addresses) if ip_addresses else 'N/A'}")
         
         if not network_adapters_found:
             print("- No se encontraron adaptadores de red activos.")
@@ -1066,7 +1288,21 @@ def print_pending_cis_controls_info():
 
 # --- Función Principal de Auditoría ---
 
-def invoke_cis_controls_audit():
+def print_preflight():
+    """Buenas prácticas, disclaimer y autoría. Se muestra antes de auditar."""
+    print(f"{Colors.BOLD}--- Antes de ejecutar ---{Colors.ENDC}")
+    print("Buenas prácticas:")
+    print("  1. Ejecute SOLO en sistemas propios o con autorización escrita del propietario.")
+    print("  2. Use los privilegios mínimos necesarios (admin/root solo si el chequeo lo requiere).")
+    print("  3. Pruebe primero en un entorno no productivo (VM/Vagrant).")
+    print("  4. Esta herramienta es de SOLO LECTURA: no modifica el sistema; revise cada")
+    print("     recomendación con su equipo antes de aplicar cambios.")
+    print("Autores: apuromafo (https://github.com/apuromafo) - Sugerencias y reportes:")
+    print("  https://github.com/apuromafo/Repositorio_Python/issues")
+    print(f"{Colors.WARNING}AVISO LEGAL: uso educativo y auditoría autorizada únicamente.{Colors.ENDC}")
+
+
+def invoke_cis_controls_audit(no_pause=False, json_output=None):
     """
     Main function to run all CIS Controls audit checks.
     """
@@ -1074,23 +1310,29 @@ def invoke_cis_controls_audit():
     print(f"Fecha: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Sistema: {platform.node()}")
     try:
-        current_user = psutil.users()[0].name if psutil.users() else 'N/A'
+        if HAS_PSUTIL and psutil.users():
+            current_user = psutil.users()[0].name
+        else:
+            current_user = os.environ.get("USERNAME", "N/A")
     except Exception:
         current_user = 'N/A'
     print(f"Usuario Ejecutando: {current_user}")
+    print("=" * 50)
+    print_preflight()
     print("=" * 50)
 
     if not is_admin():
         print(f"{Colors.FAIL}¡ADVERTENCIA CRÍTICA: EL SCRIPT NO SE ESTÁ EJECUTANDO CON PRIVILEGIOS DE ADMINISTRADOR!{Colors.ENDC}")
         print(f"{Colors.FAIL}Muchas verificaciones fallarán o darán resultados incompletos. Por favor, ejecute como Administrador.{Colors.ENDC}")
-        input("Presione Enter para continuar de todos modos (algunas funciones podrían fallar)...")
+        if not no_pause:
+            input("Presione Enter para continuar de todos modos (algunas funciones podrían fallar)...")
     
     # Re-initialize WMI if admin check passes, or if it was initially None
     global c
-    if c is None and is_admin():
+    if c is None and is_admin() and HAS_WMI:
          try:
             c = wmi.WMI()
-         except wmi.WMIConnectionError as e:
+         except _WMI_CONN_ERR as e:
             print(f"{Colors.FAIL}Error al reconectar con WMI: {e}. Algunas funciones pueden verse afectadas.{Colors.ENDC}")
          except Exception as e:
             print(f"{Colors.FAIL}Error inesperado al re-inicializar WMI: {e}{Colors.ENDC}")
@@ -1102,6 +1344,7 @@ def invoke_cis_controls_audit():
         test_network_security()
         test_account_management()
         test_access_control()
+        test_secure_baseline()
         test_audit_logs()
         test_malware_defense()
         test_network_vulnerabilities()
@@ -1124,6 +1367,17 @@ def invoke_cis_controls_audit():
         # Call the new function to print information about pending controls
         print_pending_cis_controls_info()
 
+        if json_output:
+            import json as _json
+            with open(json_output, "w", encoding="utf-8") as _f:
+                _json.dump({
+                    "fecha": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "equipo": platform.node(),
+                    "usuario": current_user,
+                    "recomendaciones": RECOMMENDATIONS,
+                }, _f, indent=2, ensure_ascii=False)
+            print(f"\n[*] Recomendaciones exportadas a {json_output}")
+
     except Exception as e:
         print(f"\n{Colors.FAIL}{Colors.BOLD}¡ERROR GRAVE DURANTE LA AUDITORÍA!{Colors.ENDC}")
         print(f"{Colors.FAIL}El script encontró un error inesperado: {e}{Colors.ENDC}")
@@ -1132,4 +1386,10 @@ def invoke_cis_controls_audit():
 
 print("\n[!] AVISO LEGAL: Use solo con autorizacion. / LEGAL NOTICE: Authorized use only.\n")
 if __name__ == "__main__":
-    invoke_cis_controls_audit()
+    import argparse as _argparse
+    _ap = _argparse.ArgumentParser(description="Auditoría CIS v8.1 para Windows")
+    _ap.add_argument("--no-pause", action="store_true", help="No pedir Enter ante avisos (modo no interactivo)")
+    _ap.add_argument("--no-color", action="store_true", help="Salida sin colores ANSI")
+    _ap.add_argument("--json", dest="json_output", metavar="RUTA", default=None, help="Exporta recomendaciones a JSON")
+    _args = _ap.parse_args()
+    invoke_cis_controls_audit(no_pause=_args.no_pause, json_output=_args.json_output)

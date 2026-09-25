@@ -12,6 +12,21 @@ python win.py
 
 Se recomienda ejecutarlo con privilegios de administrador para garantizar el acceso a todos los datos necesarios.
 
+| Flag | Efecto |
+|---|---|
+| `--no-pause` | No pide Enter ante avisos (modo no interactivo / automatización) |
+| `--no-color` | Salida sin códigos ANSI |
+| `--json RUTA` | Exporta fecha, equipo, usuario y recomendaciones a JSON |
+
+Dependencias opcionales (el script degrada con avisos si faltan):
+
+```powershell
+pip install wmi psutil
+```
+
+* Sin `wmi`: se omiten inventario de hardware y defensa antimalware.
+* Sin `psutil`: se omiten servicios, procesos, puertos y adaptadores.
+
 ## Funcionalidades Principales
 
 *   **Verificación de Software:** Obtiene un inventario de software instalado en el sistema.

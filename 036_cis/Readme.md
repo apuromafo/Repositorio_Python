@@ -36,7 +36,17 @@ cd 036_cis/Windows && python win.py
 cd 036_cis/Linux && python linux.py
 ```
 
-**Notas Importantes:**
+## Notas Importantes:
+
+## Buenas prácticas antes de ejecutar (los scripts también lo muestran)
+
+1. Ejecute SOLO en sistemas propios o con autorización escrita.
+2. Privilegios mínimos necesarios (admin/root solo si el chequeo lo requiere).
+3. Pruebe primero en entorno no productivo (VM/Vagrant).
+4. Herramientas de SOLO LECTURA: revise cada recomendación antes de aplicar cambios.
+
+Autores: apuromafo ([github.com/apuromafo](https://github.com/apuromafo)) —
+sugerencias y reportes en [issues](https://github.com/apuromafo/Repositorio_Python/issues).
 
 *   Estos scripts son una herramienta de revisión básica y no sustituyen a un análisis de seguridad exhaustivo.
 *   Asegúrese de comprender completamente los controles CIS antes de ejecutar estos scripts.
@@ -65,6 +75,27 @@ Este documento proporciona enlaces a recursos clave relacionados con la segurida
 *   **Descripción:**  Versión específica (V8.1) de la descarga de los controles CIS.
 *   **Idiomas Disponibles:** Inglés + Francés.
 *   **Enlace Directo:** [https://learn.cisecurity.org/control-download-v8.1](https://learn.cisecurity.org/control-download-v8.1)
+
+## Fuentes y herramientas de referencia
+
+Sincronizar (contenido oficial) → informar (auditar) → sugerir (remediar):
+
+*   **CIS Controls v8.1.2 (oficial):** [control-download](https://learn.cisecurity.org/control-download)
+    — los JSON de `Json/` se validan contra el CSV de `documentos/`.
+*   **HardeningKitty** ([scipag/HardeningKitty](https://github.com/scipag/HardeningKitty)):
+    auditoría Windows por finding lists con severidad, score y reporte CSV.
+    Cubre CIS *Benchmarks* (complementa, no reemplaza, los CIS *Controls*).
+*   **Harden-Windows-Security** ([HotCakeX](https://github.com/HotCakeX/Harden-Windows-Security)):
+    endurecimiento con métodos oficiales Microsoft; referencia de remediación.
+*   **Lynis** ([cisofy.com/lynis](https://cisofy.com/lynis)): auditoría profunda
+    Linux/Unix con hardening index; ideas de severidad y sugerencias.
+*   **OpenSCAP + ComplianceAsCode** ([github.com/ComplianceAsCode/content](https://github.com/ComplianceAsCode/content)):
+    contenido SSG versionado; evaluación formal con
+    `oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_cis`
+    y remediación vía Ansible/Bash generados. Ver sección OpenSCAP en `Linux/Readme.md`.
+*   **Ansible CIS** (roles tipo ansible-lockdown): remediación como código tras auditar.
+*   **Vagrant** ([vagrantup.com](https://www.vagrantup.com/downloads.html)):
+    laboratorio para probar los scripts en varias distros sin riesgo.
 
 
 

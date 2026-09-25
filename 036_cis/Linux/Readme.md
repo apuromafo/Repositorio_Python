@@ -19,8 +19,12 @@ Este script (`linux.py`) realiza una evaluación básica del sistema operativo y
 
 ```bash
 cd 036_cis/Linux
-python3 linux.py
+python3 linux.py [--json RUTA]
 ```
+
+* `--json RUTA`: exporta los hallazgos (`SECURITY_FINDINGS`) a JSON.
+* Cada comando externo tiene timeout de 30 s y las variables interpoladas
+  van saneadas con `shlex.quote()`.
 
 ## Salida del Script
 
@@ -47,5 +51,32 @@ El script utiliza diferentes gestores de paquetes (dpkg, rpm, pacman) para deter
 
 *   **Dependencias:** El script depende de que los comandos necesarios estén disponibles en el sistema.
 *   **Errores:** Si se encuentran errores al parsear información (por ejemplo, la cantidad de RAM), se mostrará un mensaje de advertencia.  Esto puede indicar problemas con la configuración del sistema o la disponibilidad de archivos de información.
+
+## Auditoría formal con OpenSCAP (ComplianceAsCode)
+
+`linux.py` es la revisión rápida. Para evidencia formal use OpenSCAP con el
+perfil CIS del contenido SSG ([ComplianceAsCode/content](https://github.com/ComplianceAsCode/content)):
+
+```bash
+# RHEL/Fedora - Debian (sid): ssg-debian / ssg-debderived / ssg-nondebian
+sudo dnf install -y openscap-scanner scap-security-guide
+
+# Descubrir el datastream y los perfiles CIS disponibles
+ls /usr/share/xml/scap/ssg/content/
+oscap info /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml | grep -i cis
+
+# Evaluar (solo lectura) con reporte HTML + ARF reutilizable
+sudo oscap xccdf eval \
+  --profile xccdf_org.ssgproject.content_profile_cis \
+  --results-arf /tmp/arf.xml --report /tmp/report.html \
+  /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml
+
+# Remediar con Ansible generado (CAMBIA el sistema: probar en lab primero)
+ls /usr/share/scap-security-guide/ansible/
+ansible-playbook -i "localhost," -c local /usr/share/scap-security-guide/ansible/rhel9-playbook-cis.yml
+```
+
+Flujo sugerido: `linux.py` (rápido) → Lynis (profundo) → OpenSCAP perfil CIS
+(formal) → Ansible SSG (remedia) → Vagrant (lab).
 
  
