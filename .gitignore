@@ -283,6 +283,9 @@ idea/
 # Session files
 *.session
 
+# Estados locales de sesión (no versionar)
+/status/
+
 # Project specific
 *.pyc
 *.pyo
