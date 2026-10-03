@@ -18,7 +18,7 @@ import json
 
 # --- Configuración ---
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-MODELO_OLLAMA = "mistral"  # Cambia esto si usas un modelo diferente (e.g., "llama3")
+MODELO_OLLAMA = "qwen3.5:4b"  # Modelo oficial alineado; alternativas: "qwen35-cyber"
 NOMBRE_ARCHIVO_A_REVISAR = "demo.txt"
 
 def revisar_ortografia_con_ollama(ruta_archivo: str, modelo: str) -> None:
