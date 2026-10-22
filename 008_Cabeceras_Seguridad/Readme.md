@@ -9,10 +9,13 @@ Script para validar cabeceras de seguridad HTTP de sitios web, inspirado en buen
 
 El script ha evolucionado con el tiempo, añadiendo más opciones y flexibilidad. A continuación se detallan las funcionalidades actuales:
 
-  - **Análisis de cabeceras:** Identifica las cabeceras de seguridad presentes y las faltantes.
-  - **Recomendaciones:** Ofrece sugerencias sobre cabeceras que se podrían eliminar y cabeceras de seguridad recomendadas para configurar.
-  - **Versatilidad de peticiones:** Permite realizar peticiones `GET`, `POST`, `PUT`, etc., personalizando las cabeceras y el cuerpo de la solicitud.
-  - **Modo estático:** Permite analizar los resultados de una petición previamente guardada en un archivo JSON, evitando la necesidad de hacer una nueva solicitud a la URL.
+  - **Análisis de cabeceras:** Identifica las cabeceras de seguridad presentes y las faltantes, bloque por bloque.
+  - **Análisis profundo de CSP (v1.1+):** Evalúa la política directiva por directiva alineado con CSP Evaluator (Google, CSP v3): severidad por fuente (`unsafe-inline`, `unsafe-eval`, `data:`, wildcards, allowlists JSONP/Angular), herencia de `default-src` (CSP3), y detección de directivas recomendadas ausentes (`form-action`, `base-uri`, `frame-ancestors`, `report-uri`...).
+  - **Plan de remediación accionable (v1.3+):** Emite "fichas de incidencia" con pasos concretos por stack: Nginx, Apache, Node.js/Express, PHP, ASP.NET, Cloudflare WAF (Dashboard + Transform Rules + Worker con nonce), Akamai (Property Manager + EdgeWorkers) y CloudFront, con límites reales de cada plataforma y alineación SOC 2 / PCI DSS v4.0.
+  - **Infosec de exposición:** Detecta ~60 cabeceras que revelan tecnología/proxies/CDN (Server, X-Powered-By, X-Magento-Tags, Via, etc.) con observación/riesgo/sugerencia.
+  - **Verificación HTTP -> HTTPS (v1.4.3):** Comprueba que el sitio responde redirección (30X con Location https) al pedirlo por HTTP.
+  - **Versatilidad de peticiones:** Verbo HTTP (`-v` GET/POST/PUT/HEAD/DELETE/PATCH/OPTIONS), cabeceras personalizadas (`-H`), cuerpo JSON (`-b`), proxy (`-p`), certificado (`--cert`) y User-Agent (`-ua`).
+  - **Modo estático:** Analiza un JSON generado previamente (`-j`), útil para auditar sin reconectarse o con datos de Burp (`convert_headers.py`).
 
 -----
 
@@ -47,10 +50,10 @@ pip install -r requirements.txt
     python Cabeceras_Seguridad.py https://ejemplo.com
     ```
 
-2.  **Petición `POST` con cabeceras y cuerpo JSON:**
+2.  **Petición `POST` con cabeceras y cuerpo JSON (verbo con `-v`):**
 
     ```bash
-    python Cabeceras_Seguridad.py https://ejemplo.com POST -H "Content-Type: application/json" -b '{"key": "value"}'
+    python Cabeceras_Seguridad.py https://ejemplo.com -v POST -H "Content-Type: application/json" -b '{"key": "value"}'
     ```
 
     Para cuerpos de petición más complejos, puedes usar un archivo:
@@ -78,13 +81,21 @@ pip install -r requirements.txt
     ```
 
 > [\!NOTE]
-> La versión actual del script (v0.0.7) guarda automáticamente la URL de destino en el archivo JSON, lo que facilita los análisis futuros.
+> El script guarda automáticamente la URL de destino y su IP en el archivo JSON de salida, lo que facilita los análisis futuros y el modo estático (`-j`).
 
-Este es un proyecto funcional para las necesidades actuales de análisis, con potencial para futuras optimizaciones.
+--- 
+
+### Pruebas
+
+La herramienta incluye una suite de pruebas unitaria (unittest/pytest, offline):
+
+```bash
+python -m pytest tests -q
+```
 
 -----
 
-**Fecha de actualización:** 15 de julio de 2025.
+**Fecha de actualización:** 21 de octubre de 2026 (v1.4.3). Historial completo en `CHANGELOG.md`.
 
 ## ⚠️ Aviso Legal / Legal Notice
 
