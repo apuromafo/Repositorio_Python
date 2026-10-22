@@ -68,3 +68,10 @@ El script te preguntará si deseas guardar el resultado en un archivo o imprimir
 ### ⚠️ Advertencia de Seguridad
 
 El código generado por este script replica la funcionalidad de los comandos `curl` originales. Es responsabilidad del usuario asegurarse de que las peticiones se realizan a sistemas en los que tiene **autorización explícita** para hacerlo. El uso de este script para actividades no autorizadas es una violación de la ley.
+---
+
+## Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

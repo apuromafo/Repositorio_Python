@@ -70,3 +70,10 @@ ESTA HERRAMIENTA ES SOLO PARA FINES EDUCATIVOS Y DE AUDITORÍA DE SEGURIDAD INTE
 CRÍTICO: Nunca ejecutes este script o cualquier otra prueba de seguridad similar contra proyectos de Firebase que no te pertenezcan o para los cuales no tengas autorización explícita y por escrito de su propietario. La realización de pruebas no autorizadas puede considerarse un ataque y es ilegal.
 
 Se recomienda encarecidamente ejecutar estas pruebas solo en un entorno de desarrollo/staging o durante una ventana de auditoría autorizada por tu equipo de seguridad.
+---
+
+## Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

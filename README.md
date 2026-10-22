@@ -2,7 +2,7 @@
 
 **Soy pentester.** Este repositorio contiene scripts que uso en mi día a día para automatizar tareas, contrastar información, validar hallazgos y agilizar auditorías de seguridad. No todo es ofensivo — también hay utilidades personales, conversores, retos de programación y herramientas de productividad.
 
-Está organizado en **73 carpetas numeradas (001–073)**, cada una con su propio script, README y (cuando aplica) pruebas unitarias.
+Está organizado en **74 carpetas numeradas (001–074)**, cada una con su propio script, README y (cuando aplica) pruebas unitarias.
 
 ---
 
@@ -14,7 +14,7 @@ Está organizado en **73 carpetas numeradas (001–073)**, cada una con su propi
 
 ---
 
-## Índice Completo (001–071)
+## Índice Completo (001–074)
 
 | # | Carpeta | Descripción |
 |---|---------|-------------|
@@ -91,6 +91,7 @@ Está organizado en **73 carpetas numeradas (001–073)**, cada una con su propi
 | 071 | `DNS_CAA` | Auditoría de registros DNS CAA |
 | 072 | `quiz_builder` | Generador de exámenes interactivos HTML + CLI bilingüe con editor visual |
 | 073 | `Secretos_Scan` | Escáner unificado de secretos (Gitleaks + TruffleHog) con auto-instalación |
+| 074 | `visor_redaccion` | Visor de redacción/censura de evidencias PII (GUI + CLI), exporta copia censurada con marca de agua y hash SHA-256 |
 
 ---
 
@@ -133,6 +134,7 @@ Herramientas para pentesting, análisis de vulnerabilidades, hardening, OSINT, y
 | 070 | `URL link` | Acortador y validador de URLs |
 | 071 | `DNS_CAA` | Auditoría de registros DNS CAA |
 | 073 | `Secretos_Scan` | Escáner unificado de secretos (Gitleaks + TruffleHog) con auto-instalación |
+| 074 | `visor_redaccion` | Redacción/censura de evidencias PII (rostro, DNI, historia clínica) con cadena de custodia |
 
 ### 📱 Móvil
 Toolkit para auditoría de seguridad en aplicaciones Android/iOS: descompilación, análisis dinámico, bypass de SSL, extracción de JWTs, y automatización con Frida y ADB.
@@ -199,10 +201,10 @@ Scripts con fines de aprendizaje, ejercicios de programación, quizzes y herrami
 
 | Indicador | Estado |
 |-----------|--------|
-| README por script | ✅ 73/73 |
+| README por script | ✅ 74/74 |
 | Disclaimer legal en script | ✅ 173/173 archivos .py |
-| Disclaimer legal en README | ✅ 73/73 |
-| Tests unitarios | ✅ 069 (39 tests), 071 (46 tests), 072 (27 tests), 073 (22 tests), root (3 tests) |
+| Disclaimer legal en README | ✅ 74/74 |
+| Tests unitarios | ✅ 069 (39 tests), 071 (46 tests), 072 (27 tests), 073 (22 tests), 074 (29 tests), root (3 tests) |
 | Documentación en español | ✅ 100% |
 
 ---

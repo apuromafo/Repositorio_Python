@@ -58,3 +58,10 @@ Al ejecutarse, el script mostrará una pantalla de inicio, validará la conexió
 
 **Descargo de Responsabilidad**: Este script debe ser utilizado exclusivamente en entornos controlados y con la debida autorización.
  El uso indebido para causar denegación de servicio en sistemas de monitoreo puede tener consecuencias legales.
+---
+
+## Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.

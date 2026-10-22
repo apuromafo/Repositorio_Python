@@ -36,4 +36,10 @@ Asegúrese de tener todos los scripts modulares (`main.py`, `gen_auto.py`, etc.)
     ```
 2.  El script le solicitará la **cantidad** de registros por cada tipo (Personas, Empresas, Vehículos).
 3.  Finalmente, podrá seleccionar los formatos de exportación deseados (**JSON** y/o **CSV**) para guardar los resultados en la carpeta `output/`.
- 
+---
+
+## Aviso Legal / Legal Notice
+
+Esta herramienta es unicamente para fines educativos y de auditoria de seguridad autorizada. El uso no autorizado contra sistemas sin el consentimiento explicito del propietario es ilegal. El usuario asume toda responsabilidad por el uso indebido.
+
+This tool is for educational and authorized security auditing purposes only. Unauthorized use against systems without the owner's explicit consent is illegal. The user assumes all responsibility for misuse.
